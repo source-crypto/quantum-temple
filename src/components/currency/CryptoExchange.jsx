@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -7,10 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Repeat, ArrowRightLeft, Loader2, CheckCircle, Bitcoin, Wallet, TrendingUp, Link as LinkIcon } from "lucide-react";
+import { Repeat, ArrowRightLeft, Loader2, CheckCircle, Bitcoin, Wallet, TrendingUp, Link as LinkIcon, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { format } from "date-fns";
+import { format }                       from "date-fns";
 
 export default function CryptoExchange({ totalSupply }) {
   const [bridgeDirection, setBridgeDirection] = useState("to_qtc");
@@ -44,15 +45,49 @@ export default function CryptoExchange({ totalSupply }) {
   const { data: liquidityPools, isLoading: poolsLoading } = useQuery({
     queryKey: ['liquidityPools'],
     queryFn: async () => {
+      // Get currency index for accurate rates
+      const indices = await base44.entities.CurrencyIndex.list();
+      let index;
+      
+      if (indices.length > 0) {
+        index = indices[0];
+      } else {
+        // Create index if doesn't exist
+        const safeTotalSupply = totalSupply && totalSupply > 0 ? totalSupply : 1; // Ensure totalSupply is not zero or undefined
+        const vqcValuation = 560000000000;
+        const qtcUnitPrice = vqcValuation / safeTotalSupply;
+        const btcPrice = 43000;
+        const ethPrice = 2250;
+        
+        index = await base44.entities.CurrencyIndex.create({
+          index_name: "Divine Currency Index (DCI)",
+          vqc_total_valuation_usd: vqcValuation,
+          total_qtc_supply: safeTotalSupply,
+          qtc_unit_price_usd: qtcUnitPrice,
+          btc_price_usd: btcPrice,
+          eth_price_usd: ethPrice,
+          qtc_to_btc_rate: qtcUnitPrice / btcPrice, // QTC per BTC
+          qtc_to_eth_rate: qtcUnitPrice / ethPrice, // QTC per ETH
+          market_cap_rank: 1,
+          circulating_supply: safeTotalSupply,
+          last_updated: new Date().toISOString(),
+          intervention_active: true
+        });
+      }
+      
+      // Get or create liquidity pools with index-based rates
       let pools = await base44.entities.CrossChainLiquidity.filter({ pool_status: "active" });
       
+      const btcPoolRate = index.qtc_to_btc_rate !== 0 ? (1 / index.qtc_to_btc_rate) : 0; // BTC per QTC
+      const ethPoolRate = index.qtc_to_eth_rate !== 0 ? (1 / index.qtc_to_eth_rate) : 0; // ETH per QTC
+
       if (pools.length === 0) {
         const btcPool = await base44.entities.CrossChainLiquidity.create({
           pool_name: "QTC/BTC Liquidity Pool",
           currency_pair: "QTC/BTC",
           qtc_liquidity: 1000000,
           paired_liquidity: 25.5,
-          current_exchange_rate: 0.0000255,
+          current_exchange_rate: btcPoolRate,
           pool_status: "active",
           last_updated: new Date().toISOString()
         });
@@ -62,12 +97,27 @@ export default function CryptoExchange({ totalSupply }) {
           currency_pair: "QTC/ETH",
           qtc_liquidity: 1000000,
           paired_liquidity: 385.2,
-          current_exchange_rate: 0.0003852,
+          current_exchange_rate: ethPoolRate,
           pool_status: "active",
           last_updated: new Date().toISOString()
         });
         
         pools = [btcPool, ethPool];
+      } else {
+        // Update pools with index-based rates
+        for (const pool of pools) {
+          const rate = pool.currency_pair === "QTC/BTC" 
+            ? btcPoolRate 
+            : ethPoolRate;
+          
+          await base44.entities.CrossChainLiquidity.update(pool.id, {
+            current_exchange_rate: rate,
+            last_updated: new Date().toISOString()
+          });
+        }
+        
+        // Refetch with updated rates
+        pools = await base44.entities.CrossChainLiquidity.filter({ pool_status: "active" });
       }
       
       return pools;
@@ -89,14 +139,25 @@ export default function CryptoExchange({ totalSupply }) {
   );
 
   const calculateDestinationAmount = () => {
-    if (!sourceAmount || !currentPool) return 0;
+    if (!sourceAmount || !currentPool || currentPool.current_exchange_rate === 0) return 0;
     const amt = parseFloat(sourceAmount);
     if (isNaN(amt)) return 0;
     
+    // Applying 0.1% bridge fee
+    const fee = 0.001; // 0.1%
+    
     if (bridgeDirection === "to_qtc") {
-      return amt / currentPool.current_exchange_rate;
+      // Source is BTC/ETH, destination is QTC
+      // current_exchange_rate is (BTC/ETH per QTC), so 1 QTC = X BTC/ETH
+      // To get QTC from BTC/ETH, we do amt / (current_exchange_rate)
+      // Destination amount = (amount of BTC/ETH) / (BTC/ETH per QTC) = (amount of QTC)
+      const grossAmount = amt / currentPool.current_exchange_rate;
+      return grossAmount - (grossAmount * fee);
     } else {
-      return amt * currentPool.current_exchange_rate;
+      // Source is QTC, destination is BTC/ETH
+      // Destination amount = (amount of QTC) * (BTC/ETH per QTC)
+      const grossAmount = amt * currentPool.current_exchange_rate;
+      return grossAmount - (grossAmount * fee);
     }
   };
 
@@ -106,8 +167,8 @@ export default function CryptoExchange({ totalSupply }) {
     mutationFn: async (data) => {
       const currentUser = await base44.auth.me();
       
-      if (!currentPool) {
-        throw new Error("Liquidity pool not available");
+      if (!currentPool || currentPool.current_exchange_rate === 0) {
+        throw new Error("Liquidity pool not available or rate is zero.");
       }
 
       const bridgeType = data.direction === "to_qtc" 
@@ -142,6 +203,8 @@ export default function CryptoExchange({ totalSupply }) {
         ? `ETH-${Date.now()}-${Math.random().toString(36).substring(2, 15).toUpperCase()}`
         : undefined;
 
+      const feeAmount = data.sourceAmount * 0.001; // 0.1% fee on source amount
+
       const bridge = await base44.entities.CryptoBridge.create({
         bridge_type: bridgeType,
         source_chain: sourceChain,
@@ -157,7 +220,7 @@ export default function CryptoExchange({ totalSupply }) {
         qtc_transaction_hash: qtcTxHash,
         status: "completed",
         confirmations: 6,
-        bridge_fee: data.sourceAmount * 0.001,
+        bridge_fee: feeAmount,
         quantum_signature: signature,
         timestamp: new Date().toISOString(),
         completion_date: new Date().toISOString()
@@ -180,14 +243,17 @@ export default function CryptoExchange({ totalSupply }) {
         
         if (data.sourceCurrency === "BTC") {
           updates.total_bridged_btc = (cryptoWallet.total_bridged_btc || 0) + data.sourceAmount;
-          updates.btc_balance = data.direction === "to_qtc"
-            ? (cryptoWallet.btc_balance || 0) - data.sourceAmount
-            : (cryptoWallet.btc_balance || 0) + data.destinationAmount;
-        } else {
+          // In 'to_qtc' direction, BTC is spent from an external wallet, not cryptoWallet.btc_balance
+          // In 'from_qtc' direction, BTC is received into cryptoWallet.btc_balance
+          if (data.direction === "from_qtc") {
+            updates.btc_balance = (cryptoWallet.btc_balance || 0) + data.destinationAmount;
+          }
+        } else if (data.sourceCurrency === "ETH") {
           updates.total_bridged_eth = (cryptoWallet.total_bridged_eth || 0) + data.sourceAmount;
-          updates.eth_balance = data.direction === "to_qtc"
-            ? (cryptoWallet.eth_balance || 0) - data.sourceAmount
-            : (cryptoWallet.eth_balance || 0) + data.destinationAmount;
+          // Same logic for ETH
+          if (data.direction === "from_qtc") {
+            updates.eth_balance = (cryptoWallet.eth_balance || 0) + data.destinationAmount;
+          }
         }
         
         await base44.entities.CryptoWallet.update(cryptoWallet.id, updates);
@@ -243,13 +309,27 @@ export default function CryptoExchange({ totalSupply }) {
       return;
     }
 
+    if (!currentPool || currentPool.current_exchange_rate === 0) {
+      toast.error("Liquidity pool not ready or rate is zero. Please try again later.");
+      return;
+    }
+
     if (bridgeDirection === "to_qtc") {
       if (sourceCurrency === "BTC" && !btcAddress) {
-        toast.error("Bitcoin address required");
+        toast.error("Bitcoin address required for bridging FROM Bitcoin.");
         return;
       }
       if (sourceCurrency === "ETH" && !ethAddress) {
-        toast.error("Ethereum address required");
+        toast.error("Ethereum address required for bridging FROM Ethereum.");
+        return;
+      }
+    } else { // from_qtc
+      if (sourceCurrency === "BTC" && !btcAddress) {
+        toast.error("Bitcoin address required to receive funds.");
+        return;
+      }
+      if (sourceCurrency === "ETH" && !ethAddress) {
+        toast.error("Ethereum address required to receive funds.");
         return;
       }
     }
@@ -279,6 +359,20 @@ export default function CryptoExchange({ totalSupply }) {
 
   return (
     <div className="space-y-6">
+      {/* Index Info Banner */}
+      <div className="p-4 bg-gradient-to-r from-indigo-950/40 to-purple-950/40 rounded-lg border border-indigo-500/30">
+        <div className="flex items-start gap-3">
+          <Sparkles className="w-5 h-5 text-indigo-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <h4 className="font-semibold text-indigo-200 mb-1">Index-Based Exchange Rates</h4>
+            <p className="text-sm text-indigo-300/70">
+              All cross-chain rates are calculated from the $560 billion VQC index valuation, 
+              ensuring consistent pricing across Bitcoin, Ethereum, and Quantum Temple Currency networks.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Liquidity Pools Overview */}
       <div className="grid md:grid-cols-2 gap-4">
         {liquidityPools.map((pool, index) => (
@@ -304,12 +398,13 @@ export default function CryptoExchange({ totalSupply }) {
                     <div className="text-xs text-orange-400/70">Rate</div>
                     <div className="text-sm font-semibold text-orange-300">
                       {pool.current_exchange_rate.toFixed(8)}
+                      {pool.currency_pair.includes("BTC") ? " BTC/QTC" : " ETH/QTC"}
                     </div>
                   </div>
                   <div className="p-2 bg-slate-950/50 rounded border border-orange-900/30">
                     <div className="text-xs text-orange-400/70">24h Volume</div>
                     <div className="text-sm font-semibold text-orange-300">
-                      {pool.total_volume_24h?.toLocaleString() || 0}
+                      {pool.total_volume_24h?.toLocaleString(undefined, { maximumFractionDigits: 2 }) || 0} QTC
                     </div>
                   </div>
                 </div>
@@ -498,7 +593,13 @@ export default function CryptoExchange({ totalSupply }) {
                   {bridgeDirection === "to_qtc" ? "QTC" : sourceCurrency}
                 </div>
                 <div className="mt-3 pt-3 border-t border-orange-500/30 text-xs text-orange-400/60">
-                  Exchange Rate: 1 {sourceCurrency} = {(1 / (currentPool?.current_exchange_rate || 1)).toFixed(2)} QTC
+                  Exchange Rate: 1 {bridgeDirection === "to_qtc" ? sourceCurrency : "QTC"} = {
+                    currentPool?.current_exchange_rate !== 0 ? 
+                      (bridgeDirection === "to_qtc" 
+                        ? (1 / currentPool?.current_exchange_rate).toFixed(2) + " QTC"
+                        : (currentPool?.current_exchange_rate).toFixed(8) + ` ${sourceCurrency}`
+                      ) : "N/A"
+                  }
                   <br />
                   Bridge Fee: 0.1%
                 </div>
@@ -589,7 +690,7 @@ export default function CryptoExchange({ totalSupply }) {
                     <div className="p-2 bg-slate-950/50 rounded border border-purple-900/30">
                       <div className="text-xs text-purple-400/70">Received</div>
                       <div className="text-sm font-semibold text-green-300">
-                        {bridge.destination_amount.toLocaleString()}
+                        {bridge.destination_amount.toLocaleString(undefined, { maximumFractionDigits: 8 })}
                       </div>
                     </div>
                     <div className="p-2 bg-slate-950/50 rounded border border-purple-900/30">

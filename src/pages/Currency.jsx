@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
@@ -15,9 +16,10 @@ import SpiritualExchange from "../components/currency/SpiritualExchange";
 import CurrencyTransfer from "../components/currency/CurrencyTransfer";
 import GlobalMarketplace from "../components/currency/GlobalMarketplace";
 import CryptoExchange from "../components/currency/CryptoExchange";
+import CurrencyIndex from "../components/currency/CurrencyIndex";
 
 export default function Currency() {
-  const [activeTab, setActiveTab] = useState("mint");
+  const [activeTab, setActiveTab] = useState("index");
 
   const { data: mints, isLoading } = useQuery({
     queryKey: ['currencyMints'],
@@ -29,6 +31,7 @@ export default function Currency() {
   const totalMints = mints.length;
 
   const tabs = [
+    { id: "index", label: "Index", icon: Sparkles, color: "from-indigo-600 to-purple-600" },
     { id: "mint", label: "Mint", icon: Coins, color: "from-amber-600 to-orange-600" },
     { id: "ledger", label: "Ledger", icon: Sparkles, color: "from-purple-600 to-indigo-600" },
     { id: "transfer", label: "Transfer", icon: ArrowLeftRight, color: "from-cyan-600 to-blue-600" },
@@ -57,12 +60,16 @@ export default function Currency() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-200 via-orange-200 to-amber-300 bg-clip-text text-transparent">
                 Divine Currency
               </h1>
-              <p className="text-purple-400/70">Global tradeable asset • Cross-chain bridges • Unlimited minting</p>
+              <p className="text-purple-400/70">$560B valuation • Cross-chain bridges • Unlimited minting</p>
             </div>
           </div>
 
           {/* Feature Badges */}
           <div className="flex flex-wrap gap-3">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-900/30 to-purple-900/30 rounded-full border border-indigo-500/30">
+              <Sparkles className="w-4 h-4 text-indigo-400" />
+              <span className="text-sm font-semibold text-indigo-300">$560B VQC Index</span>
+            </div>
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-900/30 to-orange-900/30 rounded-full border border-amber-500/30">
               <Infinity className="w-4 h-4 text-amber-400" />
               <span className="text-sm font-semibold text-amber-300">Unlimited Minting</span>
@@ -116,6 +123,17 @@ export default function Currency() {
 
         {/* Tab Content */}
         <AnimatePresence mode="wait">
+          {activeTab === "index" && (
+            <motion.div
+              key="index"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <CurrencyIndex />
+            </motion.div>
+          )}
+
           {activeTab === "mint" && (
             <motion.div
               key="mint"
