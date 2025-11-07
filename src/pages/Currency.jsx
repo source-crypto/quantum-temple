@@ -1,20 +1,17 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Coins, Sparkles, CheckCircle, Infinity, Search } from "lucide-react";
+import { Coins, Sparkles, Infinity, Search, Flame, Star, Gem } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "sonner";
 
 import CurrencyMinter from "../components/currency/CurrencyMinter";
 import CurrencyLedger from "../components/currency/CurrencyLedger";
 import CurrencyVerifier from "../components/currency/CurrencyVerifier";
 import CurrencyStats from "../components/currency/CurrencyStats";
+import TempleOffering from "../components/currency/TempleOffering";
+import DivineFavorStaking from "../components/currency/DivineFavorStaking";
+import SpiritualExchange from "../components/currency/SpiritualExchange";
 
 export default function Currency() {
   const [activeTab, setActiveTab] = useState("mint");
@@ -27,6 +24,15 @@ export default function Currency() {
 
   const totalSupply = mints.reduce((sum, mint) => sum + (mint.amount || 0), 0);
   const totalMints = mints.length;
+
+  const tabs = [
+    { id: "mint", label: "Mint Currency", icon: Coins, color: "from-amber-600 to-orange-600" },
+    { id: "ledger", label: "Ledger", icon: Sparkles, color: "from-purple-600 to-indigo-600" },
+    { id: "verify", label: "Verify", icon: Search, color: "from-blue-600 to-cyan-600" },
+    { id: "offerings", label: "Offerings", icon: Flame, color: "from-rose-600 to-pink-600" },
+    { id: "staking", label: "Divine Favor", icon: Star, color: "from-violet-600 to-purple-600" },
+    { id: "exchange", label: "Spiritual Exchange", icon: Gem, color: "from-emerald-600 to-teal-600" },
+  ];
 
   return (
     <div className="min-h-screen p-6 md:p-12">
@@ -45,7 +51,7 @@ export default function Currency() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-200 via-orange-200 to-amber-300 bg-clip-text text-transparent">
                 Divine Currency
               </h1>
-              <p className="text-purple-400/70">Unlimited minting by quantum authentication</p>
+              <p className="text-purple-400/70">Unlimited minting with spiritual utility</p>
             </div>
           </div>
 
@@ -71,40 +77,21 @@ export default function Currency() {
           transition={{ delay: 0.2 }}
           className="mb-6"
         >
-          <div className="flex gap-2 bg-slate-900/60 p-2 rounded-xl border border-purple-900/30">
-            <Button
-              variant={activeTab === "mint" ? "default" : "ghost"}
-              onClick={() => setActiveTab("mint")}
-              className={activeTab === "mint" 
-                ? "bg-gradient-to-r from-amber-600 to-orange-600 text-white"
-                : "text-purple-300 hover:text-purple-200 hover:bg-purple-900/30"
-              }
-            >
-              <Coins className="w-4 h-4 mr-2" />
-              Mint Currency
-            </Button>
-            <Button
-              variant={activeTab === "ledger" ? "default" : "ghost"}
-              onClick={() => setActiveTab("ledger")}
-              className={activeTab === "ledger" 
-                ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
-                : "text-purple-300 hover:text-purple-200 hover:bg-purple-900/30"
-              }
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              View Ledger
-            </Button>
-            <Button
-              variant={activeTab === "verify" ? "default" : "ghost"}
-              onClick={() => setActiveTab("verify")}
-              className={activeTab === "verify" 
-                ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white"
-                : "text-purple-300 hover:text-purple-200 hover:bg-purple-900/30"
-              }
-            >
-              <Search className="w-4 h-4 mr-2" />
-              Verify Currency
-            </Button>
+          <div className="flex gap-2 bg-slate-900/60 p-2 rounded-xl border border-purple-900/30 overflow-x-auto">
+            {tabs.map(tab => (
+              <Button
+                key={tab.id}
+                variant={activeTab === tab.id ? "default" : "ghost"}
+                onClick={() => setActiveTab(tab.id)}
+                className={`whitespace-nowrap ${activeTab === tab.id 
+                  ? `bg-gradient-to-r ${tab.color} text-white`
+                  : "text-purple-300 hover:text-purple-200 hover:bg-purple-900/30"
+                }`}
+              >
+                <tab.icon className="w-4 h-4 mr-2" />
+                {tab.label}
+              </Button>
+            ))}
           </div>
         </motion.div>
 
@@ -140,6 +127,39 @@ export default function Currency() {
               exit={{ opacity: 0, x: 20 }}
             >
               <CurrencyVerifier mints={mints} />
+            </motion.div>
+          )}
+
+          {activeTab === "offerings" && (
+            <motion.div
+              key="offerings"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <TempleOffering totalSupply={totalSupply} />
+            </motion.div>
+          )}
+
+          {activeTab === "staking" && (
+            <motion.div
+              key="staking"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <DivineFavorStaking totalSupply={totalSupply} />
+            </motion.div>
+          )}
+
+          {activeTab === "exchange" && (
+            <motion.div
+              key="exchange"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <SpiritualExchange totalSupply={totalSupply} />
             </motion.div>
           )}
         </AnimatePresence>
