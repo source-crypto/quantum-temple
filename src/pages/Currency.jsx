@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Coins, Sparkles, Infinity, Search, Flame, Star, Gem } from "lucide-react";
+import { Coins, Sparkles, Infinity, Search, Flame, Star, Gem, ArrowLeftRight, Store } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import CurrencyMinter from "../components/currency/CurrencyMinter";
@@ -12,6 +12,8 @@ import CurrencyStats from "../components/currency/CurrencyStats";
 import TempleOffering from "../components/currency/TempleOffering";
 import DivineFavorStaking from "../components/currency/DivineFavorStaking";
 import SpiritualExchange from "../components/currency/SpiritualExchange";
+import CurrencyTransfer from "../components/currency/CurrencyTransfer";
+import GlobalMarketplace from "../components/currency/GlobalMarketplace";
 
 export default function Currency() {
   const [activeTab, setActiveTab] = useState("mint");
@@ -26,12 +28,14 @@ export default function Currency() {
   const totalMints = mints.length;
 
   const tabs = [
-    { id: "mint", label: "Mint Currency", icon: Coins, color: "from-amber-600 to-orange-600" },
+    { id: "mint", label: "Mint", icon: Coins, color: "from-amber-600 to-orange-600" },
     { id: "ledger", label: "Ledger", icon: Sparkles, color: "from-purple-600 to-indigo-600" },
+    { id: "transfer", label: "Transfer", icon: ArrowLeftRight, color: "from-cyan-600 to-blue-600" },
+    { id: "marketplace", label: "Marketplace", icon: Store, color: "from-green-600 to-emerald-600" },
     { id: "verify", label: "Verify", icon: Search, color: "from-blue-600 to-cyan-600" },
     { id: "offerings", label: "Offerings", icon: Flame, color: "from-rose-600 to-pink-600" },
-    { id: "staking", label: "Divine Favor", icon: Star, color: "from-violet-600 to-purple-600" },
-    { id: "exchange", label: "Spiritual Exchange", icon: Gem, color: "from-emerald-600 to-teal-600" },
+    { id: "staking", label: "Staking", icon: Star, color: "from-violet-600 to-purple-600" },
+    { id: "exchange", label: "Spiritual", icon: Gem, color: "from-emerald-600 to-teal-600" },
   ];
 
   return (
@@ -51,15 +55,24 @@ export default function Currency() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-200 via-orange-200 to-amber-300 bg-clip-text text-transparent">
                 Divine Currency
               </h1>
-              <p className="text-purple-400/70">Unlimited minting with spiritual utility</p>
+              <p className="text-purple-400/70">Global tradeable asset • Unlimited minting • Peer-to-peer transfers</p>
             </div>
           </div>
 
           {/* Unlimited Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-900/30 to-orange-900/30 rounded-full border border-amber-500/30">
-            <Infinity className="w-4 h-4 text-amber-400" />
-            <span className="text-sm font-semibold text-amber-300">Unlimited Minting Enabled</span>
-            <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
+          <div className="flex flex-wrap gap-3">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-900/30 to-orange-900/30 rounded-full border border-amber-500/30">
+              <Infinity className="w-4 h-4 text-amber-400" />
+              <span className="text-sm font-semibold text-amber-300">Unlimited Minting</span>
+            </div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-900/30 to-emerald-900/30 rounded-full border border-green-500/30">
+              <Store className="w-4 h-4 text-green-400" />
+              <span className="text-sm font-semibold text-green-300">Global Trading Enabled</span>
+            </div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-900/30 to-blue-900/30 rounded-full border border-cyan-500/30">
+              <ArrowLeftRight className="w-4 h-4 text-cyan-400" />
+              <span className="text-sm font-semibold text-cyan-300">P2P Transfers</span>
+            </div>
           </div>
         </motion.div>
 
@@ -116,6 +129,28 @@ export default function Currency() {
               exit={{ opacity: 0, x: 20 }}
             >
               <CurrencyLedger mints={mints} isLoading={isLoading} />
+            </motion.div>
+          )}
+
+          {activeTab === "transfer" && (
+            <motion.div
+              key="transfer"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <CurrencyTransfer totalSupply={totalSupply} />
+            </motion.div>
+          )}
+
+          {activeTab === "marketplace" && (
+            <motion.div
+              key="marketplace"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <GlobalMarketplace totalSupply={totalSupply} />
             </motion.div>
           )}
 
