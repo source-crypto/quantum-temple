@@ -1,11 +1,19 @@
 import Home from './pages/Home';
 import Currency from './pages/Currency';
+import Interactions from './pages/Interactions';
+import Ceremonial from './pages/Ceremonial';
+import Attestation from './pages/Attestation';
+import Registry from './pages/Registry';
 import Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Home": Home,
     "Currency": Currency,
+    "Interactions": Interactions,
+    "Ceremonial": Ceremonial,
+    "Attestation": Attestation,
+    "Registry": Registry,
 }
 
 export const pagesConfig = {
