@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Coins, Sparkles, Infinity, Search, Flame, Star, Gem, ArrowLeftRight, Store } from "lucide-react";
+import { Coins, Sparkles, Infinity, Search, Flame, Star, Gem, ArrowLeftRight, Store, Repeat } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import CurrencyMinter from "../components/currency/CurrencyMinter";
@@ -14,6 +14,7 @@ import DivineFavorStaking from "../components/currency/DivineFavorStaking";
 import SpiritualExchange from "../components/currency/SpiritualExchange";
 import CurrencyTransfer from "../components/currency/CurrencyTransfer";
 import GlobalMarketplace from "../components/currency/GlobalMarketplace";
+import CryptoExchange from "../components/currency/CryptoExchange";
 
 export default function Currency() {
   const [activeTab, setActiveTab] = useState("mint");
@@ -32,6 +33,7 @@ export default function Currency() {
     { id: "ledger", label: "Ledger", icon: Sparkles, color: "from-purple-600 to-indigo-600" },
     { id: "transfer", label: "Transfer", icon: ArrowLeftRight, color: "from-cyan-600 to-blue-600" },
     { id: "marketplace", label: "Marketplace", icon: Store, color: "from-green-600 to-emerald-600" },
+    { id: "crypto", label: "Crypto Bridge", icon: Repeat, color: "from-orange-600 to-amber-600" },
     { id: "verify", label: "Verify", icon: Search, color: "from-blue-600 to-cyan-600" },
     { id: "offerings", label: "Offerings", icon: Flame, color: "from-rose-600 to-pink-600" },
     { id: "staking", label: "Staking", icon: Star, color: "from-violet-600 to-purple-600" },
@@ -55,11 +57,11 @@ export default function Currency() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-200 via-orange-200 to-amber-300 bg-clip-text text-transparent">
                 Divine Currency
               </h1>
-              <p className="text-purple-400/70">Global tradeable asset • Unlimited minting • Peer-to-peer transfers</p>
+              <p className="text-purple-400/70">Global tradeable asset • Cross-chain bridges • Unlimited minting</p>
             </div>
           </div>
 
-          {/* Unlimited Badge */}
+          {/* Feature Badges */}
           <div className="flex flex-wrap gap-3">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-900/30 to-orange-900/30 rounded-full border border-amber-500/30">
               <Infinity className="w-4 h-4 text-amber-400" />
@@ -67,11 +69,15 @@ export default function Currency() {
             </div>
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-900/30 to-emerald-900/30 rounded-full border border-green-500/30">
               <Store className="w-4 h-4 text-green-400" />
-              <span className="text-sm font-semibold text-green-300">Global Trading Enabled</span>
+              <span className="text-sm font-semibold text-green-300">Global Trading</span>
             </div>
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-900/30 to-blue-900/30 rounded-full border border-cyan-500/30">
               <ArrowLeftRight className="w-4 h-4 text-cyan-400" />
               <span className="text-sm font-semibold text-cyan-300">P2P Transfers</span>
+            </div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-900/30 to-amber-900/30 rounded-full border border-orange-500/30">
+              <Repeat className="w-4 h-4 text-orange-400" />
+              <span className="text-sm font-semibold text-orange-300">BTC/ETH Bridge</span>
             </div>
           </div>
         </motion.div>
@@ -151,6 +157,17 @@ export default function Currency() {
               exit={{ opacity: 0, x: 20 }}
             >
               <GlobalMarketplace totalSupply={totalSupply} />
+            </motion.div>
+          )}
+
+          {activeTab === "crypto" && (
+            <motion.div
+              key="crypto"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <CryptoExchange totalSupply={totalSupply} />
             </motion.div>
           )}
 
