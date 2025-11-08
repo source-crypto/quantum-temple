@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -10,7 +11,9 @@ import {
   MessageCircle, 
   Zap,
   Hexagon,
-  ArrowRight
+  ArrowRight,
+  Landmark, // Added Landmark icon
+  Repeat    // Added Repeat icon
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -38,6 +41,20 @@ export default function Home() {
       description: "Unlimited minting with quantum authentication",
       link: createPageUrl("Currency"),
       color: "from-amber-500 to-orange-500"
+    },
+    {
+      icon: Landmark, // New feature icon
+      title: "Governance", // New feature title
+      description: "Decentralized voting and treasury management", // New feature description
+      link: createPageUrl("Governance"), // New feature link
+      color: "from-indigo-500 to-purple-500" // New feature color
+    },
+    {
+      icon: Repeat, // New feature icon
+      title: "Decentralized Exchange", // New feature title
+      description: "Swap tokens and provide liquidity", // New feature description
+      link: createPageUrl("DEX"), // New feature link
+      color: "from-cyan-500 to-teal-500" // New feature color
     },
     {
       icon: MessageCircle,

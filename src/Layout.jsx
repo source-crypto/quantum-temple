@@ -9,7 +9,8 @@ import {
   Coins, 
   MessageCircle, 
   Database,
-  Hexagon
+  Hexagon,
+  Settings
 } from "lucide-react";
 import {
   Sidebar,
@@ -66,6 +67,11 @@ const navigationItems = [
     title: "Registry",
     url: createPageUrl("Registry"),
     icon: Database,
+  },
+  {
+    title: "Settings",
+    url: createPageUrl("Settings"),
+    icon: Settings,
   },
 ];
 

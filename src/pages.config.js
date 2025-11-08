@@ -6,6 +6,7 @@ import Attestation from './pages/Attestation';
 import Registry from './pages/Registry';
 import Governance from './pages/Governance';
 import DEX from './pages/DEX';
+import Settings from './pages/Settings';
 import Layout from './Layout.jsx';
 
 
@@ -18,6 +19,7 @@ export const PAGES = {
     "Registry": Registry,
     "Governance": Governance,
     "DEX": DEX,
+    "Settings": Settings,
 }
 
 export const pagesConfig = {
