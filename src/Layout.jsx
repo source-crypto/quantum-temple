@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -45,6 +46,16 @@ const navigationItems = [
     title: "Divine Currency",
     url: createPageUrl("Currency"),
     icon: Coins,
+  },
+  {
+    title: "Governance",
+    url: createPageUrl("Governance"),
+    icon: Database,
+  },
+  {
+    title: "DEX",
+    url: createPageUrl("DEX"),
+    icon: Hexagon,
   },
   {
     title: "Interactions",
