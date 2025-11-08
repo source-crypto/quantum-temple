@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -11,6 +12,7 @@ import { Store, TrendingUp, Loader2, DollarSign, ShoppingCart, Globe, Zap } from
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import MarketInsights from "./MarketInsights";
 
 export default function GlobalMarketplace({ totalSupply }) {
   const [offerType, setOfferType] = useState("sell");
@@ -185,6 +187,9 @@ export default function GlobalMarketplace({ totalSupply }) {
 
   return (
     <div className="space-y-6">
+      {/* AI Market Insights */}
+      <MarketInsights currencyPair="QTC/USD" />
+
       {/* Market Stats */}
       <div className="grid md:grid-cols-4 gap-4">
         <Card className="bg-slate-900/60 border-purple-900/30">
@@ -262,9 +267,9 @@ export default function GlobalMarketplace({ totalSupply }) {
                     <type.icon className={`w-5 h-5 mx-auto mb-2 ${
                       offerType === type.id ? 'text-green-200' : 'text-purple-400/70'
                     }`} />
-                    <div className={`text-sm font-medium ${
+                    <div className="text-sm font-medium ${
                       offerType === type.id ? 'text-green-100' : 'text-purple-300/70'
-                    }`}>
+                    }">
                       {type.label}
                     </div>
                   </button>
