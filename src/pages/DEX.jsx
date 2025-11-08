@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tantml:react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Repeat, Droplets, TrendingUp, BarChart3 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
