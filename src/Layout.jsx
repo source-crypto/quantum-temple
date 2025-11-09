@@ -59,6 +59,11 @@ const navigationItems = [
     icon: Hexagon,
   },
   {
+    title: "Security",
+    url: createPageUrl("Security"),
+    icon: Shield,
+  },
+  {
     title: "Interactions",
     url: createPageUrl("Interactions"),
     icon: MessageCircle,
