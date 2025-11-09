@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -5,10 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { 
-  Zap, 
-  Activity, 
-  Thermometer, 
+import {
+  Zap,
+  Activity,
+  Thermometer,
   Clock,
   AlertTriangle,
   CheckCircle,
@@ -16,15 +17,17 @@ import {
   TrendingUp,
   RefreshCw,
   Loader2,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, addDays } from "date-fns";
 import { toast } from "sonner";
+import QuantumNode3D from "./QuantumNode3D";
 
 export default function QuantumNodeMonitor() {
   const [analyzingNode, setAnalyzingNode] = useState(null);
   const [optimizingAll, setOptimizingAll] = useState(false);
+  const [view3D, setView3D] = useState(true);
   const queryClient = useQueryClient();
 
   // Fetch quantum nodes
@@ -32,7 +35,7 @@ export default function QuantumNodeMonitor() {
     queryKey: ['quantumNodes'],
     queryFn: async () => {
       const nodes = await base44.entities.QuantumNode.list();
-      
+
       // Create default nodes if none exist
       if (nodes.length === 0) {
         const defaultNodes = [
@@ -100,7 +103,7 @@ export default function QuantumNodeMonitor() {
 
         return await base44.entities.QuantumNode.list();
       }
-      
+
       return nodes;
     },
     initialData: [],
@@ -111,7 +114,7 @@ export default function QuantumNodeMonitor() {
   const analyzeNodeMutation = useMutation({
     mutationFn: async (node) => {
       setAnalyzingNode(node.node_id);
-      
+
       // Use AI to analyze node state and provide recommendations
       const analysisPrompt = `You are an expert quantum computing engineer analyzing a quantum node's health and performance.
 
@@ -211,10 +214,10 @@ Respond in JSON format:
   };
 
   // Calculate network-wide metrics
-  const avgEntanglement = quantumNodes.length > 0 
+  const avgEntanglement = quantumNodes.length > 0
     ? (quantumNodes.reduce((sum, n) => sum + n.entanglement_strength, 0) / quantumNodes.length * 100).toFixed(1)
     : 0;
-  
+
   const avgCoherence = quantumNodes.length > 0
     ? (quantumNodes.reduce((sum, n) => sum + n.coherence_level, 0) / quantumNodes.length * 100).toFixed(1)
     : 0;
@@ -255,23 +258,32 @@ Respond in JSON format:
                 <p className="text-purple-300/70">AI-powered predictive maintenance & optimization</p>
               </div>
             </div>
-            <Button
-              onClick={optimizeAllNodes}
-              disabled={optimizingAll || quantumNodes.length === 0}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500"
-            >
-              {optimizingAll ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Optimizing All...
-                </>
-              ) : (
-                <>
-                  <Brain className="w-4 h-4 mr-2" />
-                  AI Optimize All
-                </>
-              )}
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => setView3D(!view3D)}
+                variant="outline"
+                className="border-purple-500/30 text-purple-300 hover:bg-purple-900/30"
+              >
+                {view3D ? "Show Grid" : "Show 3D"}
+              </Button>
+              <Button
+                onClick={optimizeAllNodes}
+                disabled={optimizingAll || quantumNodes.length === 0}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500"
+              >
+                {optimizingAll ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Optimizing All...
+                  </>
+                ) : (
+                  <>
+                    <Brain className="w-4 h-4 mr-2" />
+                    AI Optimize All
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-4 gap-4">
@@ -329,202 +341,224 @@ Respond in JSON format:
         </CardContent>
       </Card>
 
-      {/* Quantum Nodes */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <AnimatePresence>
-          {quantumNodes.map((node, index) => (
-            <motion.div
-              key={node.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className="bg-slate-900/60 border-purple-900/40 hover:border-purple-500/60 transition-all h-full">
-                <CardHeader className="border-b border-purple-900/30">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                        <Zap className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-purple-100 text-base mb-1">{node.node_id}</CardTitle>
-                        <Badge variant="outline" className="border-purple-500/30 text-purple-300 text-xs capitalize">
-                          {node.node_type.replace(/_/g, ' ')}
-                        </Badge>
-                      </div>
-                    </div>
-                    <Badge className={priorityColors[node.maintenance_priority]}>
-                      {node.maintenance_priority}
-                    </Badge>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="p-6 space-y-4">
-                  {/* Quantum State Visualization */}
-                  <div className="p-4 bg-slate-950/50 rounded-lg border border-purple-900/30">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-semibold text-purple-300">Quantum State</span>
-                      <span className={`text-sm font-bold ${stateColors[node.quantum_state]} capitalize`}>
-                        {node.quantum_state}
-                      </span>
-                    </div>
-                    
-                    {/* Visual quantum state representation */}
-                    <div className="relative h-24 bg-gradient-to-r from-purple-950/50 to-indigo-950/50 rounded border border-purple-500/20 overflow-hidden">
-                      <motion.div
-                        animate={{
-                          x: node.quantum_state === "superposition" ? [-10, 10, -10] : 0,
-                          opacity: node.coherence_level
-                        }}
-                        transition={{
-                          x: { repeat: Infinity, duration: 2 },
-                          opacity: { duration: 0.5 }
-                        }}
-                        className="absolute inset-0 flex items-center justify-center"
-                      >
-                        <div className="relative">
-                          <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                            className="w-16 h-16 border-4 border-purple-400/30 rounded-full"
-                          />
-                          <motion.div
-                            animate={{ scale: [1, 1.2, 1] }}
-                            transition={{ repeat: Infinity, duration: 2 }}
-                            className={`absolute inset-0 m-auto w-8 h-8 rounded-full bg-gradient-to-br ${
-                              node.quantum_state === "entangled" ? "from-cyan-400 to-blue-600" :
-                              node.quantum_state === "superposition" ? "from-purple-400 to-pink-600" :
-                              node.quantum_state === "stabilizing" ? "from-yellow-400 to-orange-600" :
-                              "from-red-400 to-rose-600"
-                            }`}
-                          />
+      {/* 3D Visualization or Grid View */}
+      {view3D ? (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <Card className="bg-slate-900/60 border-purple-900/40 overflow-hidden">
+            <CardHeader className="border-b border-purple-900/30">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-purple-200">3D Quantum Network Visualization</CardTitle>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+                  <span className="text-xs text-amber-300">Divine Authority Active</span>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <QuantumNode3D nodes={quantumNodes} />
+            </CardContent>
+          </Card>
+        </motion.div>
+      ) : (
+        <div className="grid md:grid-cols-2 gap-6">
+          <AnimatePresence>
+            {quantumNodes.map((node, index) => (
+              <motion.div
+                key={node.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="bg-slate-900/60 border-purple-900/40 hover:border-purple-500/60 transition-all h-full">
+                  <CardHeader className="border-b border-purple-900/30">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                          <Zap className="w-5 h-5 text-white" />
                         </div>
-                      </motion.div>
-                      <div className="absolute bottom-2 right-2 text-xs text-purple-400/50">
-                        Spin: {node.spin_state}
+                        <div>
+                          <CardTitle className="text-purple-100 text-base mb-1">{node.node_id}</CardTitle>
+                          <Badge variant="outline" className="border-purple-500/30 text-purple-300 text-xs capitalize">
+                            {node.node_type.replace(/_/g, ' ')}
+                          </Badge>
+                        </div>
                       </div>
+                      <Badge className={priorityColors[node.maintenance_priority]}>
+                        {node.maintenance_priority}
+                      </Badge>
                     </div>
-                  </div>
+                  </CardHeader>
 
-                  {/* Metrics */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-purple-400/70">Entanglement</span>
-                        <span className="text-cyan-300 font-semibold">
-                          {(node.entanglement_strength * 100).toFixed(1)}%
+                  <CardContent className="p-6 space-y-4">
+                    {/* Quantum State Visualization */}
+                    <div className="p-4 bg-slate-950/50 rounded-lg border border-purple-900/30">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-semibold text-purple-300">Quantum State</span>
+                        <span className={`text-sm font-bold ${stateColors[node.quantum_state]} capitalize`}>
+                          {node.quantum_state}
                         </span>
                       </div>
-                      <Progress value={node.entanglement_strength * 100} className="h-1" />
-                    </div>
 
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-purple-400/70">Coherence</span>
-                        <span className="text-purple-300 font-semibold">
-                          {(node.coherence_level * 100).toFixed(1)}%
-                        </span>
+                      {/* Visual quantum state representation */}
+                      <div className="relative h-24 bg-gradient-to-r from-purple-950/50 to-indigo-950/50 rounded border border-purple-500/20 overflow-hidden">
+                        <motion.div
+                          animate={{
+                            x: node.quantum_state === "superposition" ? [-10, 10, -10] : 0,
+                            opacity: node.coherence_level
+                          }}
+                          transition={{
+                            x: { repeat: Infinity, duration: 2 },
+                            opacity: { duration: 0.5 }
+                          }}
+                          className="absolute inset-0 flex items-center justify-center"
+                        >
+                          <div className="relative">
+                            <motion.div
+                              animate={{ rotate: 360 }}
+                              transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                              className="w-16 h-16 border-4 border-purple-400/30 rounded-full"
+                            />
+                            <motion.div
+                              animate={{ scale: [1, 1.2, 1] }}
+                              transition={{ repeat: Infinity, duration: 2 }}
+                              className={`absolute inset-0 m-auto w-8 h-8 rounded-full bg-gradient-to-br ${
+                                node.quantum_state === "entangled" ? "from-cyan-400 to-blue-600" :
+                                node.quantum_state === "superposition" ? "from-purple-400 to-pink-600" :
+                                node.quantum_state === "stabilizing" ? "from-yellow-400 to-orange-600" :
+                                "from-red-400 to-rose-600"
+                              }`}
+                            />
+                          </div>
+                        </motion.div>
+                        <div className="absolute bottom-2 right-2 text-xs text-purple-400/50">
+                          Spin: {node.spin_state}
+                        </div>
                       </div>
-                      <Progress value={node.coherence_level * 100} className="h-1" />
                     </div>
 
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-purple-400/70">Health Score</span>
-                        <span className={`font-semibold ${
-                          node.health_score >= 90 ? "text-green-300" :
-                          node.health_score >= 75 ? "text-yellow-300" :
-                          "text-red-300"
-                        }`}>
-                          {node.health_score}%
-                        </span>
+                    {/* Metrics */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-purple-400/70">Entanglement</span>
+                          <span className="text-cyan-300 font-semibold">
+                            {(node.entanglement_strength * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                        <Progress value={node.entanglement_strength * 100} className="h-1" />
                       </div>
-                      <Progress value={node.health_score} className="h-1" />
-                    </div>
 
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-purple-400/70">Error Rate</span>
-                        <span className="text-red-300 font-semibold">
-                          {(node.error_rate * 100).toFixed(2)}%
-                        </span>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-purple-400/70">Coherence</span>
+                          <span className="text-purple-300 font-semibold">
+                            {(node.coherence_level * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                        <Progress value={node.coherence_level * 100} className="h-1" />
                       </div>
-                      <Progress value={node.error_rate * 100} className="h-1" />
-                    </div>
-                  </div>
 
-                  {/* Technical Details */}
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="flex items-center gap-1">
-                      <Thermometer className="w-3 h-3 text-blue-400" />
-                      <span className="text-purple-400/70">Temp:</span>
-                      <span className="text-purple-300">{node.temperature_mk}mK</span>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-purple-400/70">Health Score</span>
+                          <span className={`font-semibold ${
+                            node.health_score >= 90 ? "text-green-300" :
+                            node.health_score >= 75 ? "text-yellow-300" :
+                            "text-red-300"
+                          }`}>
+                            {node.health_score}%
+                          </span>
+                        </div>
+                        <Progress value={node.health_score} className="h-1" />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-purple-400/70">Error Rate</span>
+                          <span className="text-red-300 font-semibold">
+                            {(node.error_rate * 100).toFixed(2)}%
+                          </span>
+                        </div>
+                        <Progress value={node.error_rate * 100} className="h-1" />
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Activity className="w-3 h-3 text-green-400" />
-                      <span className="text-purple-400/70">Latency:</span>
-                      <span className="text-purple-300">{node.network_latency_ms}ms</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-amber-400" />
-                      <span className="text-purple-400/70">Uptime:</span>
-                      <span className="text-purple-300">{node.uptime_hours}h</span>
-                    </div>
-                    {node.predicted_maintenance_date && (
+
+                    {/* Technical Details */}
+                    <div className="grid grid-cols-2 gap-2 text-xs">
                       <div className="flex items-center gap-1">
-                        <AlertTriangle className="w-3 h-3 text-orange-400" />
-                        <span className="text-purple-400/70">Maint:</span>
-                        <span className="text-orange-300">
-                          {format(new Date(node.predicted_maintenance_date), "MMM d")}
-                        </span>
+                        <Thermometer className="w-3 h-3 text-blue-400" />
+                        <span className="text-purple-400/70">Temp:</span>
+                        <span className="text-purple-300">{node.temperature_mk}mK</span>
                       </div>
-                    )}
-                  </div>
-
-                  {/* AI Recommendations */}
-                  {node.ai_recommendations && node.ai_recommendations.length > 0 && (
-                    <div className="p-3 bg-indigo-950/30 rounded border border-indigo-500/30">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Brain className="w-4 h-4 text-indigo-400" />
-                        <span className="text-xs font-semibold text-indigo-300">AI Recommendations</span>
+                      <div className="flex items-center gap-1">
+                        <Activity className="w-3 h-3 text-green-400" />
+                        <span className="text-purple-400/70">Latency:</span>
+                        <span className="text-purple-300">{node.network_latency_ms}ms</span>
                       </div>
-                      <ul className="space-y-1 text-xs text-indigo-300/80">
-                        {node.ai_recommendations.slice(0, 3).map((rec, i) => (
-                          <li key={i} className="flex items-start gap-1">
-                            <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                            <span>{rec}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-amber-400" />
+                        <span className="text-purple-400/70">Uptime:</span>
+                        <span className="text-purple-300">{node.uptime_hours}h</span>
+                      </div>
+                      {node.predicted_maintenance_date && (
+                        <div className="flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3 text-orange-400" />
+                          <span className="text-purple-400/70">Maint:</span>
+                          <span className="text-orange-300">
+                            {format(new Date(node.predicted_maintenance_date), "MMM d")}
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  )}
 
-                  {/* Actions */}
-                  <Button
-                    onClick={() => analyzeNodeMutation.mutate(node)}
-                    disabled={analyzingNode === node.node_id}
-                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500"
-                    size="sm"
-                  >
-                    {analyzingNode === node.node_id ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Analyzing...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        AI Analyze & Optimize
-                      </>
+                    {/* AI Recommendations */}
+                    {node.ai_recommendations && node.ai_recommendations.length > 0 && (
+                      <div className="p-3 bg-indigo-950/30 rounded border border-indigo-500/30">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Brain className="w-4 h-4 text-indigo-400" />
+                          <span className="text-xs font-semibold text-indigo-300">AI Recommendations</span>
+                        </div>
+                        <ul className="space-y-1 text-xs text-indigo-300/80">
+                          {node.ai_recommendations.slice(0, 3).map((rec, i) => (
+                            <li key={i} className="flex items-start gap-1">
+                              <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                              <span>{rec}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     )}
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
+
+                    {/* Actions */}
+                    <Button
+                      onClick={() => analyzeNodeMutation.mutate(node)}
+                      disabled={analyzingNode === node.node_id}
+                      className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500"
+                      size="sm"
+                    >
+                      {analyzingNode === node.node_id ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Analyzing...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          AI Analyze & Optimize
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
 
       {quantumNodes.length === 0 && !isLoading && (
         <Card className="bg-slate-900/60 border-purple-900/40">
