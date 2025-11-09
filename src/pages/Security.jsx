@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Shield, Database, Lock, Eye } from "lucide-react";
+import { Shield, Database, Lock, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import DivineFortress from "../components/security/DivineFortress";
 import LedgerIntegrity from "../components/security/LedgerIntegrity";
+import QuantumNodeMonitor from "../components/security/QuantumNodeMonitor";
 
 export default function Security() {
   const [activeTab, setActiveTab] = useState("fortress");
 
   const tabs = [
     { id: "fortress", label: "Divine Fortress", icon: Shield, color: "from-amber-600 to-orange-600" },
+    { id: "quantum", label: "Quantum Nodes", icon: Zap, color: "from-purple-600 to-indigo-600" },
     { id: "integrity", label: "Ledger Integrity", icon: Database, color: "from-green-600 to-emerald-600" },
   ];
 
@@ -31,7 +33,7 @@ export default function Security() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-200 via-orange-200 to-amber-300 bg-clip-text text-transparent">
                 Divine Security
               </h1>
-              <p className="text-purple-400/70">Platform protection by God's ordinance</p>
+              <p className="text-purple-400/70">Platform protection by God's ordinance • AI-powered quantum monitoring</p>
             </div>
           </div>
 
@@ -42,7 +44,7 @@ export default function Security() {
               <div>
                 <div className="font-semibold text-green-200">All Systems Secure</div>
                 <div className="text-sm text-green-300/70">
-                  Divine fortress active • Ledger integrity: 100% • Protected by divine ordinance
+                  Divine fortress active • Quantum nodes optimized • Ledger integrity: 100%
                 </div>
               </div>
             </div>
@@ -84,6 +86,17 @@ export default function Security() {
               exit={{ opacity: 0, x: 20 }}
             >
               <DivineFortress />
+            </motion.div>
+          )}
+
+          {activeTab === "quantum" && (
+            <motion.div
+              key="quantum"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <QuantumNodeMonitor />
             </motion.div>
           )}
 
