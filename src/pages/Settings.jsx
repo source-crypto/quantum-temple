@@ -2,13 +2,15 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Settings as SettingsIcon, User, Bell, Lock, Wallet } from "lucide-react";
+import { Settings as SettingsIcon, User, Bell, Lock, Wallet, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import ProfileSettings from "../components/settings/ProfileSettings";
 import SecuritySettings from "../components/settings/SecuritySettings";
 import NotificationSettings from "../components/settings/NotificationSettings";
 import WalletManagement from "../components/settings/WalletManagement";
+import TierManagement from "../components/admin/TierManagement";
+import CentralBankAccess from "../components/admin/CentralBankAccess";
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState("profile");
@@ -23,6 +25,7 @@ export default function Settings() {
     { id: "security", label: "Security", icon: Lock, color: "from-red-600 to-rose-600" },
     { id: "notifications", label: "Notifications", icon: Bell, color: "from-amber-600 to-orange-600" },
     { id: "wallets", label: "Wallets", icon: Wallet, color: "from-green-600 to-emerald-600" },
+    { id: "tier", label: "Account Tier", icon: Shield, color: "from-amber-600 to-orange-600" },
   ];
 
   return (
@@ -137,6 +140,24 @@ export default function Settings() {
               exit={{ opacity: 0, x: 20 }}
             >
               <WalletManagement user={user} />
+            </motion.div>
+          )}
+
+          {activeTab === "tier" && (
+            <motion.div
+              key="tier"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <TierManagement user={user} />
+              
+              {/* Central Bank Access for Admin Only */}
+              {user?.role === 'admin' && (
+                <div className="mt-6">
+                  <CentralBankAccess user={user} />
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
