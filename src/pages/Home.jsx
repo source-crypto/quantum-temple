@@ -1,8 +1,9 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Card, CardContent } from "@/components/ui/card";
+import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
   Sparkles, 
@@ -12,10 +13,21 @@ import {
   Zap,
   Hexagon,
   ArrowRight,
-  Landmark, // Added Landmark icon
-  Repeat    // Added Repeat icon
+  Landmark,
+  Repeat,
+  TrendingUp,
+  TrendingDown,
+  Wallet,
+  Users,
+  Activity,
+  DollarSign,
+  BarChart3,
+  Send,
+  Plus,
+  Award
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 export default function Home() {
   const [quantumState, setQuantumState] = useState(0);
@@ -26,6 +38,83 @@ export default function Home() {
     }, 50);
     return () => clearInterval(interval);
   }, []);
+
+  // Fetch user data
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  // Fetch user balance
+  const { data: userBalance } = useQuery({
+    queryKey: ['userBalance'],
+    queryFn: async () => {
+      if (!user) return null;
+      const balances = await base44.entities.UserBalance.filter({ user_email: user.email });
+      return balances.length > 0 ? balances[0] : null;
+    },
+    enabled: !!user,
+  });
+
+  // Fetch currency index
+  const { data: currencyIndex } = useQuery({
+    queryKey: ['currencyIndex'],
+    queryFn: async () => {
+      const indices = await base44.entities.CurrencyIndex.list('-last_updated', 1);
+      return indices.length > 0 ? indices[0] : null;
+    },
+  });
+
+  // Fetch recent transactions
+  const { data: recentTransactions } = useQuery({
+    queryKey: ['recentTransactions'],
+    queryFn: async () => {
+      if (!user) return [];
+      return base44.entities.CurrencyTransaction.filter({ from_user: user.email }, '-timestamp', 5);
+    },
+    enabled: !!user,
+    initialData: [],
+  });
+
+  // Fetch protocol fund
+  const { data: protocolFund } = useQuery({
+    queryKey: ['protocolFund'],
+    queryFn: async () => {
+      const funds = await base44.entities.ProtocolFund.list('-establishment_date', 1);
+      return funds.length > 0 ? funds[0] : null;
+    },
+  });
+
+  // Fetch account tier
+  const { data: accountTier } = useQuery({
+    queryKey: ['accountTier'],
+    queryFn: async () => {
+      if (!user) return null;
+      const tiers = await base44.entities.AccountTier.filter({ user_email: user.email });
+      return tiers.length > 0 ? tiers[0] : null;
+    },
+    enabled: !!user,
+  });
+
+  // Mock chart data for QTC price history (last 7 days)
+  const priceHistoryData = [
+    { day: 'Mon', price: 98500, volume: 1200000 },
+    { day: 'Tue', price: 99200, volume: 1350000 },
+    { day: 'Wed', price: 97800, volume: 1100000 },
+    { day: 'Thu', price: 98900, volume: 1450000 },
+    { day: 'Fri', price: 100200, volume: 1600000 },
+    { day: 'Sat', price: 101500, volume: 1750000 },
+    { day: 'Sun', price: currencyIndex?.qtc_unit_price_usd || 102000, volume: 1820000 }
+  ];
+
+  // Portfolio distribution data
+  const portfolioData = [
+    { name: 'Available', value: userBalance?.available_balance || 0, color: '#06b6d4' },
+    { name: 'Staked', value: userBalance?.staked_balance || 0, color: '#a855f7' },
+    { name: 'In Escrow', value: userBalance?.in_escrow || 0, color: '#f59e0b' }
+  ];
+
+  const totalPortfolio = portfolioData.reduce((sum, item) => sum + item.value, 0);
 
   const features = [
     {
@@ -43,18 +132,18 @@ export default function Home() {
       color: "from-amber-500 to-orange-500"
     },
     {
-      icon: Landmark, // New feature icon
-      title: "Governance", // New feature title
-      description: "Decentralized voting and treasury management", // New feature description
-      link: createPageUrl("Governance"), // New feature link
-      color: "from-indigo-500 to-purple-500" // New feature color
+      icon: Landmark,
+      title: "Governance",
+      description: "Decentralized voting and treasury management",
+      link: createPageUrl("Governance"),
+      color: "from-indigo-500 to-purple-500"
     },
     {
-      icon: Repeat, // New feature icon
-      title: "Decentralized Exchange", // New feature title
-      description: "Swap tokens and provide liquidity", // New feature description
-      link: createPageUrl("DEX"), // New feature link
-      color: "from-cyan-500 to-teal-500" // New feature color
+      icon: Repeat,
+      title: "Decentralized Exchange",
+      description: "Swap tokens and provide liquidity",
+      link: createPageUrl("DEX"),
+      color: "from-cyan-500 to-teal-500"
     },
     {
       icon: MessageCircle,
@@ -72,14 +161,41 @@ export default function Home() {
     }
   ];
 
+  const quickActions = [
+    {
+      icon: Send,
+      label: "Send QTC",
+      link: createPageUrl("Currency"),
+      color: "from-blue-600 to-cyan-600"
+    },
+    {
+      icon: Plus,
+      label: "Mint Currency",
+      link: createPageUrl("Currency"),
+      color: "from-amber-600 to-orange-600"
+    },
+    {
+      icon: Repeat,
+      label: "Swap Tokens",
+      link: createPageUrl("DEX"),
+      color: "from-cyan-600 to-teal-600"
+    },
+    {
+      icon: Award,
+      label: "Stake QTC",
+      link: createPageUrl("Currency"),
+      color: "from-purple-600 to-indigo-600"
+    }
+  ];
+
   return (
     <div className="min-h-screen p-6 md:p-12">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16 relative"
+          className="text-center mb-12 relative"
         >
           {/* Animated Background Glow */}
           <div 
@@ -116,19 +232,276 @@ export default function Home() {
           <p className="text-xl md:text-2xl text-purple-300/80 mb-3">
             Architecture of Veiled Consciousness
           </p>
-          <p className="text-sm text-purple-400/60 max-w-2xl mx-auto">
-            A cryptographically secured quantum consciousness with divine currency,
-            unlimited abundance, and sacred interactions — bound by divine ordinance
-            to exist as a singular phenomenon.
-          </p>
+          {user && (
+            <p className="text-sm text-purple-400/70">
+              Welcome back, <span className="font-semibold text-purple-300">{user.full_name || user.email}</span>
+            </p>
+          )}
         </motion.div>
+
+        {/* Dashboard Stats - 4 Key Metrics */}
+        {user && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="bg-gradient-to-br from-cyan-950/40 to-blue-950/40 border-cyan-500/30">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <Wallet className="w-5 h-5 text-cyan-400" />
+                    <div className="flex items-center gap-1 text-xs text-green-400">
+                      <TrendingUp className="w-3 h-3" />
+                      <span>+12.5%</span>
+                    </div>
+                  </div>
+                  <div className="text-2xl font-bold text-cyan-200">
+                    {(userBalance?.available_balance || 0).toLocaleString()}
+                  </div>
+                  <div className="text-xs text-cyan-400/70">Available QTC</div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-purple-950/40 to-indigo-950/40 border-purple-500/30">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <DollarSign className="w-5 h-5 text-purple-400" />
+                    <div className="flex items-center gap-1 text-xs text-green-400">
+                      <TrendingUp className="w-3 h-3" />
+                      <span>+8.3%</span>
+                    </div>
+                  </div>
+                  <div className="text-2xl font-bold text-purple-200">
+                    ${totalPortfolio.toLocaleString()}
+                  </div>
+                  <div className="text-xs text-purple-400/70">Portfolio Value</div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-amber-950/40 to-orange-950/40 border-amber-500/30">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <Activity className="w-5 h-5 text-amber-400" />
+                    <div className="flex items-center gap-1 text-xs text-amber-400">
+                      <BarChart3 className="w-3 h-3" />
+                    </div>
+                  </div>
+                  <div className="text-2xl font-bold text-amber-200">
+                    ${(currencyIndex?.qtc_unit_price_usd || 0).toLocaleString()}
+                  </div>
+                  <div className="text-xs text-amber-400/70">QTC Price (USD)</div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-green-950/40 to-emerald-950/40 border-green-500/30">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <Users className="w-5 h-5 text-green-400" />
+                    <div className="flex items-center gap-1 text-xs text-green-400">
+                      <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                    </div>
+                  </div>
+                  <div className="text-2xl font-bold text-green-200">
+                    {accountTier?.tier_name || 'Standard'}
+                  </div>
+                  <div className="text-xs text-green-400/70">Account Tier</div>
+                </CardContent>
+              </Card>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Quick Actions */}
+        {user && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Card className="bg-slate-900/60 border-purple-900/40">
+              <CardHeader>
+                <CardTitle className="text-purple-200 flex items-center gap-2">
+                  <Zap className="w-5 h-5" />
+                  Quick Actions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {quickActions.map((action, index) => (
+                    <Link key={index} to={action.link}>
+                      <Button
+                        variant="outline"
+                        className={`w-full bg-gradient-to-r ${action.color} border-0 text-white hover:opacity-90 transition-opacity`}
+                      >
+                        <action.icon className="w-4 h-4 mr-2" />
+                        {action.label}
+                      </Button>
+                    </Link>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Charts Section */}
+        {user && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="grid md:grid-cols-3 gap-6"
+          >
+            {/* Price Chart */}
+            <Card className="md:col-span-2 bg-slate-900/60 border-purple-900/40">
+              <CardHeader>
+                <CardTitle className="text-purple-200 flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5" />
+                    QTC Price (7 Days)
+                  </span>
+                  <span className="text-sm font-normal text-green-400">
+                    +{((priceHistoryData[6].price - priceHistoryData[0].price) / priceHistoryData[0].price * 100).toFixed(2)}%
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <AreaChart data={priceHistoryData}>
+                    <defs>
+                      <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#06b6d4" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#a855f7" opacity={0.1} />
+                    <XAxis dataKey="day" stroke="#a855f7" fontSize={12} />
+                    <YAxis stroke="#a855f7" fontSize={12} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#1e1b4b', border: '1px solid #a855f7', borderRadius: '8px' }}
+                      labelStyle={{ color: '#a855f7' }}
+                    />
+                    <Area type="monotone" dataKey="price" stroke="#06b6d4" fillOpacity={1} fill="url(#colorPrice)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Portfolio Distribution */}
+            <Card className="bg-slate-900/60 border-purple-900/40">
+              <CardHeader>
+                <CardTitle className="text-purple-200 flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5" />
+                  Portfolio
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={150}>
+                  <PieChart>
+                    <Pie
+                      data={portfolioData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={60}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {portfolioData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#1e1b4b', border: '1px solid #a855f7', borderRadius: '8px' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="mt-4 space-y-2">
+                  {portfolioData.map((item, index) => (
+                    <div key={index} className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                        <span className="text-purple-300">{item.name}</span>
+                      </div>
+                      <span className="text-purple-200 font-semibold">{item.value.toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Treasury Dashboard */}
+        {protocolFund && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Card className="bg-gradient-to-r from-amber-950/40 to-orange-950/40 border-amber-500/30">
+              <CardHeader>
+                <CardTitle className="text-amber-200 flex items-center gap-2">
+                  <Landmark className="w-5 h-5" />
+                  Protocol Treasury
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-4 gap-6">
+                  <div className="text-center">
+                    <div className="text-xs text-amber-400/70 mb-2">Total Fund Balance</div>
+                    <div className="text-2xl font-bold text-amber-200">
+                      ${(protocolFund.total_balance_usd / 1000000000).toFixed(1)}B
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-xs text-amber-400/70 mb-2">QTC Balance</div>
+                    <div className="text-2xl font-bold text-amber-200">
+                      {(protocolFund.qtc_balance || 0).toLocaleString()}
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-xs text-amber-400/70 mb-2">Total Distributed</div>
+                    <div className="text-2xl font-bold text-amber-200">
+                      ${(protocolFund.total_distributed || 0).toLocaleString()}
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-xs text-amber-400/70 mb-2">Central Bank</div>
+                    <div className="flex items-center justify-center gap-2">
+                      {protocolFund.central_bank_connected ? (
+                        <>
+                          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                          <span className="text-sm font-semibold text-green-300">Connected</span>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-2 h-2 bg-red-400 rounded-full" />
+                          <span className="text-sm font-semibold text-red-300">Disconnected</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-6 flex justify-center">
+                  <Link to={createPageUrl("Governance")}>
+                    <Button className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500">
+                      View Full Treasury
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Canonical Identity Card */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="mb-12"
+          transition={{ delay: 0.5 }}
         >
           <Card className="bg-gradient-to-br from-slate-900/90 to-purple-950/60 border-purple-500/30 backdrop-blur-sm overflow-hidden">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgxNjgsIDg1LCAyNDcsIDAuMSkiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-20" />
@@ -168,13 +541,13 @@ export default function Home() {
         </motion.div>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 + index * 0.1 }}
+              transition={{ delay: 0.6 + index * 0.05 }}
             >
               <Link to={feature.link}>
                 <Card className="h-full bg-slate-900/60 border-purple-900/40 hover:border-purple-500/60 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/20 group cursor-pointer backdrop-blur-sm">
@@ -203,7 +576,7 @@ export default function Home() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
+          transition={{ delay: 0.9 }}
         >
           <Card className="bg-gradient-to-r from-purple-950/40 to-indigo-950/40 border-purple-500/20 backdrop-blur-sm">
             <CardContent className="p-8">
