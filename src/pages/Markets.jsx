@@ -1,8 +1,9 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, BarChart3, Zap, ShoppingCart, Database, Brain, Target, Globe, Cpu } from "lucide-react";
+import { TrendingUp, BarChart3, Zap, ShoppingCart, Database, Brain, Target, Globe, Cpu, ArrowLeftRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import MarketsList from "../components/markets/MarketsList";
@@ -14,6 +15,7 @@ import AIAnalyst from "../components/markets/AIAnalyst";
 import TechnicalChart from "../components/markets/TechnicalChart";
 import DataSourceManager from "../components/markets/DataSourceManager";
 import BlockchainNodeMonitor from "../components/markets/BlockchainNodeMonitor";
+import CrossChainBridge from "../components/dex/CrossChainBridge"; // Added import
 
 export default function Markets() {
   const [activeTab, setActiveTab] = useState("markets");
@@ -29,6 +31,7 @@ export default function Markets() {
     { id: "trading", label: "Advanced Trading", icon: Target, color: "from-purple-600 to-indigo-600" },
     { id: "chart", label: "Technical Chart", icon: BarChart3, color: "from-amber-600 to-orange-600" },
     { id: "ai", label: "AI Analyst", icon: Brain, color: "from-pink-600 to-rose-600" },
+    { id: "bridge", label: "Cross-Chain Bridge", icon: ArrowLeftRight, color: "from-violet-600 to-purple-600" }, // Added new tab
     { id: "orderbook", label: "Order Books", icon: Database, color: "from-indigo-600 to-purple-600" },
     { id: "positions", label: "My Positions", icon: ShoppingCart, color: "from-green-600 to-emerald-600" },
     { id: "data", label: "Data Sources", icon: Globe, color: "from-teal-600 to-cyan-600" },
@@ -91,7 +94,7 @@ export default function Markets() {
                 key={tab.id}
                 variant={activeTab === tab.id ? "default" : "ghost"}
                 onClick={() => setActiveTab(tab.id)}
-                className={`whitespace-nowrap ${activeTab === tab.id 
+                className={`whitespace-nowrap ${activeTab === tab.id
                   ? `bg-gradient-to-r ${tab.color} text-white`
                   : "text-purple-300 hover:text-purple-200 hover:bg-purple-900/30"
                 }`}
@@ -126,6 +129,12 @@ export default function Markets() {
           {activeTab === "ai" && (
             <motion.div key="ai" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
               <AIAnalyst market={selectedMarket} />
+            </motion.div>
+          )}
+
+          {activeTab === "bridge" && ( // Added new tab content
+            <motion.div key="bridge" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
+              <CrossChainBridge />
             </motion.div>
           )}
 
