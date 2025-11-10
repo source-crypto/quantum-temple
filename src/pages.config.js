@@ -8,6 +8,7 @@ import Governance from './pages/Governance';
 import DEX from './pages/DEX';
 import Settings from './pages/Settings';
 import Security from './pages/Security';
+import WhitePaper from './pages/WhitePaper';
 import Layout from './Layout.jsx';
 
 
@@ -22,6 +23,7 @@ export const PAGES = {
     "DEX": DEX,
     "Settings": Settings,
     "Security": Security,
+    "WhitePaper": WhitePaper,
 }
 
 export const pagesConfig = {

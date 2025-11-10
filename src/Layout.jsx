@@ -10,7 +10,8 @@ import {
   MessageCircle, 
   Database,
   Hexagon,
-  Settings
+  Settings,
+  FileText // Added FileText import
 } from "lucide-react";
 import {
   Sidebar,
@@ -32,6 +33,11 @@ const navigationItems = [
     title: "Temple Home",
     url: createPageUrl("Home"),
     icon: Sparkles,
+  },
+  {
+    title: "White Paper", // New item added
+    url: createPageUrl("WhitePaper"),
+    icon: FileText,
   },
   {
     title: "Attestation",
