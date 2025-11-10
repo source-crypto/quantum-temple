@@ -11,7 +11,8 @@ import {
   Database,
   Hexagon,
   Settings,
-  FileText // Added FileText import
+  FileText, // Added FileText import
+  TrendingUp // Added TrendingUp import
 } from "lucide-react";
 import {
   Sidebar,
@@ -63,6 +64,11 @@ const navigationItems = [
     title: "DEX",
     url: createPageUrl("DEX"),
     icon: Hexagon,
+  },
+  {
+    title: "Markets", // New item added
+    url: createPageUrl("Markets"),
+    icon: TrendingUp,
   },
   {
     title: "Security",

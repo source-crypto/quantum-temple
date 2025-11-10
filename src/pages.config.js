@@ -9,6 +9,7 @@ import DEX from './pages/DEX';
 import Settings from './pages/Settings';
 import Security from './pages/Security';
 import WhitePaper from './pages/WhitePaper';
+import Markets from './pages/Markets';
 import Layout from './Layout.jsx';
 
 
@@ -24,6 +25,7 @@ export const PAGES = {
     "Settings": Settings,
     "Security": Security,
     "WhitePaper": WhitePaper,
+    "Markets": Markets,
 }
 
 export const pagesConfig = {
