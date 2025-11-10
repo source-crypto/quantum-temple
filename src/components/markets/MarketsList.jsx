@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -5,11 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Search, Filter, DollarSign, Activity, Clock } from "lucide-react";
+import { TrendingUp, TrendingDown, Search, Filter, DollarSign, Activity, Clock, ShoppingCart } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 
-export default function MarketsList() {
+export default function MarketsList({ onSelectMarket }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [selectedMarket, setSelectedMarket] = useState(null);
@@ -100,6 +101,7 @@ export default function MarketsList() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
+              onClick={() => onSelectMarket && onSelectMarket(market)}
             >
               <Card className="bg-slate-900/60 border-purple-900/30 hover:border-cyan-500/50 transition-all cursor-pointer">
                 <CardHeader className="border-b border-purple-900/30">
@@ -198,11 +200,23 @@ export default function MarketsList() {
                     </div>
                   )}
 
-                  {/* Action Button */}
-                  <Button className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 font-semibold">
-                    <ShoppingCart className="w-4 h-4 mr-2" />
-                    Place Bet
-                  </Button>
+                  {/* Action Buttons */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 font-semibold">
+                      <ShoppingCart className="w-4 h-4 mr-2" />
+                      Trade
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="border-purple-500/30 text-purple-300 hover:bg-purple-900/20"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectMarket && onSelectMarket(market);
+                      }}
+                    >
+                      View Details
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>
