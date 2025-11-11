@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, TrendingUp, TrendingDown, DollarSign } from "lucide-react";
+import { ShoppingCart, TrendingUp, TrendingDown, DollarSign, Activity } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 
