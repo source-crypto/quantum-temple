@@ -2,8 +2,7 @@ import React, { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LineChart, BarChart3, TrendingUp, Activity, Pencil, Minus, TrendingDown, Circle } from "lucide-react";
+import { LineChart, BarChart3, TrendingUp, Activity, Pencil, Minus, Circle } from "lucide-react";
 import { LineChart as RechartsLine, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { motion } from "framer-motion";
 
@@ -162,12 +161,12 @@ export default function TechnicalChart({ market }) {
   };
 
   const indicatorButtons = [
-    { key: 'sma', label: 'SMA(20)', icon: TrendingUp, color: 'cyan' },
-    { key: 'rsi', label: 'RSI(14)', icon: Activity, color: 'purple' },
-    { key: 'macd', label: 'MACD', icon: TrendingUp, color: 'blue' },
-    { key: 'bollinger', label: 'Bollinger Bands', icon: TrendingUp, color: 'amber' },
-    { key: 'stochastic', label: 'Stochastic RSI', icon: Activity, color: 'pink' },
-    { key: 'volume', label: 'Volume', icon: BarChart3, color: 'orange' },
+    { key: 'sma', label: 'SMA(20)', icon: TrendingUp, activeClass: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30' },
+    { key: 'rsi', label: 'RSI(14)', icon: Activity, activeClass: 'bg-purple-500/20 text-purple-300 border-purple-500/30' },
+    { key: 'macd', label: 'MACD', icon: TrendingUp, activeClass: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
+    { key: 'bollinger', label: 'Bollinger Bands', icon: TrendingUp, activeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
+    { key: 'stochastic', label: 'Stochastic RSI', icon: Activity, activeClass: 'bg-pink-500/20 text-pink-300 border-pink-500/30' },
+    { key: 'volume', label: 'Volume', icon: BarChart3, activeClass: 'bg-orange-500/20 text-orange-300 border-orange-500/30' },
   ];
 
   const drawingTools = [
@@ -213,20 +212,23 @@ export default function TechnicalChart({ market }) {
             <span className="font-semibold">Technical Indicators</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            {indicatorButtons.map(ind => (
-              <Badge 
-                key={ind.key}
-                className={`cursor-pointer transition-all ${
-                  indicators[ind.key] 
-                    ? `bg-${ind.color}-500/20 text-${ind.color}-300 border-${ind.color}-500/30` 
-                    : 'bg-slate-950 text-purple-400/50 border-purple-900/30 hover:border-purple-500/30'
-                }`}
-                onClick={() => toggleIndicator(ind.key)}
-              >
-                <ind.icon className="w-3 h-3 mr-1" />
-                {ind.label}
-              </Badge>
-            ))}
+            {indicatorButtons.map(ind => {
+              const IndicatorIcon = ind.icon;
+              return (
+                <Badge 
+                  key={ind.key}
+                  className={`cursor-pointer transition-all ${
+                    indicators[ind.key] 
+                      ? ind.activeClass
+                      : 'bg-slate-950 text-purple-400/50 border-purple-900/30 hover:border-purple-500/30'
+                  }`}
+                  onClick={() => toggleIndicator(ind.key)}
+                >
+                  <IndicatorIcon className="w-3 h-3 mr-1" />
+                  {ind.label}
+                </Badge>
+              );
+            })}
           </div>
         </div>
 
@@ -237,21 +239,24 @@ export default function TechnicalChart({ market }) {
             <span className="font-semibold">Chart Drawing Tools</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            {drawingTools.map(tool => (
-              <Button
-                key={tool.type}
-                size="sm"
-                variant={drawingMode === tool.type ? "default" : "outline"}
-                onClick={() => handleDrawing(tool.type)}
-                className={drawingMode === tool.type
-                  ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white"
-                  : "border-purple-500/30 text-purple-300 hover:bg-purple-900/20"
-                }
-              >
-                <tool.icon className="w-3 h-3 mr-1" />
-                {tool.label}
-              </Button>
-            ))}
+            {drawingTools.map(tool => {
+              const ToolIcon = tool.icon;
+              return (
+                <Button
+                  key={tool.type}
+                  size="sm"
+                  variant={drawingMode === tool.type ? "default" : "outline"}
+                  onClick={() => handleDrawing(tool.type)}
+                  className={drawingMode === tool.type
+                    ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white"
+                    : "border-purple-500/30 text-purple-300 hover:bg-purple-900/20"
+                  }
+                >
+                  <ToolIcon className="w-3 h-3 mr-1" />
+                  {tool.label}
+                </Button>
+              );
+            })}
             {drawings.length > 0 && (
               <Button
                 size="sm"
@@ -307,14 +312,12 @@ export default function TechnicalChart({ market }) {
                 <Line type="monotone" dataKey="sma" stroke="#a855f7" strokeWidth={2} dot={false} />
               )}
 
-              {/* Support/Resistance Lines */}
               {drawings.filter(d => d.type === 'horizontal').map((line, i) => (
                 <ReferenceLine key={i} y={line.price} stroke="#22d3ee" strokeDasharray="5 5" strokeWidth={2} />
               ))}
             </AreaChart>
           </ResponsiveContainer>
           
-          {/* Drawing overlay hint */}
           {drawingMode && (
             <div className="absolute top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-cyan-500/20 border border-cyan-500/50 rounded-lg backdrop-blur-sm">
               <div className="text-sm text-cyan-200 font-semibold">

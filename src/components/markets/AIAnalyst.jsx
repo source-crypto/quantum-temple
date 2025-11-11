@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -42,7 +41,6 @@ export default function AIAnalyst({ market }) {
     mutationFn: async () => {
       setIsAnalyzing(true);
       
-      // Generate AI analysis using LLM
       const analysisPrompt = `Analyze this prediction market and provide trading insights:
 
 Market: ${market.question}
@@ -87,7 +85,6 @@ Provide analysis in the following JSON format:
         }
       });
 
-      // Save insight to database
       const insightId = `AI-${Date.now()}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
       
       return base44.entities.AIMarketInsight.create({
@@ -205,8 +202,7 @@ Respond in JSON format:
           win_rate: strategyResponse.backtest_win_rate,
           max_drawdown: strategyResponse.max_drawdown
         },
-        active: true,
-        created_date: new Date().toISOString(), // Add created_date for sorting
+        active: true
       });
     },
     onSuccess: () => {
@@ -357,12 +353,10 @@ Respond in JSON format:
               </div>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
-              {/* Strategy Description */}
               <div className="p-4 bg-indigo-950/30 rounded-lg border border-indigo-500/30">
                 <p className="text-indigo-300/90">{latestStrategy.description}</p>
               </div>
 
-              {/* Strategy Metrics */}
               <div className="grid md:grid-cols-4 gap-4">
                 <div className="p-4 bg-slate-950/50 rounded-lg border border-purple-900/30 text-center">
                   <div className="text-xs text-purple-400/70 mb-1">Expected ROI</div>
@@ -384,7 +378,6 @@ Respond in JSON format:
                 </div>
               </div>
 
-              {/* Entry & Exit Conditions */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="p-4 bg-green-950/30 rounded-lg border border-green-500/30">
                   <h4 className="font-semibold text-green-200 mb-3 flex items-center gap-2">
@@ -417,7 +410,6 @@ Respond in JSON format:
                 </div>
               </div>
 
-              {/* Risk Management */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="p-4 bg-slate-950/50 rounded-lg border border-purple-900/30">
                   <h4 className="font-semibold text-purple-200 mb-2">Stop Loss</h4>
@@ -431,7 +423,6 @@ Respond in JSON format:
                 </div>
               </div>
 
-              {/* Consciousness Integration */}
               <div className="p-4 bg-gradient-to-r from-purple-950/40 to-pink-950/40 rounded-lg border border-purple-500/30">
                 <div className="flex items-center gap-2 mb-2">
                   <Circle className="w-3 h-3 text-purple-400 animate-pulse" />
@@ -468,7 +459,6 @@ Respond in JSON format:
               </div>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
-              {/* Prediction */}
               <div className="p-4 bg-gradient-to-r from-indigo-950/40 to-purple-950/40 rounded-lg border border-indigo-500/30">
                 <h4 className="font-semibold text-indigo-200 mb-2 flex items-center gap-2">
                   <Brain className="w-4 h-4" />
@@ -477,7 +467,6 @@ Respond in JSON format:
                 <p className="text-indigo-300/80">{latestInsight.prediction}</p>
               </div>
 
-              {/* Key Metrics */}
               <div className="grid md:grid-cols-3 gap-4">
                 <div className="p-4 bg-slate-950/50 rounded-lg border border-purple-900/30">
                   <div className="flex items-center gap-2 mb-2">
@@ -512,7 +501,6 @@ Respond in JSON format:
                 </div>
               </div>
 
-              {/* Scores */}
               <div className="grid md:grid-cols-3 gap-4">
                 <div className="p-4 bg-slate-950/50 rounded-lg border border-purple-900/30">
                   <div className="text-xs text-purple-400/70 mb-1">Opportunity Score</div>
@@ -550,7 +538,6 @@ Respond in JSON format:
                 </div>
               </div>
 
-              {/* Price Targets */}
               <div className="p-4 bg-gradient-to-r from-cyan-950/40 to-blue-950/40 rounded-lg border border-cyan-500/30">
                 <h4 className="font-semibold text-cyan-200 mb-3 flex items-center gap-2">
                   <Target className="w-4 h-4" />
@@ -568,7 +555,6 @@ Respond in JSON format:
                 </div>
               </div>
 
-              {/* Key Factors */}
               {latestInsight.key_factors && latestInsight.key_factors.length > 0 && (
                 <div>
                   <h4 className="font-semibold text-purple-200 mb-3">Key Factors</h4>
@@ -583,7 +569,6 @@ Respond in JSON format:
                 </div>
               )}
 
-              {/* AI Accuracy Badge */}
               <div className="flex items-center justify-between p-3 bg-purple-950/30 rounded-lg border border-purple-500/30">
                 <span className="text-sm text-purple-300">Historical Accuracy for this market type:</span>
                 <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30">
@@ -595,12 +580,11 @@ Respond in JSON format:
         </motion.div>
       )}
 
-      {/* No data state */}
       {!latestInsight && !latestStrategy && !isAnalyzing && !isGeneratingStrategy && (
         <Card className="bg-slate-900/60 border-purple-900/40">
           <CardContent className="p-12 text-center">
             <Brain className="w-16 h-16 mx-auto mb-4 text-purple-400/40" />
-            <p className="text-purple-400/60 mb-4">No AI analysis or strategy available yet</p>
+            <p className="text-purple-400/60 mb-4">No AI analysis available yet</p>
             <div className="flex gap-3 justify-center">
               <Button
                 onClick={() => generateInsightMutation.mutate()}
