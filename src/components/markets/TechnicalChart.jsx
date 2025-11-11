@@ -3,7 +3,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LineChart, BarChart3, TrendingUp, Activity, Pencil, Minus, Circle } from "lucide-react";
-import { LineChart as RechartsLine, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { 
+  LineChart as RechartsLineChart,
+  AreaChart, 
+  BarChart,
+  Line, 
+  Area, 
+  Bar,
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer, 
+  ReferenceLine 
+} from 'recharts';
 import { motion } from "framer-motion";
 
 export default function TechnicalChart({ market }) {
@@ -376,7 +389,7 @@ export default function TechnicalChart({ market }) {
               RSI (Relative Strength Index)
             </h4>
             <ResponsiveContainer width="100%" height={120}>
-              <LineChart data={chartData}>
+              <RechartsLineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#a855f7" opacity={0.1} />
                 <XAxis dataKey="time" stroke="#a855f7" fontSize={10} />
                 <YAxis domain={[0, 100]} stroke="#a855f7" fontSize={10} />
@@ -387,7 +400,7 @@ export default function TechnicalChart({ market }) {
                 <ReferenceLine y={70} stroke="#ef4444" strokeDasharray="3 3" label={{ value: 'Overbought', fill: '#ef4444', fontSize: 10 }} />
                 <ReferenceLine y={30} stroke="#10b981" strokeDasharray="3 3" label={{ value: 'Oversold', fill: '#10b981', fontSize: 10 }} />
                 <Line type="monotone" dataKey="rsi" stroke="#a855f7" strokeWidth={2} dot={false} />
-              </LineChart>
+              </RechartsLineChart>
             </ResponsiveContainer>
           </div>
         )}
@@ -400,7 +413,7 @@ export default function TechnicalChart({ market }) {
               Stochastic RSI
             </h4>
             <ResponsiveContainer width="100%" height={120}>
-              <LineChart data={chartData}>
+              <RechartsLineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#a855f7" opacity={0.1} />
                 <XAxis dataKey="time" stroke="#a855f7" fontSize={10} />
                 <YAxis domain={[0, 100]} stroke="#a855f7" fontSize={10} />
@@ -411,7 +424,7 @@ export default function TechnicalChart({ market }) {
                 <ReferenceLine y={20} stroke="#10b981" strokeDasharray="3 3" />
                 <Line type="monotone" dataKey="stoch_k" stroke="#ec4899" strokeWidth={2} dot={false} />
                 <Line type="monotone" dataKey="stoch_d" stroke="#8b5cf6" strokeWidth={2} dot={false} />
-              </LineChart>
+              </RechartsLineChart>
             </ResponsiveContainer>
             <div className="flex gap-4 text-xs text-purple-400/70 mt-2">
               <div className="flex items-center gap-1">
