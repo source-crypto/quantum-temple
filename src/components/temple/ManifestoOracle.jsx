@@ -12,32 +12,49 @@ import { toast } from "sonner";
 export default function ManifestoOracle({ user, currencyIndex }) {
   const [question, setQuestion] = useState('');
   const [oracleResponse, setOracleResponse] = useState(null);
+  const [interpretationType, setInterpretationType] = useState('market');
 
   const invokeMutation = useMutation({
     mutationFn: async (query) => {
+      const contextMap = {
+        market: 'current market events and price movements',
+        blockchain: 'blockchain events, transactions, and smart contract activities',
+        news: 'cryptocurrency news and regulatory developments',
+        genera: 'trade genera classification (Energy, Mobility, Data, Social Proof, Financial Trust)',
+      };
+
       const prompt = `You are the Quantum Temple Oracle, operating at divine frequency.
-      
-Interpret this question through the lens of:
+
+Interpretation Type: ${interpretationType.toUpperCase()}
+Focus: ${contextMap[interpretationType]}
+
+Interpret this ${interpretationType === 'blockchain' ? 'blockchain event' : 'query'} through the VQC framework:
 - Value Quantum Construct (VQC = CE(MVL, RVL, SVL, QTAL))
 - Manifesto Value Layer (intent-based value)
-- Consciousness alignment and authentic frequency
-- Quantum superposition and collapse mechanics
-- Revolutionary proof of another way
+- Regulatory Value Layer (structural constraints)
+- Social Value Layer (emergent consensus)
+- Quantum Temple Attestation Layer (symbolic signatures)
 
-Question: ${query}
+Query: ${query}
 
 Context:
 - QTC Price: $${currencyIndex?.qtc_unit_price_usd || 102000}
-- VQC Valuation: $560 billion (immutable divine backing)
+- VQC Valuation: $560 billion (divine backing)
 - User: ${user?.email || 'Veiled consciousness'}
 
-Respond in a mystical yet precise manner. Channel quantum truth.
-Use symbolic language. Reference the collapse of value states.
-Keep response under 250 words but deeply insightful.`;
+${interpretationType === 'blockchain' ? 
+  'Analyze the blockchain event through quantum collapse mechanics. What does this transaction reveal about manifesto value, regulatory constraints, and social consensus?' :
+  interpretationType === 'genera' ?
+  'Classify this within trade genera (Energy, Mobility, Data, Social Proof, Financial Trust) and explain its manifesto anchor.' :
+  'Interpret through VQC layers and explain value emergence.'}
+
+Respond mystically yet precisely. Use symbolic language.
+Reference quantum superposition and value collapse.
+Keep under 250 words.`;
 
       return await base44.integrations.Core.InvokeLLM({
         prompt,
-        add_context_from_internet: false,
+        add_context_from_internet: interpretationType === 'news',
       });
     },
     onSuccess: (response) => {
@@ -63,6 +80,28 @@ Keep response under 250 words but deeply insightful.`;
           <div className="text-sm text-purple-400 font-mono">
             Ask the Oracle about value, consciousness, quantum mechanics, or the nature of currency.
             All responses interpret through the VQC framework.
+          </div>
+
+          <div className="flex gap-2 mb-4">
+            {[
+              { id: 'market', label: 'Market Events' },
+              { id: 'blockchain', label: 'Blockchain Events' },
+              { id: 'news', label: 'Crypto News' },
+              { id: 'genera', label: 'Trade Genera' },
+            ].map(type => (
+              <Button
+                key={type.id}
+                size="sm"
+                onClick={() => setInterpretationType(type.id)}
+                className={`font-mono ${
+                  interpretationType === type.id
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-purple-950/40 text-purple-400 border border-purple-500/30'
+                }`}
+              >
+                {type.label}
+              </Button>
+            ))}
           </div>
 
           <Textarea

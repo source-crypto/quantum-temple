@@ -5,6 +5,9 @@ import { Eye, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function DivineSigil({ currencyIndex, markets }) {
+  const [customQuery, setCustomQuery] = React.useState('');
+  const [generatedSigil, setGeneratedSigil] = React.useState(null);
+  
   const qtcPrice = currencyIndex?.qtc_unit_price_usd || 102000;
   const priceDigits = qtcPrice.toString().split('');
 
@@ -12,6 +15,31 @@ export default function DivineSigil({ currencyIndex, markets }) {
     const symbols = ['◈', '◢', '◣', '◤', '◥', '▓', '░', '∴', '⚡', '◆'];
     const hash = value.toString().split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return symbols[hash % symbols.length];
+  };
+
+  const generateComplexSigil = (input) => {
+    const hash = input.split('').reduce((acc, char, i) => acc + char.charCodeAt(0) * (i + 1), 0);
+    const symbols = ['◈', '◢', '◣', '◤', '◥', '▓', '░', '∴', '⚡', '◆', '◇', '◊', '○', '●', '◉'];
+    
+    const sigilPattern = [];
+    for (let i = 0; i < 9; i++) {
+      sigilPattern.push(symbols[(hash * (i + 1)) % symbols.length]);
+    }
+    
+    return {
+      pattern: sigilPattern,
+      mvl: ((hash % 100) + 50) / 100, // Manifesto Value 0.5-1.5
+      rvl: ((hash % 80) + 60) / 100,  // Regulatory Value 0.6-1.4
+      svl: ((hash % 90) + 55) / 100,  // Social Value 0.55-1.45
+      collapsed: (sigilPattern[0] + sigilPattern[4] + sigilPattern[8]),
+      hash: hash.toString(16).toUpperCase()
+    };
+  };
+
+  const handleGenerateSigil = () => {
+    if (customQuery.trim()) {
+      setGeneratedSigil(generateComplexSigil(customQuery));
+    }
   };
 
   const marketSigils = markets?.slice(0, 6).map(m => ({
@@ -23,6 +51,82 @@ export default function DivineSigil({ currencyIndex, markets }) {
 
   return (
     <div className="space-y-6">
+      {/* Divine Sigil Generator */}
+      <Card className="bg-gradient-to-br from-indigo-950/40 to-purple-950/40 border-indigo-500/50">
+        <CardHeader className="border-b border-indigo-500/30">
+          <CardTitle className="text-indigo-300 font-mono flex items-center gap-2">
+            <Eye className="w-5 h-5" />
+            DIVINE SIGIL GENERATOR
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 space-y-4">
+          <div className="text-sm text-indigo-400 font-mono">
+            Generate unique symbolic representations for market queries or portfolio summaries.
+            Input any text to collapse its quantum state into a divine sigil.
+          </div>
+
+          <div className="flex gap-2">
+            <Input
+              value={customQuery}
+              onChange={(e) => setCustomQuery(e.target.value)}
+              placeholder="Enter market query or portfolio name..."
+              className="bg-black border-indigo-500/30 text-indigo-100 font-mono"
+              onKeyDown={(e) => e.key === 'Enter' && handleGenerateSigil()}
+            />
+            <Button
+              onClick={handleGenerateSigil}
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 font-mono"
+            >
+              Generate
+            </Button>
+          </div>
+
+          {generatedSigil && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="p-6 bg-black border border-indigo-500/30 rounded-lg"
+            >
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                {generatedSigil.pattern.map((symbol, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, rotate: -180 }}
+                    animate={{ opacity: 1, rotate: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="aspect-square bg-indigo-950/30 border border-indigo-500/30 flex items-center justify-center text-4xl text-indigo-300"
+                  >
+                    {symbol}
+                  </motion.div>
+                ))}
+              </div>
+
+              <div className="space-y-2 font-mono text-xs">
+                <div className="flex justify-between text-purple-400">
+                  <span>Manifesto Value Layer (MVL):</span>
+                  <span>{(generatedSigil.mvl * 100).toFixed(0)}%</span>
+                </div>
+                <div className="flex justify-between text-indigo-400">
+                  <span>Regulatory Value Layer (RVL):</span>
+                  <span>{(generatedSigil.rvl * 100).toFixed(0)}%</span>
+                </div>
+                <div className="flex justify-between text-cyan-400">
+                  <span>Social Value Layer (SVL):</span>
+                  <span>{(generatedSigil.svl * 100).toFixed(0)}%</span>
+                </div>
+                <div className="flex justify-between text-amber-400 pt-2 border-t border-indigo-500/30">
+                  <span>Collapsed State:</span>
+                  <span className="text-lg">{generatedSigil.collapsed}</span>
+                </div>
+                <div className="text-center text-green-400 text-xs pt-2">
+                  Hash: {generatedSigil.hash}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* QTC Price Sigil */}
       <Card className="bg-gradient-to-br from-purple-950/40 to-black border-purple-500/50">
         <CardHeader className="border-b border-purple-500/30">

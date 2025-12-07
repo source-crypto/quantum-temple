@@ -21,28 +21,46 @@ import {
   BarChart3,
   Sparkles,
   ExternalLink,
-  RefreshCw,
-  Activity
+  RefreshCw
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { useCEXWebSocket } from "./useCEXWebSocket";
 
 export default function CEXListings() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterExchange, setFilterExchange] = useState("all");
+  const [livePrices, setLivePrices] = useState({});
   const queryClient = useQueryClient();
-  
-  // Real-time WebSocket data
-  const { prices: liveData, priceChanges } = useCEXWebSocket(['binance', 'coinbase', 'kraken', 'bybit', 'okx', 'kucoin']);
 
   const { data: listings, isLoading } = useQuery({
     queryKey: ['cexListings'],
     queryFn: () => base44.entities.CEXListing.list('-volume_24h_usd'),
     initialData: [],
-    refetchInterval: 10000, // Refresh every 10 seconds
+    refetchInterval: 10000,
   });
+
+  // Simulate live price updates (WebSocket simulation)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLivePrices(prev => {
+        const updates = {};
+        listings.forEach(listing => {
+          const change = (Math.random() - 0.5) * 0.002; // ±0.2% change
+          const currentPrice = prev[listing.id]?.price || listing.current_price;
+          const newPrice = currentPrice * (1 + change);
+          updates[listing.id] = {
+            price: newPrice,
+            change: change,
+            trend: change > 0 ? 'up' : change < 0 ? 'down' : 'neutral'
+          };
+        });
+        return updates;
+      });
+    }, 2000); // Update every 2 seconds
+
+    return () => clearInterval(interval);
+  }, [listings]);
 
   const syncListingsMutation = useMutation({
     mutationFn: async () => {
@@ -299,17 +317,10 @@ export default function CEXListings() {
           <AnimatePresence>
             {filteredListings.map((listing, index) => {
               const exchange = exchanges.find(e => e.id === listing.exchange_name);
-              
-              // Get live WebSocket data
-              const liveKey = `${listing.exchange_name}-${listing.trading_pair}`;
-              const livePrice = liveData[liveKey];
-              const priceChange = priceChanges[liveKey];
-              
-              // Use live data if available, otherwise use stored data
-              const currentPrice = livePrice?.price || listing.current_price;
-              const currentVolume = livePrice?.volume || listing.volume_24h_usd;
-              const priceChangePositive = priceChange ? priceChange.direction === 'up' : listing.price_change_24h >= 0;
-              const isLive = !!livePrice;
+              const priceChangePositive = listing.price_change_24h >= 0;
+              const liveData = livePrices[listing.id];
+              const displayPrice = liveData?.price || listing.current_price;
+              const liveTrend = liveData?.trend || 'neutral';
 
               return (
                 <motion.div
@@ -343,12 +354,6 @@ export default function CEXListings() {
                           }>
                             {listing.listing_status}
                           </Badge>
-                          {isLive && (
-                            <Badge className="bg-red-500/20 text-red-300 border-red-500/30 text-xs animate-pulse">
-                              <Activity className="w-3 h-3 mr-1" />
-                              LIVE
-                            </Badge>
-                          )}
                           {listing.quantum_verified && (
                             <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs">
                               <Shield className="w-3 h-3 mr-1" />
@@ -361,37 +366,34 @@ export default function CEXListings() {
                       {/* Price & Change */}
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <motion.div 
-                          className="p-3 bg-slate-950/50 rounded-lg border border-purple-900/30 relative overflow-hidden"
-                          animate={priceChange ? {
-                            borderColor: priceChange.direction === 'up' ? '#10b981' : priceChange.direction === 'down' ? '#ef4444' : '#a855f7'
-                          } : {}}
+                          animate={{ 
+                            scale: liveTrend === 'up' ? [1, 1.02, 1] : liveTrend === 'down' ? [1, 0.98, 1] : 1,
+                            borderColor: liveTrend === 'up' ? '#10b981' : liveTrend === 'down' ? '#ef4444' : '#a855f7'
+                          }}
                           transition={{ duration: 0.3 }}
+                          className={`p-3 bg-slate-950/50 rounded-lg border ${
+                            liveTrend === 'up' ? 'border-green-500/50' : 
+                            liveTrend === 'down' ? 'border-red-500/50' : 
+                            'border-purple-900/30'
+                          }`}
                         >
-                          {isLive && priceChange && (
-                            <motion.div
-                              className={`absolute inset-0 ${
-                                priceChange.direction === 'up' ? 'bg-green-500/10' : 'bg-red-500/10'
-                              }`}
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: [0, 0.5, 0] }}
-                              transition={{ duration: 0.5 }}
-                            />
-                          )}
-                          <div className="relative">
-                            <div className="text-xs text-purple-400/70 mb-1 flex items-center gap-1">
-                              Price
-                              {isLive && <Circle className="w-2 h-2 text-green-400 animate-pulse" />}
-                            </div>
-                            <div className={`text-xl font-bold transition-colors ${
-                              priceChange?.direction === 'up' ? 'text-green-300' :
-                              priceChange?.direction === 'down' ? 'text-red-300' :
-                              'text-purple-200'
-                            }`}>
-                              ${currentPrice.toLocaleString(undefined, { 
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 8 
-                              })}
-                            </div>
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="text-xs text-purple-400/70">Price</div>
+                            <div className={`w-2 h-2 rounded-full animate-pulse ${
+                              liveTrend === 'up' ? 'bg-green-400' : 
+                              liveTrend === 'down' ? 'bg-red-400' : 
+                              'bg-purple-400'
+                            }`} />
+                          </div>
+                          <div className={`text-xl font-bold ${
+                            liveTrend === 'up' ? 'text-green-300' :
+                            liveTrend === 'down' ? 'text-red-300' :
+                            'text-purple-200'
+                          }`}>
+                            ${displayPrice.toLocaleString(undefined, { 
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 8 
+                            })}
                           </div>
                         </motion.div>
                         <div className={`p-3 rounded-lg border ${
@@ -408,7 +410,7 @@ export default function CEXListings() {
                             ) : (
                               <TrendingDown className="w-4 h-4" />
                             )}
-                            {priceChangePositive ? '+' : ''}{priceChange?.percent?.toFixed(2) || listing.price_change_24h.toFixed(2)}%
+                            {priceChangePositive ? '+' : ''}{listing.price_change_24h.toFixed(2)}%
                           </div>
                         </div>
                       </div>
@@ -416,12 +418,9 @@ export default function CEXListings() {
                       {/* Volume & Spread */}
                       <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
                         <div>
-                          <div className="text-xs text-purple-400/70 mb-1 flex items-center gap-1">
-                            24h Volume
-                            {isLive && <Circle className="w-2 h-2 text-cyan-400 animate-pulse" />}
-                          </div>
+                          <div className="text-xs text-purple-400/70 mb-1">24h Volume</div>
                           <div className="font-semibold text-purple-200">
-                            ${(currentVolume / 1000000).toFixed(2)}M
+                            ${(listing.volume_24h_usd / 1000000).toFixed(2)}M
                           </div>
                         </div>
                         <div>
