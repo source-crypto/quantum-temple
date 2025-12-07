@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -431,46 +431,30 @@ export default function CEXListings() {
                         </div>
                       </div>
 
-                      {/* Order Book Depth */}
-                      {orderBook && isLive ? (
-                        <div className="p-3 bg-slate-950/50 rounded-lg border border-purple-900/30 mb-4">
-                          <div className="text-xs text-purple-400/70 mb-2 flex items-center justify-between">
-                            <span>Order Book Depth</span>
-                            <Badge className="bg-green-500/20 text-green-300 border-green-500/30 text-[10px]">
-                              LIVE
+                      {/* Order Book Preview */}
+                      <div className="p-3 bg-slate-950/50 rounded-lg border border-purple-900/30 mb-4">
+                       <div className="flex items-center justify-between text-xs mb-2">
+                         <span className="text-green-400">Bid: ${listing.bid_price?.toFixed(2)}</span>
+                         <ArrowUpDown className="w-3 h-3 text-purple-400" />
+                         <span className="text-red-400">Ask: ${listing.ask_price?.toFixed(2)}</span>
+                       </div>
+                       <Progress value={50} className="h-1" />
+                      </div>
+
+                      {/* Live Order Book (if available) */}
+                      {liveData && (
+                        <div className="p-3 bg-slate-950/50 rounded-lg border border-green-900/30 mb-4">
+                          <div className="text-xs text-green-400/70 mb-2 flex items-center justify-between">
+                            <span>Live Stream Active</span>
+                            <Badge className="bg-green-500/20 text-green-300 border-green-500/30 text-[10px] animate-pulse">
+                              CONNECTED
                             </Badge>
                           </div>
-                          <div className="grid grid-cols-2 gap-2 text-[10px]">
-                            <div className="space-y-0.5">
-                              {orderBook.bids.slice(0, 3).map((bid, i) => (
-                                <div key={i} className="flex justify-between text-green-400">
-                                  <span>${bid.price.toFixed(2)}</span>
-                                  <span>{bid.size.toFixed(0)}</span>
-                                </div>
-                              ))}
-                            </div>
-                            <div className="space-y-0.5">
-                              {orderBook.asks.slice(0, 3).map((ask, i) => (
-                                <div key={i} className="flex justify-between text-red-400">
-                                  <span>${ask.price.toFixed(2)}</span>
-                                  <span>{ask.size.toFixed(0)}</span>
-                                </div>
-                              ))}
-                            </div>
+                          <div className="text-xs text-green-300 font-mono">
+                            Vol: ${(liveData.volume / 1000000).toFixed(2)}M
+                            {' • '}
+                            Spread: {(liveData.spread || 0.05).toFixed(3)}%
                           </div>
-                          <div className="mt-2 flex items-center justify-between text-xs">
-                            <span className="text-purple-400/70">Spread:</span>
-                            <span className="text-purple-300 font-semibold">{currentSpread.toFixed(3)}%</span>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="p-3 bg-slate-950/50 rounded-lg border border-purple-900/30 mb-4">
-                          <div className="flex items-center justify-between text-xs mb-2">
-                            <span className="text-green-400">Bid: ${listing.bid_price?.toFixed(2)}</span>
-                            <ArrowUpDown className="w-3 h-3 text-purple-400" />
-                            <span className="text-red-400">Ask: ${listing.ask_price?.toFixed(2)}</span>
-                          </div>
-                          <Progress value={50} className="h-1" />
                         </div>
                       )}
 
