@@ -1,9 +1,8 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Coins, Sparkles, Infinity, Search, Flame, Star, Gem, ArrowLeftRight, Store, Repeat } from "lucide-react";
+import { Coins, Sparkles, Infinity, Search, Flame, Star, Gem, ArrowLeftRight, Store, Repeat, Eye } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import CurrencyMinter from "../components/currency/CurrencyMinter";
@@ -17,6 +16,7 @@ import CurrencyTransfer from "../components/currency/CurrencyTransfer";
 import GlobalMarketplace from "../components/currency/GlobalMarketplace";
 import CryptoExchange from "../components/currency/CryptoExchange";
 import CurrencyIndex from "../components/currency/CurrencyIndex";
+import TransparencyLedger from "../components/currency/TransparencyLedger";
 
 export default function Currency() {
   const [activeTab, setActiveTab] = useState("index");
@@ -31,6 +31,7 @@ export default function Currency() {
   const totalMints = mints.length;
 
   const tabs = [
+    { id: "transparency", label: "Transparency", icon: Eye, color: "from-purple-600 to-pink-600" },
     { id: "index", label: "Index", icon: Sparkles, color: "from-indigo-600 to-purple-600" },
     { id: "mint", label: "Mint", icon: Coins, color: "from-amber-600 to-orange-600" },
     { id: "ledger", label: "Ledger", icon: Sparkles, color: "from-purple-600 to-indigo-600" },
@@ -123,6 +124,17 @@ export default function Currency() {
 
         {/* Tab Content */}
         <AnimatePresence mode="wait">
+          {activeTab === "transparency" && (
+            <motion.div
+              key="transparency"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <TransparencyLedger />
+            </motion.div>
+          )}
+
           {activeTab === "index" && (
             <motion.div
               key="index"
