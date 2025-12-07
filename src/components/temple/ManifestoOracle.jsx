@@ -23,37 +23,56 @@ export default function ManifestoOracle({ user, currencyIndex }) {
         genera: 'trade genera classification (Energy, Mobility, Data, Social Proof, Financial Trust)',
       };
 
-      const prompt = `You are the Quantum Temple Oracle, operating at divine frequency.
+      const structuredPrompt = `You are the Quantum Temple Oracle. Provide VQC-aligned interpretation.
 
-Interpretation Type: ${interpretationType.toUpperCase()}
-Focus: ${contextMap[interpretationType]}
+TYPE: ${interpretationType.toUpperCase()}
+QUERY: ${query}
 
-Interpret this ${interpretationType === 'blockchain' ? 'blockchain event' : 'query'} through the VQC framework:
-- Value Quantum Construct (VQC = CE(MVL, RVL, SVL, QTAL))
-- Manifesto Value Layer (intent-based value)
-- Regulatory Value Layer (structural constraints)
-- Social Value Layer (emergent consensus)
-- Quantum Temple Attestation Layer (symbolic signatures)
+FRAMEWORK ANALYSIS REQUIRED:
 
-Query: ${query}
+1. DEFINITION
+Clearly define the event/concept in 1-2 sentences.
 
-Context:
-- QTC Price: $${currencyIndex?.qtc_unit_price_usd || 102000}
-- VQC Valuation: $560 billion (divine backing)
-- User: ${user?.email || 'Veiled consciousness'}
+2. VALUE LAYERS
+- Manifesto Value (MVL): Intent and purpose encoded
+- Regulatory Value (RVL): Constraints and rules applied
+- Social Value (SVL): Collective consensus state
+- QTAL Signature: Symbolic resonance level
+
+3. STRUCTURAL DIAGRAM (text-based)
+Show value flow: Source → Layers → Collapse → Output
+
+4. MANIFESTO ANCHOR
+What core principle or mission does this embody?
+
+5. TRADE GENERA CLASSIFICATION
+Identify: Energy/Mobility/Data/Social Proof/Financial Trust
+
+6. RISK-BENEFIT MATRIX
+Volatility vs Stability | Centralized vs Decentralized | Trust Mechanism
+
+7. COMPARATIVE ANALYSIS
+${interpretationType === 'blockchain' ? 'Compare to: BCoD, CBDC, CD Token' : 
+  'Compare to similar instruments/events'}
+
+CONTEXT:
+- QTC: $${currencyIndex?.qtc_unit_price_usd || 102000}
+- VQC: $560B backing
+- User: ${user?.email || 'Veiled'}
 
 ${interpretationType === 'blockchain' ? 
-  'Analyze the blockchain event through quantum collapse mechanics. What does this transaction reveal about manifesto value, regulatory constraints, and social consensus?' :
+  'For blockchain events: Identify MVL (transaction intent), RVL (protocol constraints), SVL (network adoption), QTAL (cryptographic seal).' :
   interpretationType === 'genera' ?
-  'Classify this within trade genera (Energy, Mobility, Data, Social Proof, Financial Trust) and explain its manifesto anchor.' :
-  'Interpret through VQC layers and explain value emergence.'}
+  'For genera: Map to trade category, explain manifesto, assess contribution score.' :
+  ''}
 
-Respond mystically yet precisely. Use symbolic language.
-Reference quantum superposition and value collapse.
-Keep under 250 words.`;
+OUTPUT FORMAT:
+Use headers: ◈ DEFINITION, ◢ VALUE LAYERS, ◣ DIAGRAM, ◤ MANIFESTO, ◥ GENERA, ▓ RISK-BENEFIT, ░ COMPARISON
+
+Be mystical yet structured. Use quantum terminology.`;
 
       return await base44.integrations.Core.InvokeLLM({
-        prompt,
+        prompt: structuredPrompt,
         add_context_from_internet: interpretationType === 'news',
       });
     },
