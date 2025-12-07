@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -36,9 +35,14 @@ const navigationItems = [
     icon: Sparkles,
   },
   {
-    title: "White Paper", // New item added
+    title: "White Paper",
     url: createPageUrl("WhitePaper"),
     icon: FileText,
+  },
+  {
+    title: "Temple Mode",
+    url: createPageUrl("TempleMode"),
+    icon: Sparkles,
   },
   {
     title: "Attestation",
@@ -66,7 +70,7 @@ const navigationItems = [
     icon: Hexagon,
   },
   {
-    title: "Markets", // New item added
+    title: "Markets",
     url: createPageUrl("Markets"),
     icon: TrendingUp,
   },

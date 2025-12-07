@@ -10,7 +10,8 @@ import Settings from './pages/Settings';
 import Security from './pages/Security';
 import WhitePaper from './pages/WhitePaper';
 import Markets from './pages/Markets';
-import Layout from './Layout.jsx';
+import TempleMode from './pages/TempleMode';
+import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
@@ -26,10 +27,11 @@ export const PAGES = {
     "Security": Security,
     "WhitePaper": WhitePaper,
     "Markets": Markets,
+    "TempleMode": TempleMode,
 }
 
 export const pagesConfig = {
     mainPage: "Home",
     Pages: PAGES,
-    Layout: Layout,
+    Layout: __Layout,
 };
