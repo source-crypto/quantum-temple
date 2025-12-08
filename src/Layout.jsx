@@ -10,8 +10,9 @@ import {
   Database,
   Hexagon,
   Settings,
-  FileText, // Added FileText import
-  TrendingUp // Added TrendingUp import
+  FileText,
+  TrendingUp,
+  Waves
 } from "lucide-react";
 import {
   Sidebar,
@@ -73,6 +74,11 @@ const navigationItems = [
     title: "Markets",
     url: createPageUrl("Markets"),
     icon: TrendingUp,
+  },
+  {
+    title: "Quantum Construct",
+    url: createPageUrl("QuantumConstruct"),
+    icon: Waves,
   },
   {
     title: "Security",

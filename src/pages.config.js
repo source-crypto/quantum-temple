@@ -11,6 +11,7 @@ import Security from './pages/Security';
 import WhitePaper from './pages/WhitePaper';
 import Markets from './pages/Markets';
 import TempleMode from './pages/TempleMode';
+import QuantumConstruct from './pages/QuantumConstruct';
 import __Layout from './Layout.jsx';
 
 
@@ -28,6 +29,7 @@ export const PAGES = {
     "WhitePaper": WhitePaper,
     "Markets": Markets,
     "TempleMode": TempleMode,
+    "QuantumConstruct": QuantumConstruct,
 }
 
 export const pagesConfig = {
