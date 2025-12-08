@@ -16,7 +16,8 @@ import {
   Brain,
   Lock,
   TrendingDown,
-  AlertCircle
+  AlertCircle,
+  TrendingUp
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
