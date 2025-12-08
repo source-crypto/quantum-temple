@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
+import SuperpositionTracker from "./SuperpositionTracker";
+import QuantumResonanceMap from "./QuantumResonanceMap";
 
 export default function QuantumValueObject() {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
