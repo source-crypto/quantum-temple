@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Brain, Eye, Waves } from "lucide-react";
+import { Sparkles, Brain, Eye, Waves, DollarSign } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import QuantumValueObject from "../components/quantum/QuantumValueObject";
 import ConsciousnessLayer from "../components/quantum/ConsciousnessLayer";
 import AIWatcher from "../components/quantum/AIWatcher";
+import CollectiveManifest from "../components/quantum/CollectiveManifest";
 
 export default function QuantumConstruct() {
   const [activeTab, setActiveTab] = useState("value");
 
   const tabs = [
+    { id: "manifest", label: "Collective Manifest", icon: DollarSign, color: "from-purple-600 to-pink-600" },
     { id: "value", label: "Quantum Value", icon: Waves, color: "from-purple-600 to-indigo-600" },
     { id: "consciousness", label: "Consciousness Layer", icon: Brain, color: "from-pink-600 to-purple-600" },
     { id: "watcher", label: "AI Watcher", icon: Eye, color: "from-indigo-600 to-purple-600" },
@@ -51,6 +53,10 @@ export default function QuantumConstruct() {
               <Eye className="w-4 h-4 text-indigo-400" />
               <span className="text-sm font-semibold text-indigo-300">Guardian Monitoring</span>
             </div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-full border border-purple-500/30">
+              <DollarSign className="w-4 h-4 text-purple-400" />
+              <span className="text-sm font-semibold text-purple-300">Price Transparency</span>
+            </div>
           </div>
         </motion.div>
 
@@ -81,6 +87,17 @@ export default function QuantumConstruct() {
 
         {/* Tab Content */}
         <AnimatePresence mode="wait">
+          {activeTab === "manifest" && (
+            <motion.div
+              key="manifest"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <CollectiveManifest />
+            </motion.div>
+          )}
+
           {activeTab === "value" && (
             <motion.div
               key="value"
