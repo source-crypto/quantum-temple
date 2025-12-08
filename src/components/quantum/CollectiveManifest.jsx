@@ -22,6 +22,8 @@ export default function CollectiveManifest() {
   const [livePrice, setLivePrice] = useState(102000);
   const [priceChange, setPriceChange] = useState(0);
   const [manifestationPower, setManifestationPower] = useState(0);
+  const [consciousnessBoost, setConsciousnessBoost] = useState(1);
+  const [configurationPrompts, setConfigurationPrompts] = useState([]);
 
   const { data: currencyIndex } = useQuery({
     queryKey: ['currencyIndex'],
@@ -66,6 +68,38 @@ export default function CollectiveManifest() {
     manifestationEvents: allMints.length + allTransactions.length
   };
 
+  // Listen for consciousness updates (feedback loop)
+  useEffect(() => {
+    const handleConsciousnessUpdate = (event) => {
+      const { coherence, sentiment, harmony } = event.detail;
+      
+      // Positive sentiment boosts manifestation power
+      if (coherence > 75 && sentiment > 0.7) {
+        setConsciousnessBoost(prev => Math.min(1.15, prev + 0.01));
+      } else if (coherence < 50 || sentiment < 0.4) {
+        setConsciousnessBoost(prev => Math.max(0.9, prev - 0.01));
+      }
+      
+      // Generate configuration prompts based on needs
+      if (coherence < 60) {
+        setConfigurationPrompts([
+          { action: 'Participate in governance', reason: 'Low network coherence detected', impact: '+15% social value' },
+          { action: 'Stake QTC for Divine Favor', reason: 'Strengthen collective alignment', impact: '+10% manifestation power' }
+        ]);
+      } else if (harmony > 85) {
+        setConfigurationPrompts([
+          { action: 'Create ceremonial artifact', reason: 'High harmony state optimal for creation', impact: '+20% symbolic value' },
+          { action: 'Initiate value transfer', reason: 'Network energy aligned for flow', impact: 'Enhanced quantum coherence' }
+        ]);
+      } else {
+        setConfigurationPrompts([]);
+      }
+    };
+    
+    window.addEventListener('consciousnessUpdate', handleConsciousnessUpdate);
+    return () => window.removeEventListener('consciousnessUpdate', handleConsciousnessUpdate);
+  }, []);
+
   // Live price simulation with collective consciousness influence
   useEffect(() => {
     const interval = setInterval(() => {
@@ -78,26 +112,35 @@ export default function CollectiveManifest() {
       // Volume influence
       const volumeMod = 1 + (collectiveMetrics.totalVolume24h / 10000000) * 0.005;
       
+      // Consciousness boost from feedback loop
+      const boostMod = consciousnessBoost;
+      
       // Quantum fluctuation
       const quantumFlux = (Math.random() - 0.5) * 0.002;
       
-      const newPrice = basePrice * consciousnessMod * volumeMod * (1 + quantumFlux);
+      const newPrice = basePrice * consciousnessMod * volumeMod * boostMod * (1 + quantumFlux);
       const change = ((newPrice - livePrice) / livePrice) * 100;
       
       setLivePrice(newPrice);
       setPriceChange(change);
       
-      // Manifestation power increases with collective activity
-      const power = Math.min(100, 
+      // Manifestation power increases with collective activity and consciousness
+      const basePower = Math.min(100, 
         (collectiveMetrics.activeUsers24h / 10) + 
         (collectiveMetrics.totalVolume24h / 1000000) +
         (collectiveMetrics.manifestationEvents / 100)
       );
-      setManifestationPower(power);
+      const boostedPower = basePower * consciousnessBoost;
+      setManifestationPower(Math.min(100, boostedPower));
+      
+      // Trigger UI theme adjustment event
+      window.dispatchEvent(new CustomEvent('manifestationPowerUpdate', {
+        detail: { power: boostedPower }
+      }));
     }, 2000);
 
     return () => clearInterval(interval);
-  }, [currencyIndex, collectiveMetrics, livePrice]);
+  }, [currencyIndex, collectiveMetrics, livePrice, consciousnessBoost]);
 
   // Price history simulation
   const priceHistory = Array(20).fill(0).map((_, i) => ({
@@ -373,6 +416,42 @@ export default function CollectiveManifest() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Configuration Prompts */}
+      {configurationPrompts.length > 0 && (
+        <Card className="bg-gradient-to-r from-cyan-950/40 to-blue-950/40 border-cyan-500/30">
+          <CardHeader className="border-b border-cyan-900/30">
+            <CardTitle className="text-cyan-200 flex items-center gap-2">
+              <Sparkles className="w-5 h-5" />
+              Configuration Prompts • Suggested Actions
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-3">
+              {configurationPrompts.map((prompt, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="p-4 bg-slate-950/50 rounded-lg border border-cyan-500/30"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="font-semibold text-cyan-200">{prompt.action}</div>
+                    <Badge className="bg-green-500/20 text-green-300 border-green-500/30 text-xs">
+                      {prompt.impact}
+                    </Badge>
+                  </div>
+                  <div className="text-sm text-cyan-300/70">{prompt.reason}</div>
+                </motion.div>
+              ))}
+            </div>
+            <div className="mt-4 text-xs text-cyan-400/70 text-center">
+              System detects configuration opportunities based on network sentiment and consciousness alignment
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Configuration Manifests Statement */}
       <Card className="bg-gradient-to-r from-purple-950/40 to-pink-950/40 border-purple-500/30">

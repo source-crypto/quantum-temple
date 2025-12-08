@@ -130,36 +130,63 @@ export default function ConsciousnessLayer() {
     }
   }, [interactions]);
 
-  // Dynamic UI adaptation based on consciousness metrics
+  // Dynamic UI adaptation based on consciousness metrics + manifestation power feedback
   useEffect(() => {
     const harmony = engagementMetrics.harmonyScore;
     const resonance = engagementMetrics.emotionalResonance;
     const alignment = engagementMetrics.consciousnessAlignment;
     
-    // Adapt color palette
+    // Listen for manifestation power updates
+    const handleManifestationUpdate = (event) => {
+      const { power } = event.detail;
+      
+      // High manifestation power = celebratory/expansive theme
+      if (power > 80) {
+        setUiAdaptation(prev => ({
+          ...prev,
+          colorPalette: 'transcendent',
+          animationIntensity: 1.3,
+          notificationTone: 'celebratory',
+          contentFraming: 'elevated'
+        }));
+      }
+      // Low manifestation power = grounding/supportive theme
+      else if (power < 40) {
+        setUiAdaptation(prev => ({
+          ...prev,
+          colorPalette: 'grounding',
+          animationIntensity: 0.8,
+          notificationTone: 'gentle',
+          contentFraming: 'supportive'
+        }));
+      }
+    };
+    
+    window.addEventListener('manifestationPowerUpdate', handleManifestationUpdate);
+    
+    // Base adaptation
     let palette = 'default';
     if (alignment > 85) palette = 'transcendent';
     else if (alignment < 50) palette = 'grounding';
     
-    // Adapt animation intensity
     let intensity = 1;
-    if (engagementMetrics.scrollVelocity > 100) intensity = 0.5; // Reduce if scrolling fast
-    else if (engagementMetrics.hesitationTime > 5000) intensity = 1.5; // Increase if contemplating
+    if (engagementMetrics.scrollVelocity > 100) intensity = 0.5;
+    else if (engagementMetrics.hesitationTime > 5000) intensity = 1.5;
     
-    // Adapt notification tone
     let tone = 'harmonious';
     if (sentimentData.score < 0.4) tone = 'gentle';
     else if (sentimentData.score > 0.8) tone = 'celebratory';
     
-    // Adapt content framing
     let framing = 'centered';
     if (resonance < 60) framing = 'supportive';
     else if (resonance > 85) framing = 'elevated';
     
     setUiAdaptation({ colorPalette: palette, animationIntensity: intensity, notificationTone: tone, contentFraming: framing });
+    
+    return () => window.removeEventListener('manifestationPowerUpdate', handleManifestationUpdate);
   }, [engagementMetrics, sentimentData]);
 
-  // Update consciousness metrics periodically
+  // Update consciousness metrics periodically and trigger feedback loops
   useEffect(() => {
     const interval = setInterval(() => {
       setEngagementMetrics(prev => {
@@ -172,12 +199,23 @@ export default function ConsciousnessLayer() {
         // Calculate alignment from overall sentiment
         const consciousAlignment = sentimentData.score * 100;
         
-        return {
+        const newMetrics = {
           ...prev,
           harmonyScore: Math.round((scrollHarmony + thinkingResonance) / 2),
           emotionalResonance: Math.round(thinkingResonance),
           consciousnessAlignment: Math.round(consciousAlignment)
         };
+        
+        // Broadcast consciousness metrics for feedback loops
+        window.dispatchEvent(new CustomEvent('consciousnessUpdate', {
+          detail: {
+            coherence: (newMetrics.harmonyScore + newMetrics.emotionalResonance + newMetrics.consciousnessAlignment) / 3,
+            sentiment: sentimentData.score,
+            harmony: newMetrics.harmonyScore
+          }
+        }));
+        
+        return newMetrics;
       });
     }, 3000);
 

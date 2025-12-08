@@ -382,6 +382,21 @@ export default function QuantumValueObject() {
         </CardContent>
       </Card>
 
+      {/* Superposition Tracker */}
+      <SuperpositionTracker 
+        transactions={transactions} 
+        users={user ? [user] : []}
+      />
+
+      {/* Personal Resonance Map */}
+      {user && (
+        <QuantumResonanceMap
+          user={user}
+          transactions={transactions}
+          interactions={[]}
+        />
+      )}
+
       {/* Quantum Circuit Diagram */}
       {selectedTransaction && (
         <AnimatePresence>
