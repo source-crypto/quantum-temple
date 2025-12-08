@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Brain, Eye, Waves, DollarSign } from "lucide-react";
+import { Sparkles, Brain, Eye, Waves, DollarSign, Circle as CircleIcon, Globe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import QuantumValueObject from "../components/quantum/QuantumValueObject";
 import ConsciousnessLayer from "../components/quantum/ConsciousnessLayer";
 import AIWatcher from "../components/quantum/AIWatcher";
 import CollectiveManifest from "../components/quantum/CollectiveManifest";
+import RitualisticActions from "../components/quantum/RitualisticActions";
+import QuantumOracle from "../components/quantum/QuantumOracle";
 
 export default function QuantumConstruct() {
   const [activeTab, setActiveTab] = useState("value");
@@ -16,6 +18,8 @@ export default function QuantumConstruct() {
     { id: "value", label: "Quantum Value", icon: Waves, color: "from-purple-600 to-indigo-600" },
     { id: "consciousness", label: "Consciousness Layer", icon: Brain, color: "from-pink-600 to-purple-600" },
     { id: "watcher", label: "AI Watcher", icon: Eye, color: "from-indigo-600 to-purple-600" },
+    { id: "rituals", label: "Ritualistic Actions", icon: CircleIcon, color: "from-purple-600 to-pink-600" },
+    { id: "oracle", label: "Quantum Oracle", icon: Globe, color: "from-cyan-600 to-blue-600" },
   ];
 
   return (
@@ -56,6 +60,14 @@ export default function QuantumConstruct() {
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-full border border-purple-500/30">
               <DollarSign className="w-4 h-4 text-purple-400" />
               <span className="text-sm font-semibold text-purple-300">Price Transparency</span>
+            </div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-900/30 to-purple-900/30 rounded-full border border-pink-500/30">
+              <CircleIcon className="w-4 h-4 text-pink-400" />
+              <span className="text-sm font-semibold text-pink-300">Ritual Entropy</span>
+            </div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-900/30 to-blue-900/30 rounded-full border border-cyan-500/30">
+              <Globe className="w-4 h-4 text-cyan-400" />
+              <span className="text-sm font-semibold text-cyan-300">External Oracles</span>
             </div>
           </div>
         </motion.div>
@@ -128,6 +140,28 @@ export default function QuantumConstruct() {
               exit={{ opacity: 0, x: 20 }}
             >
               <AIWatcher />
+            </motion.div>
+          )}
+
+          {activeTab === "rituals" && (
+            <motion.div
+              key="rituals"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <RitualisticActions />
+            </motion.div>
+          )}
+
+          {activeTab === "oracle" && (
+            <motion.div
+              key="oracle"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <QuantumOracle />
             </motion.div>
           )}
         </AnimatePresence>

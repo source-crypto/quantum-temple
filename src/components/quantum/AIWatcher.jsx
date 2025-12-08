@@ -42,8 +42,11 @@ export default function AIWatcher() {
     interventionsTotal: 0,
     successfulInterventions: 0,
     falsePositives: 0,
-    modelVersion: '2.1.3'
+    modelVersion: '2.1.3',
+    userFeedbackCount: 0,
+    avgFeedbackScore: 0
   });
+  const [userFeedback, setUserFeedback] = useState({});
 
   const queryClient = useQueryClient();
 
@@ -133,6 +136,35 @@ export default function AIWatcher() {
   }, [monitoringStats.averageCoherence]);
 
   // Analyze transaction coherence
+  const submitFeedbackMutation = useMutation({
+    mutationFn: async ({ alertId, rating, effectiveness }) => {
+      setLearningMetrics(prev => {
+        const newCount = prev.userFeedbackCount + 1;
+        const newAvg = ((prev.avgFeedbackScore * prev.userFeedbackCount) + rating) / newCount;
+        
+        return {
+          ...prev,
+          userFeedbackCount: newCount,
+          avgFeedbackScore: newAvg,
+          successfulInterventions: effectiveness === 'effective' ? prev.successfulInterventions + 1 : prev.successfulInterventions,
+          falsePositives: rating < 3 ? prev.falsePositives + 1 : prev.falsePositives
+        };
+      });
+      
+      return { alertId, rating, effectiveness };
+    },
+    onSuccess: () => {
+      toast.success("Feedback Recorded", {
+        description: "Watcher learning algorithms updated"
+      });
+    }
+  });
+
+  const handleFeedback = (alertId, rating, effectiveness) => {
+    setUserFeedback(prev => ({ ...prev, [alertId]: { rating, effectiveness, submitted: true } }));
+    submitFeedbackMutation.mutate({ alertId, rating, effectiveness });
+  };
+
   const analyzeTransactionMutation = useMutation({
     mutationFn: async (transaction) => {
       // Simulate AI analysis
@@ -532,6 +564,10 @@ export default function AIWatcher() {
                   <div className="flex items-center justify-between">
                     <span className="text-purple-400/70">Training Data Points:</span>
                     <span className="text-purple-200">{learningMetrics.interventionsTotal + monitoringStats.totalScans}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-purple-400/70">User Feedback:</span>
+                    <span className="text-purple-200">{learningMetrics.userFeedbackCount} ({learningMetrics.avgFeedbackScore.toFixed(1)}⭐)</span>
                   </div>
                 </div>
               </div>
