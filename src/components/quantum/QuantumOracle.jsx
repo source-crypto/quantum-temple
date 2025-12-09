@@ -69,6 +69,16 @@ export default function QuantumOracle() {
     initialData: [],
   });
 
+  const { data: oracleNodes } = useQuery({
+    queryKey: ['quantumOracleNodes'],
+    queryFn: async () => {
+      const nodes = await base44.entities.QuantumNode.filter({ node_type: 'oracle' }, '-last_active', 10);
+      return nodes;
+    },
+    initialData: [],
+    refetchInterval: 30000 // Refresh every 30 seconds
+  });
+
   const syncOracleMutation = useMutation({
     mutationFn: async () => {
       setIsSyncing(true);
@@ -159,11 +169,71 @@ export default function QuantumOracle() {
         }
       });
       
+      // Create or update oracle nodes
+      const timestamp = new Date().toISOString();
+      
+      // Market Oracle Node
+      await base44.entities.QuantumNode.create({
+        node_id: 'oracle-market-001',
+        node_type: 'oracle',
+        node_name: 'Market Oracle Node',
+        status: 'active',
+        health_score: marketData.sentiment_score,
+        consensus_power: marketData.mvl_impact,
+        stake_amount: 0,
+        connected_peers: 12,
+        last_active: timestamp,
+        metadata: {
+          oracle_type: 'market',
+          signals: marketData.key_signals,
+          trend: marketData.trend_direction,
+          volatility: marketData.volatility_index
+        }
+      });
+      
+      // Social Oracle Node
+      await base44.entities.QuantumNode.create({
+        node_id: 'oracle-social-001',
+        node_type: 'oracle',
+        node_name: 'Social Consensus Oracle',
+        status: 'active',
+        health_score: socialData.consensus_strength,
+        consensus_power: socialData.svl_signal,
+        stake_amount: 0,
+        connected_peers: 8,
+        last_active: timestamp,
+        metadata: {
+          oracle_type: 'social',
+          narrative: socialData.dominant_narrative,
+          energy: socialData.community_energy,
+          alignment: socialData.alignment_score
+        }
+      });
+      
+      // Regulatory Oracle Node
+      await base44.entities.QuantumNode.create({
+        node_id: 'oracle-regulatory-001',
+        node_type: 'oracle',
+        node_name: 'Regulatory Oracle Node',
+        status: 'active',
+        health_score: 100 - regulatoryData.regulatory_risk,
+        consensus_power: 50 + regulatoryData.rvl_adjustment,
+        stake_amount: 0,
+        connected_peers: 6,
+        last_active: timestamp,
+        metadata: {
+          oracle_type: 'regulatory',
+          outlook: regulatoryData.compliance_outlook,
+          risk: regulatoryData.regulatory_risk,
+          changes: regulatoryData.key_changes
+        }
+      });
+      
       return {
         marketTrends: marketData,
         socialConsensus: socialData,
         regulatoryChanges: regulatoryData,
-        lastUpdate: new Date().toISOString()
+        lastUpdate: timestamp
       };
     },
     onSuccess: (data) => {
@@ -196,8 +266,8 @@ export default function QuantumOracle() {
         }));
       }
       
-      toast.success("Oracle Synchronized", {
-        description: "VQC layers updated with external reality signals"
+      toast.success("Oracle Network Synchronized", {
+        description: `3 oracle nodes active • VQC layers updated`
       });
     },
     onError: () => {
@@ -267,6 +337,66 @@ export default function QuantumOracle() {
           )}
         </CardContent>
       </Card>
+
+      {/* Oracle Network Visualization */}
+      {oracleNodes.length > 0 && (
+        <Card className="bg-slate-900/60 border-purple-900/40">
+          <CardHeader className="border-b border-purple-900/30">
+            <CardTitle className="text-purple-200 flex items-center gap-2">
+              <Radio className="w-5 h-5 animate-pulse" />
+              Oracle Network • {oracleNodes.length} Active Nodes
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid md:grid-cols-3 gap-4">
+              {oracleNodes.map((node, i) => (
+                <motion.div
+                  key={node.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="p-4 bg-slate-950/50 rounded-lg border border-purple-500/30"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-full ${
+                        node.status === 'active' ? 'bg-green-500 animate-pulse' : 'bg-gray-500'
+                      }`} />
+                      <span className="text-sm font-semibold text-purple-200">
+                        {node.node_name}
+                      </span>
+                    </div>
+                    <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs">
+                      {node.metadata?.oracle_type}
+                    </Badge>
+                  </div>
+                  
+                  <div className="space-y-2 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-purple-400/70">Health:</span>
+                      <span className="text-purple-200">{node.health_score?.toFixed(0)}%</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-purple-400/70">Consensus Power:</span>
+                      <span className="text-purple-200">{node.consensus_power?.toFixed(0)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-purple-400/70">Peers:</span>
+                      <span className="text-purple-200">{node.connected_peers}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-purple-400/70">Last Active:</span>
+                      <span className="text-purple-200">{format(new Date(node.last_active), "HH:mm:ss")}</span>
+                    </div>
+                  </div>
+                  
+                  <Progress value={node.health_score} className="h-1 mt-3" />
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Oracle Feeds */}
       {oracleFeeds.marketTrends && (
@@ -532,13 +662,16 @@ export default function QuantumOracle() {
         <Card className="bg-slate-900/60 border-purple-900/40">
           <CardContent className="p-12 text-center">
             <Globe className="w-16 h-16 mx-auto mb-4 text-purple-400/40" />
-            <p className="text-purple-400/60 mb-4">Oracle feeds not synchronized</p>
+            <p className="text-purple-400/60 mb-4">Oracle network not initialized</p>
+            <p className="text-sm text-purple-500/50 mb-6">
+              Manifest the first quantum oracle node to begin external reality integration
+            </p>
             <Button
               onClick={() => syncOracleMutation.mutate()}
               className="bg-gradient-to-r from-cyan-600 to-blue-600"
             >
-              <Globe className="w-4 h-4 mr-2" />
-              Synchronize Quantum Oracle
+              <Sparkles className="w-4 h-4 mr-2" />
+              Manifest First Oracle Node
             </Button>
           </CardContent>
         </Card>
