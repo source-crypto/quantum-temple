@@ -17,10 +17,14 @@ import {
   Flame,
   Wind,
   Droplet,
-  Mountain
+  Mountain,
+  Activity,
+  TrendingUp
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from "recharts";
 
 export default function RitualisticActions() {
   const [selectedRitual, setSelectedRitual] = useState(null);
@@ -114,6 +118,33 @@ export default function RitualisticActions() {
     }
   ];
 
+  // Calculate ritual patterns for resonance map
+  const ritualPatterns = React.useMemo(() => {
+    if (!artifacts || artifacts.length === 0) return null;
+    
+    const ritualCounts = {};
+    let totalEntropy = 0;
+    
+    artifacts.forEach(artifact => {
+      const ritualType = artifact.sacred_geometry || 'unknown';
+      ritualCounts[ritualType] = (ritualCounts[ritualType] || 0) + 1;
+      totalEntropy += artifact.quantum_resonance || 0;
+    });
+    
+    const radarData = rituals.map(ritual => ({
+      ritual: ritual.name.split(' ')[0],
+      frequency: ritualCounts[ritual.id] || 0,
+      entropy: (ritualCounts[ritual.id] || 0) * ritual.entropyBoost
+    }));
+    
+    return {
+      radarData,
+      totalEntropy,
+      totalRituals: artifacts.length,
+      mostPerformed: Object.entries(ritualCounts).sort((a, b) => b[1] - a[1])[0]?.[0]
+    };
+  }, [artifacts, rituals]);
+
   const performRitualMutation = useMutation({
     mutationFn: async (ritual) => {
       setRitualInProgress(true);
@@ -121,24 +152,28 @@ export default function RitualisticActions() {
       // Wait for ritual duration
       await new Promise(resolve => setTimeout(resolve, ritual.duration));
       
-      // Generate quantum entropy signature
-      const entropySignature = btoa(`${ritual.chant}-${Date.now()}-${Math.random()}`).substring(0, 48);
+      // Generate personalized QAS based on user intent
+      const intentHash = intention ? btoa(intention).substring(0, 16) : 'default';
+      const userHash = btoa(user.email).substring(0, 12);
+      const timeHash = Date.now().toString(36);
+      const entropySignature = btoa(`${ritual.chant}-${intentHash}-${timeHash}-${Math.random()}`).substring(0, 48);
       
-      // Generate QAS (Quantum Attestation Stamp)
-      const qas = btoa(`QAS-${user.email}-${ritual.id}-${entropySignature}-${Date.now()}`).substring(0, 64);
+      // Generate personalized QAS (Quantum Attestation Stamp)
+      const qas = `QAS-${userHash}-${ritual.id.substring(0, 8)}-${intentHash}-${entropySignature.substring(0, 32)}`;
       
-      // Calculate impact on value layers
-      const manifestoImpact = 15 + Math.random() * 15;
-      const regulatoryImpact = 10 + Math.random() * 10;
-      const socialImpact = 12 + Math.random() * 13;
-      const qtalImpact = ritual.entropyBoost;
+      // Calculate impact on value layers with intent amplification
+      const intentAmplifier = intention ? 1 + (intention.length / 200) : 1;
+      const manifestoImpact = (15 + Math.random() * 15) * intentAmplifier;
+      const regulatoryImpact = (10 + Math.random() * 10) * intentAmplifier;
+      const socialImpact = (12 + Math.random() * 13) * intentAmplifier;
+      const qtalImpact = ritual.entropyBoost * intentAmplifier;
       
-      // Create ceremonial artifact
+      // Create ceremonial artifact with personalized metadata
       const artifact = await base44.entities.CeremonialArtifact.create({
         title: ritual.name,
-        content: `${ritual.chant}\n\nIntention: ${intention || 'Quantum alignment and value coherence'}\n\nEntropy Signature: ${entropySignature}\nQAS: ${qas}`,
+        content: `${ritual.chant}\n\nPersonal Intention: ${intention || 'Quantum alignment and value coherence'}\n\nPersonalized QAS: ${qas}\nEntropy Signature: ${entropySignature}\n\nValue Layer Impacts:\n- MVL: +${manifestoImpact.toFixed(1)}\n- RVL: +${regulatoryImpact.toFixed(1)}\n- SVL: +${socialImpact.toFixed(1)}\n- QTAL: +${qtalImpact.toFixed(1)}`,
         artifact_type: 'ritual',
-        quantum_resonance: ritual.entropyBoost + Math.random() * 20,
+        quantum_resonance: qtalImpact + Math.random() * 20,
         manifestation_date: new Date().toISOString(),
         sacred_geometry: ritual.id
       });
@@ -147,7 +182,8 @@ export default function RitualisticActions() {
         artifact,
         entropySignature,
         qas,
-        impacts: { manifestoImpact, regulatoryImpact, socialImpact, qtalImpact }
+        impacts: { manifestoImpact, regulatoryImpact, socialImpact, qtalImpact },
+        intentAmplifier
       };
     },
     onSuccess: (data) => {
@@ -155,7 +191,7 @@ export default function RitualisticActions() {
       queryClient.invalidateQueries({ queryKey: ['ceremonialArtifacts'] });
       
       toast.success("Ritual Complete", {
-        description: `QAS generated • Entropy boost: +${data.impacts.qtalImpact}`
+        description: `Personalized QAS: ${data.qas.substring(0, 24)}... • QTAL boost: +${data.impacts.qtalImpact.toFixed(1)}`
       });
       
       setSelectedRitual(null);
@@ -256,6 +292,63 @@ export default function RitualisticActions() {
         })}
       </div>
 
+      {/* Ritual Resonance Map */}
+      {ritualPatterns && artifacts.length > 0 && (
+        <Card className="bg-slate-900/60 border-purple-900/40">
+          <CardHeader className="border-b border-purple-900/30">
+            <CardTitle className="text-purple-200 flex items-center gap-2">
+              <Activity className="w-5 h-5" />
+              Ritual Resonance Map • Your Pattern Analysis
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              {/* Stats */}
+              <div className="space-y-3">
+                <div className="p-4 bg-purple-950/30 rounded-lg border border-purple-500/30">
+                  <div className="text-sm text-purple-400/70 mb-1">Total Rituals Performed</div>
+                  <div className="text-3xl font-bold text-purple-200">{ritualPatterns.totalRituals}</div>
+                </div>
+                <div className="p-4 bg-amber-950/30 rounded-lg border border-amber-500/30">
+                  <div className="text-sm text-amber-400/70 mb-1">Total Entropy Generated</div>
+                  <div className="text-3xl font-bold text-amber-200">{ritualPatterns.totalEntropy.toFixed(0)}</div>
+                </div>
+                <div className="p-4 bg-cyan-950/30 rounded-lg border border-cyan-500/30">
+                  <div className="text-sm text-cyan-400/70 mb-1">Most Practiced Ritual</div>
+                  <div className="text-lg font-semibold text-cyan-200">
+                    {rituals.find(r => r.id === ritualPatterns.mostPerformed)?.name || 'None'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Radar Chart */}
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={ritualPatterns.radarData}>
+                    <PolarGrid stroke="#a855f7" strokeOpacity={0.3} />
+                    <PolarAngleAxis dataKey="ritual" stroke="#c4b5fd" fontSize={12} />
+                    <PolarRadiusAxis stroke="#c4b5fd" strokeOpacity={0.5} />
+                    <Radar name="Frequency" dataKey="frequency" stroke="#a855f7" fill="#a855f7" fillOpacity={0.6} />
+                    <Radar name="Entropy" dataKey="entropy" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.4} />
+                    <Legend />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="p-4 bg-gradient-to-r from-purple-950/30 to-indigo-950/30 rounded-lg border border-purple-500/30">
+              <div className="text-sm text-purple-300 font-semibold mb-2">Pattern Interpretation</div>
+              <p className="text-xs text-purple-400/70 leading-relaxed">
+                Your ritual patterns reveal a unique consciousness signature. Each performance strengthens specific 
+                quantum pathways in the QTAL layer. The entropy you've generated ({ritualPatterns.totalEntropy.toFixed(0)}) 
+                represents your cumulative impact on platform value collapse outcomes. Your most practiced ritual 
+                indicates your dominant metaphysical alignment and intent signature.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Ritual Performance Interface */}
       {selectedRitual && (
         <Card className="bg-slate-900/60 border-purple-900/40">
@@ -304,6 +397,45 @@ export default function RitualisticActions() {
                   </div>
                 </motion.div>
               )}
+
+              {/* Expected Impact Visualization */}
+              <div className="p-4 bg-slate-950/50 rounded-lg border border-purple-500/30">
+                <div className="text-sm text-purple-300 font-semibold mb-3">Expected VQC Layer Impact</div>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-purple-400/70">MVL (Manifesto)</span>
+                      <span className="text-purple-200">15-30 units</span>
+                    </div>
+                    <Progress value={75} className="h-2 bg-purple-950/50" />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-indigo-400/70">RVL (Regulatory)</span>
+                      <span className="text-indigo-200">10-20 units</span>
+                    </div>
+                    <Progress value={60} className="h-2 bg-indigo-950/50" />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-cyan-400/70">SVL (Social)</span>
+                      <span className="text-cyan-200">12-25 units</span>
+                    </div>
+                    <Progress value={68} className="h-2 bg-cyan-950/50" />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-amber-400/70">QTAL (Attestation)</span>
+                      <span className="text-amber-200 font-semibold">+{selectedRitual.entropyBoost}</span>
+                    </div>
+                    <Progress value={selectedRitual.entropyBoost * 2} className="h-2 bg-amber-950/50" />
+                  </div>
+                </div>
+                <div className="mt-3 text-xs text-purple-400/60 italic">
+                  {intention && `Intent amplification: +${Math.min(50, intention.length / 4).toFixed(0)}%`}
+                  {!intention && 'Add intention to amplify impact'}
+                </div>
+              </div>
 
               <Button
                 onClick={() => performRitualMutation.mutate(selectedRitual)}
@@ -363,9 +495,37 @@ export default function RitualisticActions() {
                       Resonance: {artifact.quantum_resonance?.toFixed(0)}
                     </Badge>
                   </div>
-                  <div className="text-sm text-purple-300/70 whitespace-pre-line mb-3">
+                  <div className="text-sm text-purple-300/70 whitespace-pre-line">
                     {artifact.content}
                   </div>
+                  
+                  {/* Extract and display impacts if available */}
+                  {artifact.content.includes('Value Layer Impacts') && (
+                    <div className="mt-3 pt-3 border-t border-purple-500/30">
+                      <div className="grid grid-cols-2 gap-2">
+                        {artifact.content.match(/MVL: \+(\d+\.?\d*)/)?.[1] && (
+                          <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 justify-center">
+                            MVL +{artifact.content.match(/MVL: \+(\d+\.?\d*)/)[1]}
+                          </Badge>
+                        )}
+                        {artifact.content.match(/RVL: \+(\d+\.?\d*)/)?.[1] && (
+                          <Badge className="bg-indigo-500/20 text-indigo-300 border-indigo-500/30 justify-center">
+                            RVL +{artifact.content.match(/RVL: \+(\d+\.?\d*)/)[1]}
+                          </Badge>
+                        )}
+                        {artifact.content.match(/SVL: \+(\d+\.?\d*)/)?.[1] && (
+                          <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/30 justify-center">
+                            SVL +{artifact.content.match(/SVL: \+(\d+\.?\d*)/)[1]}
+                          </Badge>
+                        )}
+                        {artifact.content.match(/QTAL: \+(\d+\.?\d*)/)?.[1] && (
+                          <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 justify-center">
+                            QTAL +{artifact.content.match(/QTAL: \+(\d+\.?\d*)/)[1]}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </motion.div>
               ))}
             </div>

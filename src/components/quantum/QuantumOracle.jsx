@@ -28,6 +28,37 @@ export default function QuantumOracle() {
     lastUpdate: null
   });
   const [isSyncing, setIsSyncing] = useState(false);
+  const [autoSync, setAutoSync] = useState(false);
+
+  // Auto-sync every 5 minutes if enabled
+  useEffect(() => {
+    if (!autoSync) return;
+    
+    const interval = setInterval(() => {
+      syncOracleMutation.mutate();
+    }, 300000); // 5 minutes
+    
+    return () => clearInterval(interval);
+  }, [autoSync]);
+
+  // Listen for VQC events and respond
+  useEffect(() => {
+    const handleVQCRequest = (event) => {
+      if (oracleFeeds.marketTrends) {
+        window.dispatchEvent(new CustomEvent('oracleResponse', {
+          detail: {
+            mvl: oracleFeeds.marketTrends.mvl_impact,
+            rvl: oracleFeeds.regulatoryChanges.rvl_adjustment,
+            svl: oracleFeeds.socialConsensus.svl_signal,
+            timestamp: oracleFeeds.lastUpdate
+          }
+        }));
+      }
+    };
+    
+    window.addEventListener('vqcRequestOracle', handleVQCRequest);
+    return () => window.removeEventListener('vqcRequestOracle', handleVQCRequest);
+  }, [oracleFeeds]);
 
   const { data: dataSource } = useQuery({
     queryKey: ['quantumOracleSources'],
@@ -139,14 +170,31 @@ export default function QuantumOracle() {
       setOracleFeeds(data);
       setIsSyncing(false);
       
-      // Broadcast oracle signals for VQC integration
-      window.dispatchEvent(new CustomEvent('oracleUpdate', {
-        detail: {
-          mvl: data.marketTrends.mvl_impact,
-          rvl: data.regulatoryChanges.rvl_adjustment,
-          svl: data.socialConsensus.svl_signal
-        }
-      }));
+      // Broadcast oracle signals for VQC integration with dynamic adjustments
+      const vqcAdjustments = {
+        mvl: data.marketTrends.mvl_impact,
+        rvl: data.regulatoryChanges.rvl_adjustment,
+        svl: data.socialConsensus.svl_signal,
+        timestamp: data.lastUpdate,
+        autoAdjust: true
+      };
+      
+      window.dispatchEvent(new CustomEvent('oracleUpdate', { detail: vqcAdjustments }));
+      
+      // Trigger automatic VQC recalculation if significant changes detected
+      const significantChange = 
+        Math.abs(data.regulatoryChanges.rvl_adjustment) > 10 ||
+        data.marketTrends.mvl_impact > 80 ||
+        data.socialConsensus.svl_signal > 85;
+      
+      if (significantChange) {
+        window.dispatchEvent(new CustomEvent('vqcRecalculate', { 
+          detail: { 
+            reason: 'Significant oracle signal detected',
+            adjustments: vqcAdjustments 
+          } 
+        }));
+      }
       
       toast.success("Oracle Synchronized", {
         description: "VQC layers updated with external reality signals"
@@ -177,6 +225,15 @@ export default function QuantumOracle() {
               )}
               <Button
                 size="sm"
+                variant={autoSync ? "default" : "outline"}
+                onClick={() => setAutoSync(!autoSync)}
+                className={autoSync ? "bg-green-600 hover:bg-green-700" : "border-cyan-500/30 text-cyan-300"}
+              >
+                <Activity className="w-4 h-4 mr-2" />
+                Auto {autoSync ? 'ON' : 'OFF'}
+              </Button>
+              <Button
+                size="sm"
                 onClick={() => syncOracleMutation.mutate()}
                 disabled={isSyncing}
                 className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500"
@@ -189,7 +246,7 @@ export default function QuantumOracle() {
                 ) : (
                   <>
                     <Globe className="w-4 h-4 mr-2" />
-                    Sync Oracle
+                    Sync Now
                   </>
                 )}
               </Button>
@@ -202,6 +259,12 @@ export default function QuantumOracle() {
             quantum-compatible signals that integrate directly with VQC layers (MVL, RVL, SVL). External reality becomes 
             observable quantum input, enabling the platform to react to global events and adjust value calculations in real-time.
           </p>
+          {autoSync && (
+            <div className="flex items-center gap-2 mt-3 p-3 bg-green-950/30 rounded-lg border border-green-500/30">
+              <Activity className="w-4 h-4 text-green-400 animate-pulse" />
+              <span className="text-sm text-green-300">Auto-sync enabled • Updates every 5 minutes</span>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -372,14 +435,24 @@ export default function QuantumOracle() {
         </div>
       )}
 
-      {/* VQC Layer Impact Summary */}
+      {/* VQC Layer Impact Summary with Dynamic Adjustments */}
       {oracleFeeds.marketTrends && (
         <Card className="bg-slate-900/60 border-purple-900/40">
           <CardHeader className="border-b border-purple-900/30">
-            <CardTitle className="text-purple-200 flex items-center gap-2">
-              <Zap className="w-5 h-5" />
-              VQC Layer Impact • External Signals
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-purple-200 flex items-center gap-2">
+                <Zap className="w-5 h-5" />
+                VQC Layer Impact • Real-Time Adjustments
+              </CardTitle>
+              {(Math.abs(oracleFeeds.regulatoryChanges.rvl_adjustment) > 10 ||
+                oracleFeeds.marketTrends.mvl_impact > 80 ||
+                oracleFeeds.socialConsensus.svl_signal > 85) && (
+                <Badge className="bg-red-500/20 text-red-300 border-red-500/30 animate-pulse">
+                  <AlertCircle className="w-3 h-3 mr-1" />
+                  Significant Change
+                </Badge>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid md:grid-cols-3 gap-4">
@@ -392,6 +465,11 @@ export default function QuantumOracle() {
                 <div className="text-xs text-purple-400/70 mt-2">
                   Market trend alignment with manifesto intent
                 </div>
+                {oracleFeeds.marketTrends.mvl_impact > 80 && (
+                  <Badge className="mt-2 bg-green-500/20 text-green-300 border-green-500/30 text-xs">
+                    Auto-adjusted
+                  </Badge>
+                )}
               </div>
 
               <div className="p-4 bg-indigo-950/30 rounded-lg border border-indigo-500/30">
@@ -411,6 +489,11 @@ export default function QuantumOracle() {
                 <div className="text-xs text-indigo-400/70 mt-2">
                   Regulatory environment adjustment
                 </div>
+                {Math.abs(oracleFeeds.regulatoryChanges.rvl_adjustment) > 10 && (
+                  <Badge className="mt-2 bg-red-500/20 text-red-300 border-red-500/30 text-xs">
+                    Critical adjustment
+                  </Badge>
+                )}
               </div>
 
               <div className="p-4 bg-cyan-950/30 rounded-lg border border-cyan-500/30">
@@ -422,7 +505,23 @@ export default function QuantumOracle() {
                 <div className="text-xs text-cyan-400/70 mt-2">
                   Social consensus strength signal
                 </div>
+                {oracleFeeds.socialConsensus.svl_signal > 85 && (
+                  <Badge className="mt-2 bg-green-500/20 text-green-300 border-green-500/30 text-xs">
+                    Strong consensus
+                  </Badge>
+                )}
               </div>
+            </div>
+
+            <div className="mt-6 p-4 bg-gradient-to-r from-purple-950/30 to-cyan-950/30 rounded-lg border border-purple-500/30">
+              <div className="text-sm text-purple-300 font-semibold mb-2">Dynamic VQC Behavior</div>
+              <p className="text-xs text-purple-400/70 leading-relaxed">
+                When significant oracle signals are detected (RVL adjustment &gt; ±10, MVL impact &gt; 80, or SVL signal &gt; 85), 
+                the platform automatically triggers VQC recalculation events. These adjustments propagate through all dependent 
+                systems—currency pricing, governance weights, trading parameters—ensuring the platform remains synchronized 
+                with external reality in real-time. This creates a living, reactive value system that adapts to the world's 
+                quantum state.
+              </p>
             </div>
           </CardContent>
         </Card>
