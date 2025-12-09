@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -119,7 +119,7 @@ export default function RitualisticActions() {
   ];
 
   // Calculate ritual patterns for resonance map
-  const ritualPatterns = React.useMemo(() => {
+  const ritualPatterns = useMemo(() => {
     if (!artifacts || artifacts.length === 0) return null;
     
     const ritualCounts = {};
