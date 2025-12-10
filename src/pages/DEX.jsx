@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Repeat, Droplets, TrendingUp, BarChart3, ArrowLeftRight } from "lucide-react";
+import { Repeat, Droplets, TrendingUp, BarChart3, ArrowLeftRight, Network, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import SwapInterface from "../components/dex/SwapInterface";
@@ -10,6 +10,8 @@ import LiquidityInterface from "../components/dex/LiquidityInterface";
 import YieldFarming from "../components/dex/YieldFarming";
 import PoolsOverview from "../components/dex/PoolsOverview";
 import CrossChainBridge from "../components/dex/CrossChainBridge";
+import MultiChainBridge from "../components/dex/MultiChainBridge";
+import CrossChainExplorer from "../components/dex/CrossChainExplorer";
 
 export default function DEX() {
   const [activeTab, setActiveTab] = useState("swap");
@@ -17,9 +19,11 @@ export default function DEX() {
   const tabs = [
     { id: "swap", label: "Swap", icon: Repeat, color: "from-cyan-600 to-blue-600" },
     { id: "bridge", label: "Cross-Chain Bridge", icon: ArrowLeftRight, color: "from-purple-600 to-pink-600" },
-    { id: "liquidity", label: "Liquidity", icon: Droplets, color: "from-indigo-600 to-purple-600" },
-    { id: "farm", label: "Yield Farming", icon: TrendingUp, color: "from-green-600 to-emerald-600" },
-    { id: "pools", label: "Pools", icon: BarChart3, color: "from-orange-600 to-amber-600" },
+    { id: "multichain", label: "Multi-Chain Bridge", icon: Network, color: "from-indigo-600 to-purple-600" },
+    { id: "explorer", label: "Cross-Chain Explorer", icon: Search, color: "from-blue-600 to-cyan-600" },
+    { id: "liquidity", label: "Liquidity", icon: Droplets, color: "from-green-600 to-emerald-600" },
+    { id: "farm", label: "Yield Farming", icon: TrendingUp, color: "from-amber-600 to-orange-600" },
+    { id: "pools", label: "Pools", icon: BarChart3, color: "from-pink-600 to-rose-600" },
   ];
 
   return (
