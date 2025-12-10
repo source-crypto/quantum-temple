@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import DivineFortress from "../components/security/DivineFortress";
 import LedgerIntegrity from "../components/security/LedgerIntegrity";
 import QuantumNodeMonitor from "../components/security/QuantumNodeMonitor";
+import AINodeManager from "../components/security/AINodeManager";
 
 export default function Security() {
   const [activeTab, setActiveTab] = useState("fortress");
