@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Shield, Database, Lock, Zap } from "lucide-react";
+import { Shield, Database, Lock, Zap, Brain } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import DivineFortress from "../components/security/DivineFortress";
@@ -14,6 +14,7 @@ export default function Security() {
   const tabs = [
     { id: "fortress", label: "Divine Fortress", icon: Shield, color: "from-amber-600 to-orange-600" },
     { id: "quantum", label: "Quantum Nodes", icon: Zap, color: "from-purple-600 to-indigo-600" },
+    { id: "ai-manager", label: "AI Node Manager", icon: Brain, color: "from-indigo-600 to-purple-600" },
     { id: "integrity", label: "Ledger Integrity", icon: Database, color: "from-green-600 to-emerald-600" },
   ];
 
@@ -98,6 +99,17 @@ export default function Security() {
               exit={{ opacity: 0, x: 20 }}
             >
               <QuantumNodeMonitor />
+            </motion.div>
+          )}
+
+          {activeTab === "ai-manager" && (
+            <motion.div
+              key="ai-manager"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <AINodeManager />
             </motion.div>
           )}
 
