@@ -14,7 +14,7 @@ export default function Security() {
   const tabs = [
     { id: "fortress", label: "Divine Fortress", icon: Shield, color: "from-amber-600 to-orange-600" },
     { id: "quantum", label: "Quantum Nodes", icon: Zap, color: "from-purple-600 to-indigo-600" },
-    { id: "ai-manager", label: "AI Node Manager", icon: Brain, color: "from-indigo-600 to-purple-600" },
+    { id: "ai", label: "AI Node Manager", icon: Brain, color: "from-indigo-600 to-purple-600" },
     { id: "integrity", label: "Ledger Integrity", icon: Database, color: "from-green-600 to-emerald-600" },
   ];
 
@@ -102,9 +102,9 @@ export default function Security() {
             </motion.div>
           )}
 
-          {activeTab === "ai-manager" && (
+          {activeTab === "ai" && (
             <motion.div
-              key="ai-manager"
+              key="ai"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
