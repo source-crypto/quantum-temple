@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
@@ -107,6 +106,28 @@ export default function DEX() {
               exit={{ opacity: 0, x: 20 }}
             >
               <CrossChainBridge />
+            </motion.div>
+          )}
+
+          {activeTab === "multichain" && (
+            <motion.div
+              key="multichain"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <MultiChainBridge />
+            </motion.div>
+          )}
+
+          {activeTab === "explorer" && (
+            <motion.div
+              key="explorer"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <CrossChainExplorer />
             </motion.div>
           )}
 
