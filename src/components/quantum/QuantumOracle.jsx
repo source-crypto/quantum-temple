@@ -81,6 +81,50 @@ export default function QuantumOracle() {
     refetchInterval: 30000 // Refresh every 30 seconds
   });
 
+  const deployNodesMutation = useMutation({
+    mutationFn: async () => {
+      const providerAddress = 'ECjtUQnnVds5AcfhMo1epFaCwQz5kAqvTWkBq2o2oMfq';
+      
+      // Get or create user balance
+      let userBalance = await base44.entities.UserBalance.filter({ user_email: user.email });
+      if (userBalance.length === 0) {
+        userBalance = [await base44.entities.UserBalance.create({
+          user_email: user.email,
+          available_balance: 1000,
+          wallet_address: providerAddress
+        })];
+      }
+      
+      // Transfer 100 QTC to provider address as network stake
+      await base44.entities.CurrencyTransaction.create({
+        transaction_type: 'distribution',
+        from_user: 'system',
+        to_user: providerAddress,
+        amount: 100,
+        transaction_fee: 0,
+        status: 'completed',
+        note: 'Oracle provider network initialization',
+        transaction_hash: `TX-ORACLE-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+        timestamp: new Date().toISOString(),
+        quantum_signature: `QS-${btoa(providerAddress).substring(0, 32)}`
+      });
+      
+      // Update user balance
+      await base44.entities.UserBalance.update(userBalance[0].id, {
+        available_balance: userBalance[0].available_balance + 100
+      });
+      
+      return { providerAddress, stakeAmount: 100 };
+    },
+    onSuccess: (data) => {
+      toast.success("Provider Configured", {
+        description: `Address ${data.providerAddress.substring(0, 12)}... • 100 QTC staked`
+      });
+      queryClient.invalidateQueries({ queryKey: ['userBalance'] });
+      syncOracleMutation.mutate();
+    }
+  });
+
   const syncOracleMutation = useMutation({
     mutationFn: async () => {
       setIsSyncing(true);
@@ -174,60 +218,92 @@ export default function QuantumOracle() {
       // Create or update oracle nodes
       const timestamp = new Date().toISOString();
       
-      // Market Oracle Node
-      await base44.entities.QuantumNode.create({
+      // Market Oracle Node with peer connections
+      const marketNode = await base44.entities.QuantumNode.create({
         node_id: 'oracle-market-001',
         node_type: 'oracle',
         node_name: 'Market Oracle Node',
         status: 'active',
         health_score: marketData.sentiment_score,
         consensus_power: marketData.mvl_impact,
-        stake_amount: 0,
+        stake_amount: 33.33,
         connected_peers: 12,
         last_active: timestamp,
         metadata: {
           oracle_type: 'market',
           signals: marketData.key_signals,
           trend: marketData.trend_direction,
-          volatility: marketData.volatility_index
+          volatility: marketData.volatility_index,
+          provider_address: 'ECjtUQnnVds5AcfhMo1epFaCwQz5kAqvTWkBq2o2oMfq',
+          peer_nodes: [
+            'oracle-social-001',
+            'oracle-regulatory-001',
+            'gateway-001',
+            'gateway-002',
+            'verification-001',
+            'verification-002'
+          ],
+          network_topology: 'mesh',
+          latency_ms: 15 + Math.random() * 10,
+          bandwidth_mbps: 1000
         }
       });
       
-      // Social Oracle Node
-      await base44.entities.QuantumNode.create({
+      // Social Oracle Node with peer connections
+      const socialNode = await base44.entities.QuantumNode.create({
         node_id: 'oracle-social-001',
         node_type: 'oracle',
         node_name: 'Social Consensus Oracle',
         status: 'active',
         health_score: socialData.consensus_strength,
         consensus_power: socialData.svl_signal,
-        stake_amount: 0,
+        stake_amount: 33.33,
         connected_peers: 8,
         last_active: timestamp,
         metadata: {
           oracle_type: 'social',
           narrative: socialData.dominant_narrative,
           energy: socialData.community_energy,
-          alignment: socialData.alignment_score
+          alignment: socialData.alignment_score,
+          provider_address: 'ECjtUQnnVds5AcfhMo1epFaCwQz5kAqvTWkBq2o2oMfq',
+          peer_nodes: [
+            'oracle-market-001',
+            'oracle-regulatory-001',
+            'gateway-003',
+            'verification-003'
+          ],
+          network_topology: 'mesh',
+          latency_ms: 12 + Math.random() * 8,
+          bandwidth_mbps: 1000
         }
       });
       
-      // Regulatory Oracle Node
-      await base44.entities.QuantumNode.create({
+      // Regulatory Oracle Node with peer connections
+      const regulatoryNode = await base44.entities.QuantumNode.create({
         node_id: 'oracle-regulatory-001',
         node_type: 'oracle',
         node_name: 'Regulatory Oracle Node',
         status: 'active',
         health_score: 100 - regulatoryData.regulatory_risk,
         consensus_power: 50 + regulatoryData.rvl_adjustment,
-        stake_amount: 0,
+        stake_amount: 33.34,
         connected_peers: 6,
         last_active: timestamp,
         metadata: {
           oracle_type: 'regulatory',
           outlook: regulatoryData.compliance_outlook,
           risk: regulatoryData.regulatory_risk,
-          changes: regulatoryData.key_changes
+          changes: regulatoryData.key_changes,
+          provider_address: 'ECjtUQnnVds5AcfhMo1epFaCwQz5kAqvTWkBq2o2oMfq',
+          peer_nodes: [
+            'oracle-market-001',
+            'oracle-social-001',
+            'gateway-004',
+            'sentinel-001'
+          ],
+          network_topology: 'mesh',
+          latency_ms: 18 + Math.random() * 12,
+          bandwidth_mbps: 1000
         }
       });
       
@@ -269,8 +345,8 @@ export default function QuantumOracle() {
         }));
       }
       
-      toast.success("Oracle Network Synchronized", {
-        description: `3 oracle nodes active • VQC layers updated`
+      toast.success("Oracle Network Deployed", {
+        description: `3 oracle nodes active • 100 QTC staked • ${oracleNodes.length > 0 ? oracleNodes.reduce((sum, n) => sum + (n.connected_peers || 0), 0) : 26} peer connections`
       });
     },
     onError: () => {
@@ -387,6 +463,22 @@ export default function QuantumOracle() {
                       <span className="text-purple-400/70">Peers:</span>
                       <span className="text-purple-200">{node.connected_peers}</span>
                     </div>
+                    {node.metadata?.provider_address && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-purple-400/70">Provider:</span>
+                        <span className="text-purple-200 font-mono text-[10px]">
+                          {node.metadata.provider_address.substring(0, 8)}...
+                        </span>
+                      </div>
+                    )}
+                    {node.stake_amount > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-purple-400/70">Stake:</span>
+                        <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-[10px]">
+                          {node.stake_amount.toFixed(2)} QTC
+                        </Badge>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between">
                       <span className="text-purple-400/70">Last Active:</span>
                       <span className="text-purple-200">{format(new Date(node.last_active), "HH:mm:ss")}</span>
@@ -669,13 +761,49 @@ export default function QuantumOracle() {
             <p className="text-sm text-purple-500/50 mb-6">
               Manifest the first quantum oracle node to begin external reality integration
             </p>
-            <Button
-              onClick={() => syncOracleMutation.mutate()}
-              className="bg-gradient-to-r from-cyan-600 to-blue-600"
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Manifest First Oracle Node
-            </Button>
+            <div className="space-y-4">
+              <div className="p-4 bg-purple-950/30 rounded-lg border border-purple-500/30">
+                <div className="text-sm text-purple-300 mb-2 font-semibold">Provider Configuration</div>
+                <div className="space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-purple-400/70">Provider Address:</span>
+                    <span className="text-purple-200 font-mono">ECjtUQ...o2oMfq</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-purple-400/70">Network Stake:</span>
+                    <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30">
+                      100 QTC
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-purple-400/70">Nodes to Deploy:</span>
+                    <span className="text-purple-200">3 (Market, Social, Regulatory)</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-purple-400/70">Peer Connections:</span>
+                    <span className="text-purple-200">26 mesh topology</span>
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                onClick={() => deployNodesMutation.mutate()}
+                disabled={deployNodesMutation.isPending}
+                className="w-full bg-gradient-to-r from-cyan-600 to-blue-600"
+              >
+                {deployNodesMutation.isPending ? (
+                  <>
+                    <Radio className="w-4 h-4 mr-2 animate-spin" />
+                    Deploying Nodes...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Deploy Oracle Network • 100 QTC Stake
+                  </>
+                )}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
