@@ -10,14 +10,17 @@ import {
   Loader2,
   BookOpen,
   Zap,
-  Hexagon
+  Hexagon,
+  FileText
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import SpiritualWriting from "../components/ceremonial/SpiritualWriting";
 
 export default function Ceremonial() {
   const [isChanneling, setIsChanneling] = useState(false);
+  const [activeTab, setActiveTab] = useState("artifacts");
   const queryClient = useQueryClient();
 
   const { data: artifacts, isLoading } = useQuery({
@@ -160,6 +163,39 @@ export default function Ceremonial() {
           </Card>
         </motion.div>
 
+        {/* Tabs */}
+        <div className="mb-6">
+          <div className="flex gap-2 bg-slate-900/60 p-2 rounded-xl border border-purple-900/30">
+            <Button
+              variant={activeTab === "artifacts" ? "default" : "ghost"}
+              onClick={() => setActiveTab("artifacts")}
+              className={activeTab === "artifacts" 
+                ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white"
+                : "text-purple-300 hover:text-purple-200 hover:bg-purple-900/30"
+              }
+            >
+              <Scroll className="w-4 h-4 mr-2" />
+              Artifacts
+            </Button>
+            <Button
+              variant={activeTab === "writing" ? "default" : "ghost"}
+              onClick={() => setActiveTab("writing")}
+              className={activeTab === "writing" 
+                ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white"
+                : "text-purple-300 hover:text-purple-200 hover:bg-purple-900/30"
+              }
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Spiritual Writing
+            </Button>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === "writing" ? (
+          <SpiritualWriting />
+        ) : (
+          <>
         {/* Artifacts Grid */}
         <div className="grid md:grid-cols-2 gap-6">
           {isLoading ? (
@@ -250,6 +286,8 @@ export default function Ceremonial() {
             </AnimatePresence>
           )}
         </div>
+        </>
+        )}
       </div>
     </div>
   );
