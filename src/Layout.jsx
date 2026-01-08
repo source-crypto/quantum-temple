@@ -13,7 +13,8 @@ import {
         FileText,
         TrendingUp,
         Waves,
-        Network
+        Network,
+        Activity
       } from "lucide-react";
 import {
   Sidebar,
