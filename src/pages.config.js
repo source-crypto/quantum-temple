@@ -13,6 +13,7 @@ import Settings from './pages/Settings';
 import TempleMode from './pages/TempleMode';
 import WhitePaper from './pages/WhitePaper';
 import IntentNetwork from './pages/IntentNetwork';
+import OperationalReadinessDashboard from './pages/OperationalReadinessDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -32,6 +33,7 @@ export const PAGES = {
     "TempleMode": TempleMode,
     "WhitePaper": WhitePaper,
     "IntentNetwork": IntentNetwork,
+    "OperationalReadinessDashboard": OperationalReadinessDashboard,
 }
 
 export const pagesConfig = {

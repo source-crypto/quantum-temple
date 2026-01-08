@@ -87,6 +87,11 @@ const navigationItems = [
     icon: Network,
   },
   {
+    title: "Operational Readiness",
+    url: createPageUrl("OperationalReadinessDashboard"),
+    icon: Activity,
+  },
+  {
     title: "Security",
     url: createPageUrl("Security"),
     icon: Shield,
