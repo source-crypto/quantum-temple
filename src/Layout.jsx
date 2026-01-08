@@ -2,18 +2,19 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
-  Sparkles, 
-  Shield, 
-  Scroll, 
-  Coins, 
-  MessageCircle, 
-  Database,
-  Hexagon,
-  Settings,
-  FileText,
-  TrendingUp,
-  Waves
-} from "lucide-react";
+        Sparkles, 
+        Shield, 
+        Scroll, 
+        Coins, 
+        MessageCircle, 
+        Database,
+        Hexagon,
+        Settings,
+        FileText,
+        TrendingUp,
+        Waves,
+        Network
+      } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -79,6 +80,11 @@ const navigationItems = [
     title: "Quantum Construct",
     url: createPageUrl("QuantumConstruct"),
     icon: Waves,
+  },
+  {
+    title: "Intent Network",
+    url: createPageUrl("IntentNetwork"),
+    icon: Network,
   },
   {
     title: "Security",
