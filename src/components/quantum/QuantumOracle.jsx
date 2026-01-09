@@ -29,6 +29,10 @@ export default function QuantumOracle() {
   });
   const [isSyncing, setIsSyncing] = useState(false);
   const [autoSync, setAutoSync] = useState(false);
+  const [actionLog, setActionLog] = useState([]);
+  const logAction = (action, intent) => {
+    setActionLog(prev => [{ timestamp: new Date().toISOString(), action, intent }, ...prev].slice(0, 20));
+  };
   
   const queryClient = useQueryClient();
 
@@ -84,6 +88,12 @@ export default function QuantumOracle() {
   const deployNodesMutation = useMutation({
     mutationFn: async () => {
       const providerAddress = 'ECjtUQnnVds5AcfhMo1epFaCwQz5kAqvTWkBq2o2oMfq';
+// Idempotency: if core oracle nodes already exist, skip staking and just refresh
+const existingCore = await base44.entities.QuantumNode.filter({ node_type: 'oracle' });
+const ids = new Set(existingCore.map(n => n.node_id));
+if (ids.has('oracle-market-001') && ids.has('oracle-social-001') && ids.has('oracle-regulatory-001')) {
+  return { providerAddress, stakeAmount: 0, skipped: true };
+}
       
       // Get or create user balance
       let userBalance = await base44.entities.UserBalance.filter({ user_email: user.email });
@@ -117,12 +127,18 @@ export default function QuantumOracle() {
       return { providerAddress, stakeAmount: 100 };
     },
     onSuccess: (data) => {
-      toast.success("Provider Configured", {
-        description: `Address ${data.providerAddress.substring(0, 12)}... • 100 QTC staked`
-      });
-      queryClient.invalidateQueries({ queryKey: ['userBalance'] });
-      syncOracleMutation.mutate();
-    }
+                if (data.skipped) {
+                  toast.success("Oracle Already Configured", {
+                    description: "Refreshing oracle nodes"
+                  });
+                } else {
+                  toast.success("Provider Configured", {
+                    description: `Address ${String(data.providerAddress).substring(0, 12)}... • 100 QTC staked`
+                  });
+                  queryClient.invalidateQueries({ queryKey: ['userBalance'] });
+                }
+                syncOracleMutation.mutate();
+              }
   });
 
   const syncOracleMutation = useMutation({
@@ -217,9 +233,19 @@ export default function QuantumOracle() {
       
       // Create or update oracle nodes
       const timestamp = new Date().toISOString();
+
+            // upsert helper to avoid duplicates and ensure transparency
+            const upsert = async (payload) => {
+              const existing = await base44.entities.QuantumNode.filter({ node_id: payload.node_id });
+              if (existing.length > 0) {
+                await base44.entities.QuantumNode.update(existing[0].id, payload);
+                return existing[0];
+              }
+              return base44.entities.QuantumNode.create(payload);
+            };
       
       // Market Oracle Node with peer connections
-      const marketNode = await base44.entities.QuantumNode.create({
+      const marketNode = await upsert({
         node_id: 'oracle-market-001',
         node_type: 'oracle',
         node_name: 'Market Oracle Node',
@@ -250,7 +276,7 @@ export default function QuantumOracle() {
       });
       
       // Social Oracle Node with peer connections
-      const socialNode = await base44.entities.QuantumNode.create({
+      const socialNode = await upsert({
         node_id: 'oracle-social-001',
         node_type: 'oracle',
         node_name: 'Social Consensus Oracle',
@@ -279,7 +305,7 @@ export default function QuantumOracle() {
       });
       
       // Regulatory Oracle Node with peer connections
-      const regulatoryNode = await base44.entities.QuantumNode.create({
+      const regulatoryNode = await upsert({
         node_id: 'oracle-regulatory-001',
         node_type: 'oracle',
         node_name: 'Regulatory Oracle Node',
@@ -375,7 +401,7 @@ export default function QuantumOracle() {
               <Button
                 size="sm"
                 variant={autoSync ? "default" : "outline"}
-                onClick={() => setAutoSync(!autoSync)}
+                onClick={() => { logAction('Toggle Auto Sync', autoSync ? 'Disable periodic sync (5m interval)' : 'Enable periodic sync (5m interval)'); setAutoSync(!autoSync); }}
                 className={autoSync ? "bg-green-600 hover:bg-green-700" : "border-cyan-500/30 text-cyan-300"}
               >
                 <Activity className="w-4 h-4 mr-2" />
@@ -383,7 +409,7 @@ export default function QuantumOracle() {
               </Button>
               <Button
                 size="sm"
-                onClick={() => syncOracleMutation.mutate()}
+                onClick={() => { logAction('Sync Now', 'Fetch external signals and upsert oracle nodes'); syncOracleMutation.mutate(); }}
                 disabled={isSyncing}
                 className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500"
               >
@@ -414,6 +440,11 @@ export default function QuantumOracle() {
               <span className="text-sm text-green-300">Auto-sync enabled • Updates every 5 minutes</span>
             </div>
           )}
+          <div className="grid md:grid-cols-3 gap-2 text-[11px] text-cyan-300/60 mt-2">
+            <div>Auto: Toggle periodic sync (every 5 minutes)</div>
+            <div>Sync Now: Fetch external signals and upsert oracle nodes</div>
+            <div>Transparency: All actions are logged below</div>
+          </div>
         </CardContent>
       </Card>
 
@@ -787,7 +818,7 @@ export default function QuantumOracle() {
               </div>
 
               <Button
-                onClick={() => deployNodesMutation.mutate()}
+                onClick={() => { logAction('Deploy Oracle Network', 'Create core oracle nodes if missing and stake 100 QTC (idempotent)'); deployNodesMutation.mutate(); }}
                 disabled={deployNodesMutation.isPending}
                 className="w-full bg-gradient-to-r from-cyan-600 to-blue-600"
               >
@@ -808,7 +839,29 @@ export default function QuantumOracle() {
         </Card>
       )}
 
-      {/* Oracle Statement */}
+      {/* Transparency Log */}
+      {actionLog.length > 0 && (
+        <Card className="bg-slate-900/60 border-purple-900/40">
+          <CardHeader className="border-b border-purple-900/30">
+            <CardTitle className="text-purple-200">Transparency Log</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="space-y-2">
+              {actionLog.slice(0,6).map((entry, i) => (
+                <div key={i} className="flex items-start justify-between text-xs text-purple-300/80 p-2 bg-slate-950/50 rounded border border-purple-900/30">
+                  <div>
+                    <div className="font-semibold text-purple-200">{entry.action}</div>
+                    <div className="text-purple-400/70">{entry.intent}</div>
+                  </div>
+                  <div className="text-purple-400/60 font-mono">{new Date(entry.timestamp).toLocaleTimeString()}</div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+       {/* Oracle Statement */}
       <Card className="bg-gradient-to-r from-purple-950/40 to-indigo-950/40 border-purple-500/30">
         <CardContent className="p-6">
           <div className="flex items-center gap-3 mb-3">
