@@ -1,167 +1,181 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Target, Sparkles, Plus, History, Settings2 } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { format } from "date-fns";
-
-const TOTAL_UNITS = 12;
+import { Sparkles, Target, History, CircleCheck } from "lucide-react";
+import { toast } from "sonner";
 
 export default function AbundanceManifest() {
   const queryClient = useQueryClient();
 
-  const { data: intents } = useQuery({
+  const nodesQuery = useQuery({
     queryKey: ["intentNodes"],
-    queryFn: async () => {
-      try { return await base44.entities.IntentNode.list(); } catch { return []; }
-    },
-    initialData: []
+    queryFn: () => base44.entities.IntentNode.list("-created_date", 50),
+    initialData: [],
+    refetchInterval: 15000
   });
 
-  const { data: goals } = useQuery({
+  const goalsQuery = useQuery({
     queryKey: ["abundanceGoals"],
     queryFn: () => base44.entities.AbundanceGoal.list("-created_date", 20),
     initialData: []
   });
 
-  const { data: events } = useQuery({
+  const eventsQuery = useQuery({
     queryKey: ["manifestationEvents"],
-    queryFn: () => base44.entities.ManifestationEvent.list("-event_date", 50),
+    queryFn: () => base44.entities.ManifestationEvent.list("-created_date", 20),
     initialData: []
   });
 
+  const totalUnits = useMemo(() => {
+    const nodes = nodesQuery.data || [];
+    // Each active node contributes 1 transparency unit
+    return Math.min(12, nodes.filter((n) => n.status === "active").length);
+  }, [nodesQuery.data]);
+
+  const percent = Math.round((totalUnits / 12) * 100);
+
+  const [goalName, setGoalName] = useState("");
+  const [target, setTarget] = useState(12);
+  const [targetDate, setTargetDate] = useState("");
+  const [strategy, setStrategy] = useState("");
+
   const createGoalMutation = useMutation({
-    mutationFn: (payload) => base44.entities.AbundanceGoal.create(payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["abundanceGoals"] })
+    mutationFn: () => base44.entities.AbundanceGoal.create({
+      goal_name: goalName || "Abundance Manifest",
+      target_transparency: Math.max(1, Math.min(12, Number(target) || 12)),
+      alignment_strategy: strategy || "Align oracle MVL/SVL toward active nodes",
+      target_date: targetDate || undefined
+    }),
+    onSuccess: () => {
+      toast.success("Goal saved");
+      setGoalName(""); setTarget(12); setTargetDate(""); setStrategy("");
+      queryClient.invalidateQueries({ queryKey: ["abundanceGoals"] });
+    }
   });
 
-  const createEventMutation = useMutation({
-    mutationFn: (payload) => base44.entities.ManifestationEvent.create(payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["manifestationEvents"] })
+  const snapshotMutation = useMutation({
+    mutationFn: async () => {
+      const note = `Snapshot at ${new Date().toISOString()} with ${totalUnits}/12 units`;
+      return base44.entities.ManifestationEvent.create({
+        event_type: totalUnits === 12 ? "completion" : "snapshot",
+        total_transparency: totalUnits,
+        units_added: 0,
+        factors: ["intent_nodes_status", "oracle_alignment"],
+        note,
+        timestamp: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      toast.success("Manifestation snapshot logged");
+      queryClient.invalidateQueries({ queryKey: ["manifestationEvents"] });
+    }
   });
-
-  const [goalForm, setGoalForm] = React.useState({ goal_name: "", target_units: 12, description: "", deadline: "" });
-  const [eventForm, setEventForm] = React.useState({ title: "", units: 0, notes: "" });
-
-  const units = Math.min(TOTAL_UNITS, intents.length || 0);
-  const percent = Math.round((units / TOTAL_UNITS) * 100);
-
-  const chartData = (events || []).map((e) => ({
-    date: format(new Date(e.event_date || e.created_date), "MMM d"),
-    units: e.units || 0,
-    level: e.abundance_level || Math.round((e.units || 0) / TOTAL_UNITS * 100)
-  })).reverse();
 
   return (
     <Card className="bg-slate-900/60 border-purple-900/40">
       <CardHeader className="border-b border-purple-900/30">
-        <CardTitle className="text-purple-200 flex items-center gap-2">
-          <Sparkles className="w-5 h-5" />
-          Abundance Manifest • Transparency Alignment
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-purple-200 flex items-center gap-2">
+            <Sparkles className="w-5 h-5" />
+            Abundance Manifest
+          </CardTitle>
+          <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30">{totalUnits}/12 Units</Badge>
+        </div>
       </CardHeader>
       <CardContent className="p-6 space-y-6">
-        {/* Status */}
-        <div className="grid md:grid-cols-3 gap-4">
-          <div className="p-4 bg-gradient-to-br from-purple-950/40 to-indigo-950/40 rounded border border-purple-500/30">
-            <div className="text-sm text-purple-300 mb-1">Transparency Units</div>
-            <div className="text-3xl font-bold text-purple-100">{units}/{TOTAL_UNITS}</div>
-            <Progress value={percent} className="mt-2 h-2" />
-            <div className="text-xs text-purple-400/70 mt-2">Current manifestation progress</div>
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="p-4 bg-purple-950/30 rounded-lg border border-purple-500/30">
+            <div className="text-sm text-purple-300 mb-2">Manifestation Progress</div>
+            <div className="text-4xl font-bold text-purple-100 mb-2">{percent}%</div>
+            <Progress value={percent} className="h-2" />
+            <div className="text-xs text-purple-400/70 mt-2">Each active intent node contributes 1 transparency unit toward full manifestation.</div>
           </div>
-          <div className="p-4 bg-gradient-to-br from-cyan-950/40 to-blue-950/40 rounded border border-cyan-500/30">
-            <div className="text-sm text-cyan-300 mb-1">Active Goals</div>
-            <div className="text-3xl font-bold text-cyan-100">{(goals || []).filter(g => g.status !== "archived").length}</div>
-            <div className="text-xs text-cyan-400/70 mt-2">Configured abundance outcomes</div>
-          </div>
-          <div className="p-4 bg-gradient-to-br from-amber-950/40 to-orange-950/40 rounded border border-amber-500/30">
-            <div className="text-sm text-amber-300 mb-1">History Events</div>
-            <div className="text-3xl font-bold text-amber-100">{(events || []).length}</div>
-            <div className="text-xs text-amber-400/70 mt-2">Manifestation milestones recorded</div>
-          </div>
-        </div>
 
-        {/* Goals Config */}
-        <div className="p-4 rounded border border-purple-900/30 bg-slate-950/50">
-          <div className="flex items-center gap-2 mb-3">
-            <Target className="w-4 h-4 text-purple-300" />
-            <div className="text-sm text-purple-200 font-semibold">Configure Abundance Goal</div>
-          </div>
-          <div className="grid md:grid-cols-4 gap-3">
-            <Input placeholder="Goal name" value={goalForm.goal_name} onChange={(e) => setGoalForm({ ...goalForm, goal_name: e.target.value })} />
-            <Input type="number" placeholder="Target units (<=12)" value={goalForm.target_units} onChange={(e) => setGoalForm({ ...goalForm, target_units: Number(e.target.value) })} />
-            <Input type="datetime-local" value={goalForm.deadline} onChange={(e) => setGoalForm({ ...goalForm, deadline: e.target.value })} />
-            <Button onClick={() => createGoalMutation.mutate({ ...goalForm })} className="bg-purple-600"> <Plus className="w-4 h-4 mr-2" /> Save Goal</Button>
-          </div>
-          <Textarea placeholder="Goal description / oracle alignment guidance" className="mt-3" value={goalForm.description} onChange={(e) => setGoalForm({ ...goalForm, description: e.target.value })} />
-
-          {/* Goals list */}
-          <div className="mt-4 grid md:grid-cols-2 gap-3">
-            {(goals || []).map((g) => (
-              <div key={g.id} className="p-3 rounded border border-purple-900/30 bg-slate-950/40">
-                <div className="flex items-center justify-between">
-                  <div className="font-semibold text-purple-200">{g.goal_name}</div>
-                  <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-[10px]">{g.status}</Badge>
-                </div>
-                <div className="text-xs text-purple-400/70 mt-1">Target: {g.target_units} units • Due {g.deadline ? format(new Date(g.deadline), "MMM d, yyyy") : "—"}</div>
-                <Progress value={Math.min(100, Math.round((units / (g.target_units || TOTAL_UNITS)) * 100))} className="mt-2 h-1.5" />
+          <div className="p-4 bg-indigo-950/30 rounded-lg border border-indigo-500/30">
+            <div className="text-sm text-indigo-300 mb-3 flex items-center gap-2"><Target className="w-4 h-4" />Configure Abundance Goal</div>
+            <div className="space-y-2">
+              <div>
+                <Label className="text-xs text-indigo-300">Goal Name</Label>
+                <Input value={goalName} onChange={(e)=>setGoalName(e.target.value)} placeholder="e.g., 12/12 Transparency by Q2" className="bg-slate-950/50 border-indigo-900/40 h-8" />
               </div>
-            ))}
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label className="text-xs text-indigo-300">Target Units</Label>
+                  <Input type="number" min={1} max={12} value={target} onChange={(e)=>setTarget(e.target.value)} className="bg-slate-950/50 border-indigo-900/40 h-8" />
+                </div>
+                <div>
+                  <Label className="text-xs text-indigo-300">Target Date</Label>
+                  <Input type="date" value={targetDate} onChange={(e)=>setTargetDate(e.target.value)} className="bg-slate-950/50 border-indigo-900/40 h-8" />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-indigo-300">Alignment Strategy</Label>
+                <Input value={strategy} onChange={(e)=>setStrategy(e.target.value)} placeholder="How to steer oracles toward this goal" className="bg-slate-950/50 border-indigo-900/40 h-8" />
+              </div>
+              <Button onClick={()=>createGoalMutation.mutate()} className="w-full bg-gradient-to-r from-indigo-600 to-purple-600">Save Goal</Button>
+            </div>
+          </div>
+
+          <div className="p-4 bg-emerald-950/30 rounded-lg border border-emerald-500/30">
+            <div className="text-sm text-emerald-300 mb-3 flex items-center gap-2"><History className="w-4 h-4" />History & Snapshot</div>
+            <Button onClick={()=>snapshotMutation.mutate()} className="w-full bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-200 border border-emerald-500/30 mb-3">Log Snapshot</Button>
+            <div className="space-y-2 max-h-40 overflow-auto">
+              {eventsQuery.data.length === 0 ? (
+                <div className="text-xs text-emerald-300/70">No manifestation events yet</div>
+              ) : (
+                eventsQuery.data.map((ev) => (
+                  <div key={ev.id} className="p-2 bg-slate-950/50 rounded border border-emerald-900/30 text-xs text-emerald-200 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <CircleCheck className="w-3 h-3" />
+                      <span className="capitalize">{ev.event_type}</span>
+                    </div>
+                    <div className="font-mono">{ev.total_transparency}/12</div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
 
-        {/* History & Visualization */}
-        <div className="grid md:grid-cols-3 gap-4">
-          <div className="md:col-span-2 p-4 rounded border border-purple-900/30 bg-slate-950/50">
-            <div className="flex items-center gap-2 mb-3">
-              <History className="w-4 h-4 text-purple-300" />
-              <div className="text-sm text-purple-200 font-semibold">Manifestation Timeline</div>
-            </div>
-            <div className="h-56">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="abg" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#a78bfa" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#a78bfa" stopOpacity={0.1}/>
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="date" stroke="#a78bfa88" tick={{ fontSize: 11 }} />
-                  <YAxis stroke="#a78bfa66" width={36} tick={{ fontSize: 11 }} />
-                  <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #6b21a8", color: "#ddd" }} />
-                  <Area type="monotone" dataKey="level" stroke="#a78bfa" fill="url(#abg)" strokeWidth={2} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="p-4 rounded border border-purple-900/30 bg-slate-950/50">
-            <div className="flex items-center gap-2 mb-3">
-              <Settings2 className="w-4 h-4 text-purple-300" />
-              <div className="text-sm text-purple-200 font-semibold">Record Manifestation Event</div>
-            </div>
-            <Input placeholder="Event title" className="mb-2" value={eventForm.title} onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })} />
-            <Input type="number" placeholder="Units (0-12)" className="mb-2" value={eventForm.units} onChange={(e) => setEventForm({ ...eventForm, units: Number(e.target.value) })} />
-            <Textarea placeholder="Notes / contributing factors" className="mb-2" value={eventForm.notes} onChange={(e) => setEventForm({ ...eventForm, notes: e.target.value })} />
-            <Button className="w-full bg-purple-600" onClick={() => createEventMutation.mutate({ ...eventForm, event_date: new Date().toISOString(), abundance_level: Math.round((eventForm.units || 0)/TOTAL_UNITS*100) })}>
-              Log Event
-            </Button>
-
-            {/* Recent events */}
-            <div className="mt-4 space-y-2">
-              {(events || []).slice(0,5).map((ev) => (
-                <div key={ev.id} className="p-2 rounded border border-purple-900/30 bg-slate-950/40">
-                  <div className="text-sm text-purple-200 font-semibold">{ev.title}</div>
-                  <div className="text-xs text-purple-400/70">{format(new Date(ev.event_date || ev.created_date), "PPpp")} • {ev.units} units</div>
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="p-4 bg-slate-950/50 rounded-lg border border-purple-900/30">
+            <div className="text-sm text-purple-300 mb-3">Intent Nodes</div>
+            <div className="grid grid-cols-3 gap-2">
+              {(nodesQuery.data||[]).slice(0,12).map((n) => (
+                <div key={n.id} className={`p-2 rounded border text-xs flex items-center justify-between ${n.status==='active'?'border-green-500/30 bg-green-950/20 text-green-200':'border-purple-900/30 text-purple-300'}`}>
+                  <span>OC {n.oc_number}</span>
+                  <Badge className={n.status==='active'?"bg-green-500/20 text-green-300 border-green-500/30":"bg-purple-500/20 text-purple-300 border-purple-500/30"}>{n.status}</Badge>
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="p-4 bg-slate-950/50 rounded-lg border border-purple-900/30">
+            <div className="text-sm text-purple-300 mb-2">Active Goals</div>
+            {goalsQuery.data.length === 0 ? (
+              <div className="text-xs text-purple-400/70">No goals configured yet</div>
+            ) : (
+              <div className="space-y-3">
+                {goalsQuery.data.map((g) => {
+                  const pct = Math.min(100, Math.round((totalUnits / g.target_transparency) * 100));
+                  return (
+                    <div key={g.id} className="p-3 bg-slate-950/50 rounded border border-purple-900/30">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="text-sm text-purple-200 font-semibold">{g.goal_name}</div>
+                        <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30">{totalUnits}/{g.target_transparency}</Badge>
+                      </div>
+                      <Progress value={pct} className="h-2" />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </CardContent>

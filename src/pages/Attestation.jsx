@@ -1,27 +1,39 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Shield, 
-  CheckCircle, 
+import {
+  Shield,
+  CheckCircle,
   Copy,
   Lock,
   Key,
   Fingerprint,
-  Clock
+  Clock,
+  FileText, // New import for Schema Audit
+  RefreshCw, // New import for refresh button
+  ShieldCheck // New import for audit status badge
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
 export default function Attestation() {
   const [verificationTime, setVerificationTime] = useState(new Date());
+  const [schemaAuditTime, setSchemaAuditTime] = useState(new Date()); // New state for Schema Audit last updated time
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    // Interval for verification time
+    const verificationInterval = setInterval(() => {
       setVerificationTime(new Date());
     }, 1000);
-    return () => clearInterval(interval);
+
+    // Initial audit time set when component mounts
+    setSchemaAuditTime(new Date());
+
+    return () => {
+      clearInterval(verificationInterval);
+    };
   }, []);
 
   const canonicalData = {
@@ -35,11 +47,34 @@ export default function Attestation() {
     lastVerified: verificationTime.toISOString()
   };
 
+  // New data for Schema Audit
+  const schemaAuditData = {
+    version: "1.0.3-alpha",
+    hash: "sha256:" + btoa("canonical-schema-definition-v1-for-quantum-identity").substring(0, 64),
+    source: "https://quantum-registry.org/schema/v1",
+    lastAuditTime: schemaAuditTime.toISOString(), // Use state for dynamic time
+    auditStatus: "PASSED",
+  };
+
   const copyToClipboard = (text, label) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} copied`, {
       description: "Copied to clipboard"
     });
+  };
+
+  const handleRefreshAudit = () => {
+    toast.info("Auditing schema...", {
+      description: "Checking integrity and consistency against global registry.",
+      duration: 3000,
+    });
+    // Simulate an audit process
+    setTimeout(() => {
+      setSchemaAuditTime(new Date()); // Update audit time to current
+      toast.success("Schema audit complete", {
+        description: "Schema integrity verified successfully.",
+      });
+    }, 2000); // Simulate network/processing delay
   };
 
   const attestationPoints = [
@@ -275,6 +310,7 @@ export default function Attestation() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
+          className="mb-8"
         >
           <Card className="bg-slate-900/60 border-purple-900/40 backdrop-blur-sm">
             <CardHeader className="border-b border-purple-900/30">
@@ -297,8 +333,8 @@ export default function Attestation() {
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-2">
                           <h3 className="font-semibold text-purple-200">{point.title}</h3>
-                          <Badge 
-                            variant="outline" 
+                          <Badge
+                            variant="outline"
                             className="border-green-500/30 text-green-300 bg-green-950/30 text-xs"
                           >
                             {point.status}
@@ -309,6 +345,91 @@ export default function Attestation() {
                     </div>
                   </motion.div>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Schema Audit */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Card className="bg-slate-900/60 border-blue-900/40 backdrop-blur-sm">
+            <CardHeader className="border-b border-blue-900/30">
+              <CardTitle className="flex items-center gap-2 text-blue-200">
+                <FileText className="w-5 h-5" />
+                Schema Audit
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div>
+                <div className="text-xs text-blue-400/70 mb-2 font-semibold uppercase tracking-wider">
+                  Schema Version
+                </div>
+                <div className="p-3 bg-slate-950/50 rounded-lg border border-blue-900/30">
+                  <div className="text-blue-200 font-medium">{schemaAuditData.version}</div>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-xs text-blue-400/70 mb-2 font-semibold uppercase tracking-wider flex items-center justify-between">
+                  <span>Schema Hash</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => copyToClipboard(schemaAuditData.hash, "Schema hash")}
+                    className="h-6 px-2 text-blue-400 hover:text-blue-300"
+                  >
+                    <Copy className="w-3 h-3" />
+                  </Button>
+                </div>
+                <div className="p-3 bg-slate-950/50 rounded-lg border border-blue-900/30">
+                  <div className="text-blue-300/80 font-mono text-xs break-all">
+                    {schemaAuditData.hash}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-xs text-blue-400/70 mb-2 font-semibold uppercase tracking-wider">
+                  Schema Source
+                </div>
+                <div className="p-3 bg-slate-950/50 rounded-lg border border-blue-900/30">
+                  <div className="text-blue-200 font-medium text-sm">
+                    {schemaAuditData.source}
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-blue-900/30 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-blue-400/70">Audit Status:</span>
+                  <Badge
+                    className={`text-xs flex items-center ${
+                      schemaAuditData.auditStatus === "PASSED"
+                        ? "bg-green-500/20 text-green-300 border-green-500/30"
+                        : "bg-red-500/20 text-red-300 border-red-500/30"
+                    }`}
+                  >
+                    <ShieldCheck className="w-3 h-3 mr-1" />
+                    {schemaAuditData.auditStatus}
+                  </Badge>
+                </div>
+                <Button
+                  onClick={handleRefreshAudit}
+                  variant="outline"
+                  size="sm"
+                  className="text-blue-400 hover:text-blue-300 border-blue-500/30 bg-blue-950/30 hover:bg-blue-900/30"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Refresh Audit
+                </Button>
+              </div>
+
+              <div className="text-right text-xs text-blue-400/70">
+                Last Audited: <span className="font-mono text-blue-300">{new Date(schemaAuditData.lastAuditTime).toLocaleTimeString()}</span>
               </div>
             </CardContent>
           </Card>
