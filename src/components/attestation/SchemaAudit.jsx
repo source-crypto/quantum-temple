@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { ClipboardList, ActivitySquare, Gauge, CheckCircle2, AlertTriangle, Rocket } from "lucide-react";
+import { ClipboardList, Activity, Gauge, CheckCircle2, AlertTriangle, Rocket } from "lucide-react";
 import { toast } from "sonner";
 
 const ENTITIES_TO_AUDIT = [

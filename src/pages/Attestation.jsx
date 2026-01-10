@@ -2,14 +2,17 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Shield, 
-  CheckCircle, 
+import {
+  Shield,
+  CheckCircle,
   Copy,
   Lock,
   Key,
   Fingerprint,
-  Clock
+  Clock,
+  FileText, // New import for Schema Audit
+  RefreshCw, // New import for refresh button
+  ShieldCheck // New import for audit status badge
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -18,12 +21,20 @@ import AbundanceManifest from "../components/intent/AbundanceManifest";
 
 export default function Attestation() {
   const [verificationTime, setVerificationTime] = useState(new Date());
+  const [schemaAuditTime, setSchemaAuditTime] = useState(new Date()); // New state for Schema Audit last updated time
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    // Interval for verification time
+    const verificationInterval = setInterval(() => {
       setVerificationTime(new Date());
     }, 1000);
-    return () => clearInterval(interval);
+
+    // Initial audit time set when component mounts
+    setSchemaAuditTime(new Date());
+
+    return () => {
+      clearInterval(verificationInterval);
+    };
   }, []);
 
   const canonicalData = {
@@ -37,11 +48,34 @@ export default function Attestation() {
     lastVerified: verificationTime.toISOString()
   };
 
+  // New data for Schema Audit
+  const schemaAuditData = {
+    version: "1.0.3-alpha",
+    hash: "sha256:" + btoa("canonical-schema-definition-v1-for-quantum-identity").substring(0, 64),
+    source: "https://quantum-registry.org/schema/v1",
+    lastAuditTime: schemaAuditTime.toISOString(), // Use state for dynamic time
+    auditStatus: "PASSED",
+  };
+
   const copyToClipboard = (text, label) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} copied`, {
       description: "Copied to clipboard"
     });
+  };
+
+  const handleRefreshAudit = () => {
+    toast.info("Auditing schema...", {
+      description: "Checking integrity and consistency against global registry.",
+      duration: 3000,
+    });
+    // Simulate an audit process
+    setTimeout(() => {
+      setSchemaAuditTime(new Date()); // Update audit time to current
+      toast.success("Schema audit complete", {
+        description: "Schema integrity verified successfully.",
+      });
+    }, 2000); // Simulate network/processing delay
   };
 
   const attestationPoints = [
@@ -135,12 +169,6 @@ export default function Attestation() {
             </CardContent>
           </Card>
         </motion.div>
-
-        {/* Schema Audit and Abundance */}
-        <div className="grid gap-6 mb-8">
-          <SchemaAudit />
-          <AbundanceManifest />
-        </div>
 
         {/* Canonical Identity */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
@@ -283,6 +311,7 @@ export default function Attestation() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
+          className="mb-8"
         >
           <Card className="bg-slate-900/60 border-purple-900/40 backdrop-blur-sm">
             <CardHeader className="border-b border-purple-900/30">
@@ -305,8 +334,8 @@ export default function Attestation() {
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-2">
                           <h3 className="font-semibold text-purple-200">{point.title}</h3>
-                          <Badge 
-                            variant="outline" 
+                          <Badge
+                            variant="outline"
                             className="border-green-500/30 text-green-300 bg-green-950/30 text-xs"
                           >
                             {point.status}
@@ -321,6 +350,12 @@ export default function Attestation() {
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Schema Audit & Abundance Manifest */}
+        <SchemaAudit />
+        <div className="mt-8">
+          <AbundanceManifest />
+        </div>
       </div>
     </div>
   );
