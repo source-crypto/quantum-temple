@@ -18,6 +18,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import SchemaAudit from "../components/attestation/SchemaAudit";
 import AbundanceManifest from "../components/intent/AbundanceManifest";
+import IntentNodesVisualization from "../components/intent/IntentNodesVisualization";
 
 export default function Attestation() {
   const [verificationTime, setVerificationTime] = useState(new Date());
@@ -355,6 +356,9 @@ export default function Attestation() {
         <SchemaAudit />
         <div className="mt-8">
           <AbundanceManifest />
+        </div>
+        <div className="mt-8">
+          <IntentNodesVisualization />
         </div>
       </div>
     </div>
