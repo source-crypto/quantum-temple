@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ClipboardList, Activity, Gauge, CheckCircle2, AlertTriangle, Rocket, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
@@ -20,6 +21,8 @@ const ENTITIES_TO_AUDIT = [
 export default function SchemaAudit() {
   const queryClient = useQueryClient();
   const [autoScan, setAutoScan] = useState(false);
+  const [schedule, setSchedule] = useState('off'); // off | 15m | hourly | daily | weekly
+  const scheduleMap = { off: 0, '15m': 15*60*1000, hourly: 60*60*1000, daily: 24*60*60*1000, weekly: 7*24*60*1000 };
   const [lastRunAt, setLastRunAt] = useState(null);
 
   const logsQuery = useQuery({
@@ -27,6 +30,30 @@ export default function SchemaAudit() {
     queryFn: () => base44.entities.SchemaAuditLog.list("-created_date", 20),
     initialData: [],
     refetchInterval: 15000
+  });
+
+  const baselinesQuery = useQuery({
+    queryKey: ["schemaBaselines"],
+    queryFn: async () => { try { return await base44.entities.SchemaBaseline.list('-updated_date', 200); } catch { return []; } },
+    initialData: []
+  });
+
+  const schemaHashesQuery = useQuery({
+    queryKey: ["schemaHashes"],
+    queryFn: async () => {
+      const out = [];
+      for (const name of ENTITIES_TO_AUDIT) {
+        try {
+          const s = await base44.entities[name].schema();
+          const str = JSON.stringify(s);
+          let h = 0; for (let i=0;i<str.length;i++){ h = ((h*31) + str.charCodeAt(i))|0; }
+          out.push({ entity_name: name, schema_hash: String(h) });
+        } catch {}
+      }
+      return out;
+    },
+    initialData: [],
+    refetchInterval: 60000
   });
 
   const fullAuditMutation = useMutation({
@@ -136,14 +163,15 @@ export default function SchemaAudit() {
     }
   });
 
-  // Auto-scan every 5 minutes
+  // Scheduled auto-scan based on selected interval
   useEffect(() => {
-    if (!autoScan) return;
+    const ms = scheduleMap[schedule] || 0;
+    if (!autoScan || ms === 0) return;
     const id = setInterval(() => {
       if (!fullAuditMutation.isPending) fullAuditMutation.mutate();
-    }, 300000);
+    }, ms);
     return () => clearInterval(id);
-  }, [autoScan, fullAuditMutation.isPending]);
+  }, [autoScan, schedule, fullAuditMutation.isPending]);
 
   const latest = logsQuery.data?.[0];
   const score = useMemo(() => {
@@ -182,6 +210,38 @@ export default function SchemaAudit() {
     return entries;
   }, [latest]);
 
+  const drift = useMemo(() => {
+    const baselines = baselinesQuery.data || [];
+    const hashes = schemaHashesQuery.data || [];
+    const arr = [];
+    hashes.forEach((h) => {
+      const b = baselines.find((x) => x.entity_name === h.entity_name);
+      if (b && String(b.schema_hash) !== String(h.schema_hash)) {
+        arr.push({ entity: h.entity_name, expected: b.schema_hash, current: h.schema_hash });
+      }
+    });
+    return arr;
+  }, [baselinesQuery.data, schemaHashesQuery.data]);
+
+  useEffect(() => {
+    if ((drift||[]).length > 0) {
+      toast.error("Schema drift detected", { description: `${drift.length} entities changed since baseline` });
+    }
+  }, [drift.length]);
+
+  const remediationSuggestions = useMemo(() => {
+    if (!latest?.results) return [];
+    return Object.entries(latest.results).map(([entity, res]) => {
+      const s = [];
+      if (res?.normalization?.likely_index_fields?.length) s.push(`Add indexes on fields: [${res.normalization.likely_index_fields.slice(0,3).join(', ')}]`);
+      if (res?.normalization?.denormalization_candidates?.length) s.push(`Extract nested fields [${res.normalization.denormalization_candidates.slice(0,3).join(', ')}] into separate entities or references`);
+      if (res?.normalization?.missing_required_props?.length) s.push(`Align schema 'required' with properties: review [${res.normalization.missing_required_props.slice(0,3).join(', ')}]`);
+      if (res?.integrity?.duplicate_node_ids?.length) s.push(`Enforce uniqueness on node_id and deduplicate existing records`);
+      if ((res?.integrity?.invalid_email_like_count||0) > 0) s.push(`Validate email formats and enforce pattern on User-related fields`);
+      return { entity, suggestions: s };
+    }).filter(x => x.suggestions.length > 0).slice(0, 6);
+  }, [latest]);
+
   return (
     <Card className="bg-slate-900/60 border-purple-900/40 mb-8">
       <CardHeader className="border-b border-purple-900/30">
@@ -191,6 +251,18 @@ export default function SchemaAudit() {
             Schema Integrity & Profiling Audit
           </CardTitle>
           <div className="flex items-center gap-2">
+            <Select value={schedule} onValueChange={(v)=>setSchedule(v)}>
+              <SelectTrigger className="h-8 w-36 text-xs">
+                <SelectValue placeholder="Schedule" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="off">Schedule: Off</SelectItem>
+                <SelectItem value="15m">Every 15 minutes</SelectItem>
+                <SelectItem value="hourly">Hourly</SelectItem>
+                <SelectItem value="daily">Daily</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+              </SelectContent>
+            </Select>
             <Button
               variant={autoScan ? "default" : "outline"}
               onClick={() => setAutoScan((v) => !v)}
@@ -250,6 +322,25 @@ export default function SchemaAudit() {
 
         {/* Actionable per-entity insights */}
         <div>
+          {/* Schema Drift Detection */}
+          <div className="text-sm text-purple-300 font-semibold mb-2 flex items-center gap-2"><Activity className="w-4 h-4" />Schema Drift Detection</div>
+          {drift.length === 0 ? (
+            <div className="text-xs text-purple-400/70 mb-4">No drift detected against approved baselines</div>
+          ) : (
+            <div className="mb-4 space-y-2">
+              {drift.map((d) => (
+                <div key={d.entity} className="p-2 bg-slate-950/50 rounded border border-rose-500/30 text-xs flex items-center justify-between">
+                  <div>
+                    <span className="text-rose-300 font-semibold">{d.entity}</span>
+                    <span className="text-purple-400/60 ml-2">expected {d.expected} • current {d.current}</span>
+                  </div>
+                  <Button size="sm" variant="outline" className="h-7" onClick={()=>ackBaseline.mutate(d.entity)}>Acknowledge Baseline</Button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Top insights */}
           <div className="text-sm text-purple-300 font-semibold mb-2 flex items-center gap-2"><Rocket className="w-4 h-4" />Top Actionable Insights</div>
           {entityInsights.length === 0 ? (
             <div className="text-xs text-purple-400/70">No outstanding issues detected in the latest run</div>
@@ -271,6 +362,25 @@ export default function SchemaAudit() {
               ))}
             </div>
           )}
+
+          {/* Automated Remediation Suggestions */}
+          <div className="mt-6">
+            <div className="text-sm text-purple-300 font-semibold mb-2">Automated Remediation Suggestions</div>
+            {remediationSuggestions.length === 0 ? (
+              <div className="text-xs text-purple-400/70">No suggestions at this time</div>
+            ) : (
+              <div className="space-y-2">
+                {remediationSuggestions.map((r) => (
+                  <div key={r.entity} className="p-3 bg-slate-950/50 rounded border border-purple-900/30">
+                    <div className="text-sm text-purple-200 font-semibold mb-1">{r.entity}</div>
+                    <ul className="list-disc pl-5 text-xs text-purple-300/80">
+                      {r.suggestions.map((s, i) => (<li key={i}>{s}</li>))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
