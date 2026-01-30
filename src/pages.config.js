@@ -67,6 +67,7 @@ import Security from './pages/Security';
 import Settings from './pages/Settings';
 import TempleMode from './pages/TempleMode';
 import WhitePaper from './pages/WhitePaper';
+import Checkout from './pages/Checkout';
 import __Layout from './Layout.jsx';
 
 
@@ -91,6 +92,7 @@ export const PAGES = {
     "Settings": Settings,
     "TempleMode": TempleMode,
     "WhitePaper": WhitePaper,
+    "Checkout": Checkout,
 }
 
 export const pagesConfig = {
