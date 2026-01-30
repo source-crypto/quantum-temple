@@ -19,7 +19,6 @@ import { toast } from "sonner";
 import SchemaAudit from "../components/attestation/SchemaAudit";
 import AbundanceManifest from "../components/intent/AbundanceManifest";
 import IntentNodesVisualization from "../components/intent/IntentNodesVisualization";
-import IntentNodeActionCenter from "../components/intent/IntentNodeActionCenter";
 
 export default function Attestation() {
   const [verificationTime, setVerificationTime] = useState(new Date());
@@ -360,9 +359,6 @@ export default function Attestation() {
         </div>
         <div className="mt-8">
           <IntentNodesVisualization />
-        </div>
-        <div className="mt-8">
-          <IntentNodeActionCenter />
         </div>
       </div>
     </div>
