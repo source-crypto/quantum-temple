@@ -1,6 +1,8 @@
 import React from "react";
 import CrossChainBridge from "@/components/dex/CrossChainBridge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import WalletConnector from "@/components/dex/WalletConnector";
+import DAppPortal from "@/components/crosschain/DAppPortal";
 
 export default function CrossChain() {
   return (
@@ -10,10 +12,19 @@ export default function CrossChain() {
           <CardTitle className="text-purple-200">Cross-Chain Bridge (QTC ⇄ EVM & Solana)</CardTitle>
         </CardHeader>
         <CardContent className="text-purple-300/80 text-sm">
-          Phase 1 enables initiating bridge intents and tracking statuses. On-chain execution is being rolled out for Ethereum and Solana.
+          Phase 1 enables initiating bridge intents and tracking statuses. Use the portal below to interact with popular dApps on Ethereum and Solana using bridged QTC.
         </CardContent>
       </Card>
-      <CrossChainBridge />
+
+      <div className="grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1 space-y-6">
+          <WalletConnector />
+          <CrossChainBridge />
+        </div>
+        <div className="lg:col-span-2">
+          <DAppPortal />
+        </div>
+      </div>
     </div>
   );
 }

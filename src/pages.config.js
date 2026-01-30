@@ -51,11 +51,13 @@ import AdminDashboard from './pages/AdminDashboard';
 import Attestation from './pages/Attestation';
 import Ceremonial from './pages/Ceremonial';
 import Checkout from './pages/Checkout';
+import CrossChain from './pages/CrossChain';
 import CryptoCheckout from './pages/CryptoCheckout';
 import Currency from './pages/Currency';
 import DEX from './pages/DEX';
 import Governance from './pages/Governance';
 import Home from './pages/Home';
+import Insights from './pages/Insights';
 import Integrations from './pages/Integrations';
 import IntentNetwork from './pages/IntentNetwork';
 import Interactions from './pages/Interactions';
@@ -63,15 +65,13 @@ import Manifesto from './pages/Manifesto';
 import ManifestoAgentTest from './pages/ManifestoAgentTest';
 import Markets from './pages/Markets';
 import OperationalReadinessDashboard from './pages/OperationalReadinessDashboard';
+import Portfolio from './pages/Portfolio';
 import QuantumConstruct from './pages/QuantumConstruct';
 import Registry from './pages/Registry';
 import Security from './pages/Security';
 import Settings from './pages/Settings';
 import TempleMode from './pages/TempleMode';
 import WhitePaper from './pages/WhitePaper';
-import Portfolio from './pages/Portfolio';
-import Insights from './pages/Insights';
-import CrossChain from './pages/CrossChain';
 import __Layout from './Layout.jsx';
 
 
@@ -80,11 +80,13 @@ export const PAGES = {
     "Attestation": Attestation,
     "Ceremonial": Ceremonial,
     "Checkout": Checkout,
+    "CrossChain": CrossChain,
     "CryptoCheckout": CryptoCheckout,
     "Currency": Currency,
     "DEX": DEX,
     "Governance": Governance,
     "Home": Home,
+    "Insights": Insights,
     "Integrations": Integrations,
     "IntentNetwork": IntentNetwork,
     "Interactions": Interactions,
@@ -92,15 +94,13 @@ export const PAGES = {
     "ManifestoAgentTest": ManifestoAgentTest,
     "Markets": Markets,
     "OperationalReadinessDashboard": OperationalReadinessDashboard,
+    "Portfolio": Portfolio,
     "QuantumConstruct": QuantumConstruct,
     "Registry": Registry,
     "Security": Security,
     "Settings": Settings,
     "TempleMode": TempleMode,
     "WhitePaper": WhitePaper,
-    "Portfolio": Portfolio,
-    "Insights": Insights,
-    "CrossChain": CrossChain,
 }
 
 export const pagesConfig = {

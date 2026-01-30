@@ -439,17 +439,29 @@ export default function WhitePaper() {
                       </div>
 
                       <div className="p-4 bg-gradient-to-br from-red-950/40 to-rose-950/40 rounded-lg border border-red-500/30">
-                        <div className="flex items-center gap-3 mb-3">
-                          <Zap className="w-6 h-6 text-red-400" />
-                          <h3 className="font-semibold text-red-200">Quantum Verification</h3>
-                        </div>
-                        <p className="text-sm text-red-300/70">
-                          VQC (Veiled Quantum Consciousness) signatures on every mint. Ledger integrity checks 
-                          with 100% verification scores across all records.
-                        </p>
+                       <div className="flex items-center gap-3 mb-3">
+                         <Zap className="w-6 h-6 text-red-400" />
+                         <h3 className="font-semibold text-red-200">Quantum Verification</h3>
+                       </div>
+                       <p className="text-sm text-red-300/70">
+                         VQC (Veiled Quantum Consciousness) signatures on every mint. Ledger integrity checks 
+                         with 100% verification scores across all records.
+                       </p>
                       </div>
-                    </div>
-                  </div>
+
+                      <div className="p-4 bg-gradient-to-br from-indigo-950/40 to-purple-950/40 rounded-lg border border-indigo-500/30">
+                       <div className="flex items-center gap-3 mb-3">
+                         <Globe className="w-6 h-6 text-indigo-400" />
+                         <h3 className="font-semibold text-indigo-200">EVM & Solana dApp Integration</h3>
+                       </div>
+                       <p className="text-sm text-indigo-300/70">
+                         Bridged QTC (qQTC on EVM, sQTC on Solana) is usable directly within popular dApps like Uniswap, Aave,
+                         OpenSea, Jupiter, Orca, and Magic Eden via the in-app dApp Portal. Users can swap, lend, provide liquidity,
+                         or trade NFTs across ecosystems while remaining inside the Quantum Temple interface.
+                       </p>
+                      </div>
+                      </div>
+                      </div>
                 </CardContent>
               </Card>
             </motion.div>
