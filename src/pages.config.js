@@ -47,6 +47,7 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AdminDashboard from './pages/AdminDashboard';
 import Attestation from './pages/Attestation';
 import Ceremonial from './pages/Ceremonial';
 import Currency from './pages/Currency';
@@ -56,6 +57,8 @@ import Home from './pages/Home';
 import Integrations from './pages/Integrations';
 import IntentNetwork from './pages/IntentNetwork';
 import Interactions from './pages/Interactions';
+import Manifesto from './pages/Manifesto';
+import ManifestoAgentTest from './pages/ManifestoAgentTest';
 import Markets from './pages/Markets';
 import OperationalReadinessDashboard from './pages/OperationalReadinessDashboard';
 import QuantumConstruct from './pages/QuantumConstruct';
@@ -64,13 +67,11 @@ import Security from './pages/Security';
 import Settings from './pages/Settings';
 import TempleMode from './pages/TempleMode';
 import WhitePaper from './pages/WhitePaper';
-import AdminDashboard from './pages/AdminDashboard';
-import ManifestoAgentTest from './pages/ManifestoAgentTest';
-import Manifesto from './pages/Manifesto';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AdminDashboard": AdminDashboard,
     "Attestation": Attestation,
     "Ceremonial": Ceremonial,
     "Currency": Currency,
@@ -80,6 +81,8 @@ export const PAGES = {
     "Integrations": Integrations,
     "IntentNetwork": IntentNetwork,
     "Interactions": Interactions,
+    "Manifesto": Manifesto,
+    "ManifestoAgentTest": ManifestoAgentTest,
     "Markets": Markets,
     "OperationalReadinessDashboard": OperationalReadinessDashboard,
     "QuantumConstruct": QuantumConstruct,
@@ -88,9 +91,6 @@ export const PAGES = {
     "Settings": Settings,
     "TempleMode": TempleMode,
     "WhitePaper": WhitePaper,
-    "AdminDashboard": AdminDashboard,
-    "ManifestoAgentTest": ManifestoAgentTest,
-    "Manifesto": Manifesto,
 }
 
 export const pagesConfig = {
