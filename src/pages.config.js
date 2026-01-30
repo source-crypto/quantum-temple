@@ -64,6 +64,7 @@ import Security from './pages/Security';
 import Settings from './pages/Settings';
 import TempleMode from './pages/TempleMode';
 import WhitePaper from './pages/WhitePaper';
+import AdminDashboard from './pages/AdminDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -85,6 +86,7 @@ export const PAGES = {
     "Settings": Settings,
     "TempleMode": TempleMode,
     "WhitePaper": WhitePaper,
+    "AdminDashboard": AdminDashboard,
 }
 
 export const pagesConfig = {

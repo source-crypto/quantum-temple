@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Coins, Sparkles, Infinity, Search, Flame, Star, Gem, ArrowLeftRight, Store, Repeat, Eye } from "lucide-react";
+import { Coins, Sparkles, Infinity, Search, Flame, Star, Gem, ArrowLeftRight, Store, Repeat, Eye, Brain } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import CurrencyMinter from "../components/currency/CurrencyMinter";
@@ -17,6 +17,7 @@ import GlobalMarketplace from "../components/currency/GlobalMarketplace";
 import CryptoExchange from "../components/currency/CryptoExchange";
 import CurrencyIndex from "../components/currency/CurrencyIndex";
 import TransparencyLedger from "../components/currency/TransparencyLedger";
+import CurrencyAIInsights from "../components/currency/CurrencyAIInsights";
 
 export default function Currency() {
   const [activeTab, setActiveTab] = useState("index");
@@ -42,6 +43,7 @@ export default function Currency() {
     { id: "offerings", label: "Offerings", icon: Flame, color: "from-rose-600 to-pink-600" },
     { id: "staking", label: "Staking", icon: Star, color: "from-violet-600 to-purple-600" },
     { id: "exchange", label: "Spiritual", icon: Gem, color: "from-emerald-600 to-teal-600" },
+    { id: "ai", label: "AI Insights", icon: Brain, color: "from-fuchsia-600 to-purple-600" },
   ];
 
   return (
@@ -242,6 +244,17 @@ export default function Currency() {
               exit={{ opacity: 0, x: 20 }}
             >
               <SpiritualExchange totalSupply={totalSupply} />
+            </motion.div>
+          )}
+
+          {activeTab === "ai" && (
+            <motion.div
+              key="ai"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <CurrencyAIInsights />
             </motion.div>
           )}
         </AnimatePresence>

@@ -2,21 +2,22 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
-        Sparkles, 
-        Shield, 
-        Scroll, 
-        Coins, 
-        MessageCircle, 
-        Database,
-        Hexagon,
-        Settings,
-        FileText,
-        TrendingUp,
-        Waves,
-        Network,
-        Activity,
-        PlugZap
-        } from "lucide-react";
+              Sparkles, 
+              Shield, 
+              Scroll, 
+              Coins, 
+              MessageCircle, 
+              Database,
+              Hexagon,
+              Settings,
+              FileText,
+              TrendingUp,
+              Waves,
+              Network,
+              Activity,
+              PlugZap
+              } from "lucide-react";
+import InAppAnnouncementBar from "./components/app/InAppAnnouncementBar";
 import {
   Sidebar,
   SidebarContent,
@@ -117,8 +118,13 @@ const navigationItems = [
     title: "Integrations",
     url: createPageUrl("Integrations"),
     icon: PlugZap,
+  },
+  {
+    title: "Admin Dashboard",
+    url: createPageUrl("AdminDashboard"),
+    icon: Activity,
   }
-];
+  ];
 
 export default function Layout({ children }) {
   const location = useLocation();
@@ -244,6 +250,7 @@ export default function Layout({ children }) {
           </header>
 
           <div className="flex-1 overflow-auto">
+            <InAppAnnouncementBar />
             {children}
           </div>
         </main>
