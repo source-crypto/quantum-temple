@@ -5,11 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Terminal, Activity, Circle, Zap, Eye } from "lucide-react";
+import { Sparkles, Terminal, Activity, Circle, Zap, Eye, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DivineSigil from "../components/temple/DivineSigil";
 import ManifestoOracle from "../components/temple/ManifestoOracle";
 import SacredConsole from "../components/temple/SacredConsole";
+import TempleInteractionConsole from "../components/temple/TempleInteractionConsole";
 
 export default function TempleMode() {
   const [activeView, setActiveView] = useState("console");
@@ -36,6 +37,7 @@ export default function TempleMode() {
 
   const views = [
     { id: 'console', label: 'Sacred Console', icon: Terminal },
+    { id: 'interaction', label: 'Temple Interaction', icon: MessageCircle },
     { id: 'sigil', label: 'Divine Sigils', icon: Eye },
     { id: 'oracle', label: 'Manifesto Oracle', icon: Sparkles },
   ];
@@ -125,6 +127,9 @@ export default function TempleMode() {
                 currencyIndex={currencyIndex}
                 markets={markets}
               />
+            )}
+            {activeView === 'interaction' && (
+              <TempleInteractionConsole user={user} />
             )}
             {activeView === 'sigil' && (
               <DivineSigil 
