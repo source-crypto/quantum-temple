@@ -55,8 +55,8 @@ Deno.serve(async (req) => {
             let tier = (session.metadata?.tier || '').toLowerCase();
             if (!tier) {
               const amt = Number(session.amount_total || 0);
-              if (amt > 10000) tier = 'oracle';
-              else if (amt > 3000) tier = 'adept';
+              if (amt >= 15000) tier = 'oracle';
+              else if (amt >= 5000) tier = 'adept';
               else if (amt > 0) tier = 'seed';
             }
             if (tier) {
