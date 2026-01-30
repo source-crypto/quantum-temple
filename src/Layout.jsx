@@ -127,6 +127,21 @@ const navigationItems = [
     icon: Database,
   },
   {
+    title: "Portfolio",
+    url: createPageUrl("Portfolio"),
+    icon: PieChart,
+  },
+  {
+    title: "Insights",
+    url: createPageUrl("Insights"),
+    icon: Brain,
+  },
+  {
+    title: "Cross-Chain",
+    url: createPageUrl("CrossChain"),
+    icon: Link2,
+  },
+  {
     title: "Settings",
     url: createPageUrl("Settings"),
     icon: Settings,
