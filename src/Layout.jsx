@@ -71,10 +71,15 @@ const navigationItems = [
     icon: Coins,
   },
   {
-    title: "Checkout",
-    url: createPageUrl("Checkout"),
-    icon: CreditCard,
-  },
+          title: "Checkout",
+          url: createPageUrl("Checkout"),
+          icon: CreditCard,
+        },
+        {
+          title: "Crypto Checkout",
+          url: createPageUrl("CryptoCheckout"),
+          icon: Wallet,
+        }
   {
     title: "Governance",
     url: createPageUrl("Governance"),

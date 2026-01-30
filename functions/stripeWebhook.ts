@@ -48,6 +48,34 @@ Deno.serve(async (req) => {
             payment_status: session.payment_status,
           }
         });
+        // Attempt to grant AccountTier based on tier/amount
+        try {
+          const email = session.customer_details?.email || null;
+          if (email) {
+            let tier = (session.metadata?.tier || '').toLowerCase();
+            if (!tier) {
+              const amt = Number(session.amount_total || 0);
+              if (amt > 10000) tier = 'oracle';
+              else if (amt > 3000) tier = 'adept';
+              else if (amt > 0) tier = 'seed';
+            }
+            if (tier) {
+              const existing = await base44.asServiceRole.entities.AccountTier.filter({ user_email: email });
+              if (existing.length) {
+                await base44.asServiceRole.entities.AccountTier.update(existing[0].id, { user_email: email, tier });
+              } else {
+                await base44.asServiceRole.entities.AccountTier.create({ user_email: email, tier });
+              }
+            }
+          }
+        } catch (grantErr) {
+          await base44.asServiceRole.entities.AppLog.create({
+            type: 'warning',
+            message: 'Tier grant failed',
+            source: 'stripeWebhook',
+            details: { error: String(grantErr) }
+          });
+        }
         break;
       }
       case 'payment_intent.succeeded': {

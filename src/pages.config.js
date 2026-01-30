@@ -50,6 +50,7 @@
 import AdminDashboard from './pages/AdminDashboard';
 import Attestation from './pages/Attestation';
 import Ceremonial from './pages/Ceremonial';
+import Checkout from './pages/Checkout';
 import Currency from './pages/Currency';
 import DEX from './pages/DEX';
 import Governance from './pages/Governance';
@@ -67,7 +68,7 @@ import Security from './pages/Security';
 import Settings from './pages/Settings';
 import TempleMode from './pages/TempleMode';
 import WhitePaper from './pages/WhitePaper';
-import Checkout from './pages/Checkout';
+import CryptoCheckout from './pages/CryptoCheckout';
 import __Layout from './Layout.jsx';
 
 
@@ -75,6 +76,7 @@ export const PAGES = {
     "AdminDashboard": AdminDashboard,
     "Attestation": Attestation,
     "Ceremonial": Ceremonial,
+    "Checkout": Checkout,
     "Currency": Currency,
     "DEX": DEX,
     "Governance": Governance,
@@ -92,7 +94,7 @@ export const PAGES = {
     "Settings": Settings,
     "TempleMode": TempleMode,
     "WhitePaper": WhitePaper,
-    "Checkout": Checkout,
+    "CryptoCheckout": CryptoCheckout,
 }
 
 export const pagesConfig = {
