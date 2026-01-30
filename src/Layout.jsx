@@ -16,7 +16,8 @@ import {
               Network,
               Activity,
               PlugZap,
-              CreditCard
+              CreditCard,
+              Wallet
               } from "lucide-react";
 import InAppAnnouncementBar from "./components/app/InAppAnnouncementBar";
 import {
@@ -79,9 +80,9 @@ const navigationItems = [
           title: "Crypto Checkout",
           url: createPageUrl("CryptoCheckout"),
           icon: Wallet,
-        }
-  {
-    title: "Governance",
+        },
+        {
+        title: "Governance",
     url: createPageUrl("Governance"),
     icon: Database,
   },
