@@ -14,8 +14,9 @@ import {
         TrendingUp,
         Waves,
         Network,
-        Activity
-      } from "lucide-react";
+        Activity,
+        PlugZap
+        } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -112,6 +113,11 @@ const navigationItems = [
     url: createPageUrl("Settings"),
     icon: Settings,
   },
+  {
+    title: "Integrations",
+    url: createPageUrl("Integrations"),
+    icon: PlugZap,
+  }
 ];
 
 export default function Layout({ children }) {
