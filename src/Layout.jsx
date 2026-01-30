@@ -17,7 +17,10 @@ import {
               Activity,
               PlugZap,
               CreditCard,
-              Wallet
+              Wallet,
+              PieChart,
+              Brain,
+              Link2
               } from "lucide-react";
 import InAppAnnouncementBar from "./components/app/InAppAnnouncementBar";
 import {
