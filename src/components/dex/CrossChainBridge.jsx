@@ -63,19 +63,9 @@ export default function CrossChainBridge() {
     mutationFn: async (bridgeData) => {
       const bridgeId = `BRIDGE-${Date.now()}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
       
-      // Calculate exchange rate (mock - in production this would be real-time)
-      const rates = {
-        'BTC-QTC': 102000,
-        'ETH-QTC': 3500,
-        'SOL-QTC': 145,
-        'QTC-BTC': 1/102000,
-        'QTC-ETH': 1/3500,
-        'QTC-SOL': 1/145,
-      };
-      
-      const rateKey = `${bridgeData.sourceCurrency}-${bridgeData.destCurrency}`;
-      const rate = rates[rateKey] || 1;
-      const destAmount = bridgeData.amount * rate * 0.997; // 0.3% bridge fee
+      // QTC cross-chain bridge is 1:1 minus fee
+      const rate = 1;
+      const destAmount = bridgeData.amount * 0.997; // 0.3% bridge fee
       
       // Generate quantum signature
       const quantumSig = btoa(`VQC-BRIDGE-${bridgeId}-${Date.now()}`).substring(0, 48);
@@ -85,8 +75,8 @@ export default function CrossChainBridge() {
         user_email: user.email,
         source_chain: bridgeData.sourceChain,
         destination_chain: bridgeData.destChain,
-        source_currency: bridgeData.sourceCurrency,
-        destination_currency: bridgeData.destCurrency,
+        source_currency: 'QTC',
+        destination_currency: 'QTC',
         source_amount: bridgeData.amount,
         destination_amount: destAmount,
         exchange_rate: rate,
@@ -135,8 +125,6 @@ export default function CrossChainBridge() {
     initiateBridgeMutation.mutate({
       sourceChain,
       destChain: destinationChain,
-      sourceCurrency: sourceChainData.symbol,
-      destCurrency: destChainData.symbol,
       amount: parseFloat(amount),
       sourceAddress,
       destAddress: destinationAddress
@@ -225,7 +213,7 @@ export default function CrossChainBridge() {
             {/* Amount */}
             <div className="space-y-2">
               <Label htmlFor="amount" className="text-purple-300">
-                Amount ({sourceChainData.symbol})
+                Amount (QTC)
               </Label>
               <Input
                 id="amount"
@@ -240,7 +228,7 @@ export default function CrossChainBridge() {
               />
               {amount && (
                 <div className="text-sm text-purple-400/70">
-                  ≈ {(parseFloat(amount) * 0.997).toFixed(8)} {destChainData.symbol} (0.3% bridge fee)
+                  ≈ {(parseFloat(amount) * 0.997).toFixed(8)} QTC (0.3% bridge fee)
                 </div>
               )}
             </div>
