@@ -14,8 +14,8 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 
 export default function CrossChainBridge() {
-  const [sourceChain, setSourceChain] = useState("bitcoin");
-  const [destinationChain, setDestinationChain] = useState("quantum_temple");
+  const [sourceChain, setSourceChain] = useState("quantum_temple");
+  const [destinationChain, setDestinationChain] = useState("ethereum");
   const [amount, setAmount] = useState("");
   const [sourceAddress, setSourceAddress] = useState("");
   const [destinationAddress, setDestinationAddress] = useState("");
@@ -36,6 +36,17 @@ export default function CrossChainBridge() {
     enabled: !!user,
     initialData: [],
     refetchInterval: 5000, // Refresh every 5 seconds
+  });
+
+  const { data: bridgeHistory } = useQuery({
+    queryKey: ['crossChainBridgesHistory'],
+    queryFn: async () => {
+      if (!user) return [];
+      return base44.entities.CrossChainBridge.filter({ user_email: user.email, status: 'completed' }, '-completed_at', 20);
+    },
+    enabled: !!user,
+    initialData: [],
+    refetchInterval: 15000,
   });
 
   const chains = [
@@ -404,6 +415,32 @@ export default function CrossChainBridge() {
                   );
                 })}
               </AnimatePresence>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+{bridgeHistory.length > 0 && (
+        <Card className="bg-slate-900/60 border-purple-900/40">
+          <CardHeader className="border-b border-purple-900/30">
+            <CardTitle className="text-purple-200 flex items-center gap-2">
+              Recent Completed Bridges ({bridgeHistory.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-3">
+              {bridgeHistory.map((bridge) => (
+                <div key={bridge.id} className="p-4 bg-slate-950/50 rounded-lg border border-purple-900/30">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-purple-200 font-medium">
+                      {bridge.source_amount} {bridge.source_currency} → {bridge.destination_amount?.toFixed ? bridge.destination_amount.toFixed(8) : bridge.destination_amount} {bridge.destination_currency}
+                    </div>
+                    <div className="text-xs text-purple-400/70">
+                      {bridge.completed_at ? format(new Date(bridge.completed_at), 'MMM d, yyyy HH:mm:ss') : ''}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
