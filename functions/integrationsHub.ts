@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'to, subject, body are required' }, { status: 400 });
       }
 
-      const res = await base44.integrations.Core.SendEmail({
+      const res = await base44.asServiceRole.integrations.Core.SendEmail({
         to, subject, body, from_name: from_name || 'Quantum Temple'
       });
 
