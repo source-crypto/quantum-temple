@@ -56,6 +56,21 @@ export default function SchemaAudit() {
     refetchInterval: 60000
   });
 
+  const ackBaseline = useMutation({
+    mutationFn: async (entityName) => {
+      const s = await base44.entities[entityName].schema();
+      const str = JSON.stringify(s);
+      let h = 0; for (let i=0;i<str.length;i++){ h = ((h*31) + str.charCodeAt(i))|0; }
+      const existing = await base44.entities.SchemaBaseline.filter({ entity_name: entityName });
+      if (existing.length > 0) {
+        return base44.entities.SchemaBaseline.update(existing[0].id, { schema_hash: String(h), last_seen: new Date().toISOString() });
+      }
+      const me = await base44.auth.me().catch(()=>null);
+      return base44.entities.SchemaBaseline.create({ entity_name: entityName, schema_hash: String(h), authorized_by: me?.email || 'system', last_seen: new Date().toISOString() });
+    },
+    onSuccess: () => { toast.success('Baseline updated'); queryClient.invalidateQueries({ queryKey: ['schemaBaselines'] }); }
+  });
+
   const fullAuditMutation = useMutation({
     mutationFn: async () => {
       const user = await base44.auth.me();
