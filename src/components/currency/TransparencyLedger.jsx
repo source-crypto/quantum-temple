@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
+import BlockchainMetricsPanel from "./BlockchainMetricsPanel";
+import AuditTrail from "./AuditTrail";
 
 export default function TransparencyLedger() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -49,6 +51,18 @@ export default function TransparencyLedger() {
     initialData: [],
   });
 
+  const { data: crossChainBridges } = useQuery({
+    queryKey: ['crossChainBridges'],
+    queryFn: () => base44.entities.CrossChainBridge.list('-timestamp', 50),
+    initialData: [],
+  });
+
+  const { data: cryptoBridges } = useQuery({
+    queryKey: ['cryptoBridges'],
+    queryFn: () => base44.entities.CryptoBridge.list('-timestamp', 50),
+    initialData: [],
+  });
+
   // Canonical Identity - Immutable origin point
   const canonicalIdentity = {
     timestamp: "2002-08-27T22:37:00-04:00",
@@ -64,7 +78,23 @@ export default function TransparencyLedger() {
   const allEvents = [
     ...currencyMints.map(m => ({ ...m, type: 'mint', intent: 'Creation of Divine Value' })),
     ...transactions.map(t => ({ ...t, type: t.transaction_type, intent: 'Value Transfer' })),
-    ...offerings.map(o => ({ ...o, type: o.offering_type, intent: 'Divine Contribution' }))
+    ...offerings.map(o => ({ ...o, type: o.offering_type, intent: 'Divine Contribution' })),
+    ...crossChainBridges.map(b => ({ 
+      ...b,
+      type: 'bridge',
+      intent: 'Cross-chain Bridge',
+      amount: b.source_amount,
+      from_user: b.user_email,
+      note: `${b.source_chain} → ${b.destination_chain}`
+    })),
+    ...cryptoBridges.map(b => ({ 
+      ...b,
+      type: 'bridge',
+      intent: 'Cross-chain Bridge',
+      amount: b.source_amount,
+      from_user: b.user_email,
+      note: `${b.source_chain} → ${b.destination_chain}`
+    })),
   ].sort((a, b) => new Date(b.timestamp || b.created_date) - new Date(a.timestamp || a.created_date));
 
   const filteredEvents = allEvents.filter(event => {
@@ -78,6 +108,7 @@ export default function TransparencyLedger() {
     { id: 'all', label: 'All Events', color: 'bg-purple-500/20 text-purple-300 border-purple-500/30' },
     { id: 'mint', label: 'Mints', color: 'bg-green-500/20 text-green-300 border-green-500/30' },
     { id: 'transfer', label: 'Transfers', color: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
+    { id: 'bridge', label: 'Bridges', color: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30' },
     { id: 'burn', label: 'Burns', color: 'bg-red-500/20 text-red-300 border-red-500/30' },
     { id: 'divine_sacrifice', label: 'Offerings', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
   ];
@@ -261,6 +292,9 @@ export default function TransparencyLedger() {
         </CardContent>
       </Card>
 
+      {/* On-Chain Metrics */}
+      <BlockchainMetricsPanel />
+
       {/* Transparent Currency Stream */}
       <Card className="bg-slate-900/60 border-purple-900/40">
         <CardHeader className="border-b border-purple-900/30">
@@ -384,6 +418,9 @@ export default function TransparencyLedger() {
           )}
         </CardContent>
       </Card>
+
+      {/* Audit Trail */}
+      <AuditTrail />
 
       {/* Collective Intent Footer */}
       <Card className="bg-gradient-to-r from-indigo-950/40 to-purple-950/40 border-indigo-500/30">
