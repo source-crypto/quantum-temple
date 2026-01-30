@@ -66,6 +66,7 @@ import TempleMode from './pages/TempleMode';
 import WhitePaper from './pages/WhitePaper';
 import AdminDashboard from './pages/AdminDashboard';
 import ManifestoAgentTest from './pages/ManifestoAgentTest';
+import Manifesto from './pages/Manifesto';
 import __Layout from './Layout.jsx';
 
 
@@ -89,6 +90,7 @@ export const PAGES = {
     "WhitePaper": WhitePaper,
     "AdminDashboard": AdminDashboard,
     "ManifestoAgentTest": ManifestoAgentTest,
+    "Manifesto": Manifesto,
 }
 
 export const pagesConfig = {

@@ -45,6 +45,11 @@ const navigationItems = [
     icon: FileText,
   },
   {
+    title: "Manifesto",
+    url: createPageUrl("Manifesto"),
+    icon: Scroll,
+  }
+  {
     title: "Temple Mode",
     url: createPageUrl("TempleMode"),
     icon: Sparkles,
