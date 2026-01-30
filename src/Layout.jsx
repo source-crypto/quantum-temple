@@ -15,7 +15,8 @@ import {
               Waves,
               Network,
               Activity,
-              PlugZap
+              PlugZap,
+              CreditCard
               } from "lucide-react";
 import InAppAnnouncementBar from "./components/app/InAppAnnouncementBar";
 import {
@@ -68,6 +69,11 @@ const navigationItems = [
     title: "Divine Currency",
     url: createPageUrl("Currency"),
     icon: Coins,
+  },
+  {
+    title: "Checkout",
+    url: createPageUrl("Checkout"),
+    icon: CreditCard,
   },
   {
     title: "Governance",
