@@ -34,6 +34,11 @@ export default function AdminDashboard() {
 
         <BroadcastForm />
 
+        <div className="flex gap-2">
+          <Button onClick={async () => { const { data } = await base44.functions.invoke('syncHubspotContacts', { dryRun: true, limit: 50 }); if (data?.error) toast.error(data.error); else toast.success(`Dry run: would sync ${data?.summary?.dryRunCount || 0} contacts`); }}>HubSpot Dry Run</Button>
+          <Button className="bg-emerald-600 hover:bg-emerald-500" onClick={async () => { const { data } = await base44.functions.invoke('syncHubspotContacts', { limit: 500 }); if (data?.error) toast.error(data.error); else toast.success(`HubSpot sync complete: created ${data?.summary?.created || 0}, updated ${data?.summary?.updated || 0}`); }}>Sync HubSpot Contacts</Button>
+        </div>
+
         <Card className="bg-slate-950/70 border-purple-900/40">
           <CardHeader>
             <CardTitle className="text-purple-200">Scheduled & Recent Broadcasts</CardTitle>
