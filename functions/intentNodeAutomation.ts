@@ -28,8 +28,6 @@ Deno.serve(async (req) => {
 
     const notifyList = [];
     if (node?.created_by) notifyList.push(node.created_by);
-    const admins = await base44.asServiceRole.entities.User.filter({ role: 'admin' }).catch(() => []);
-    admins.forEach((a) => notifyList.push(a.email));
 
     if (triggers.length > 0) {
       for (const to of Array.from(new Set(notifyList))) {

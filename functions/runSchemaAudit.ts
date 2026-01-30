@@ -98,13 +98,12 @@ Deno.serve(async (req) => {
 
     const critical = (issues >= 3) || (drift.length > 0);
 
-    // Alert admins if critical
+    // Alert (email current user if available) + log
     if (critical) {
-      const admins = await base44.asServiceRole.entities.User.filter({ role: 'admin' }).catch(() => []);
-      for (const admin of admins) {
+      if (user?.email) {
         await base44.asServiceRole.functions.invoke('integrationsHub', {
           action: 'sendEmail',
-          to: admin.email,
+          to: user.email,
           subject: 'Schema Audit Alert',
           body: `Issues: ${issues}\nWarnings: ${warnings}\nDrift: ${drift.length}`
         });
