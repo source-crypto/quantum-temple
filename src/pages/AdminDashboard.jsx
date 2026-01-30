@@ -34,9 +34,11 @@ export default function AdminDashboard() {
 
         <BroadcastForm />
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button onClick={async () => { const { data } = await base44.functions.invoke('syncHubspotContacts', { dryRun: true, limit: 50 }); if (data?.error) toast.error(data.error); else toast.success(`Dry run: would sync ${data?.summary?.dryRunCount || 0} contacts`); }}>HubSpot Dry Run</Button>
           <Button className="bg-emerald-600 hover:bg-emerald-500" onClick={async () => { const { data } = await base44.functions.invoke('syncHubspotContacts', { limit: 500 }); if (data?.error) toast.error(data.error); else toast.success(`HubSpot sync complete: created ${data?.summary?.created || 0}, updated ${data?.summary?.updated || 0}`); }}>Sync HubSpot Contacts</Button>
+          <Button variant="outline" onClick={async () => { const res = await base44.functions.invoke('exportFinanceCsv'); const csv = typeof res?.data === 'string' ? res.data : ''; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'finance-export.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); toast.success('Finance CSV downloaded'); }}>Download Finance CSV</Button>
+          <Button variant="outline" className="bg-purple-600/10 hover:bg-purple-600/20" onClick={async () => { const { data } = await base44.functions.invoke('exportFinanceCsv', { mode: 'upload' }); if (data?.error) toast.error(data.error); else toast.success(`Finance CSV uploaded (${data?.rows || 0} rows)`); }}>Run Finance Export (Upload)</Button>
         </div>
 
         <Card className="bg-slate-950/70 border-purple-900/40">
