@@ -5,9 +5,8 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
 
     // Use service role to manage bridges across all users (scheduled job)
-    const pending = await base44.asServiceRole.entities.CrossChainBridge.filter({
-      status: ['initiated', 'escrow_locked', 'confirming', 'releasing']
-    }, '-initiated_at', 500);
+    const all = await base44.asServiceRole.entities.CrossChainBridge.list('-initiated_at', 500);
+    const pending = all.filter(b => ['initiated','escrow_locked','confirming','releasing'].includes(b.status));
 
     let updated = 0;
     for (const b of pending) {
