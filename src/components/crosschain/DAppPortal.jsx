@@ -99,6 +99,13 @@ export default function DAppPortal() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['bridged-qtc-balances'] }); }
   });
 
+  useEffect(() => {
+    const unsubscribe = base44.entities.CrossChainBridge.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ['bridged-qtc-balances'] });
+    });
+    return unsubscribe;
+  }, [queryClient]);
+
   const handleBridge = () => bridgeMutation.mutate({ presetId: preset, amount, dest: destAddress });
 
   useEffect(() => {
