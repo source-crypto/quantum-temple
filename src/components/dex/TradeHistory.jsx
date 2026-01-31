@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock3 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 export default function TradeHistory() {
+  const qc = useQueryClient();
   const { data: trades } = useQuery({
     queryKey: ["recent_trades"],
     queryFn: async () => {
@@ -20,6 +21,15 @@ export default function TradeHistory() {
     refetchIntervalInBackground: true,
     initialData: [],
   });
+
+  useEffect(() => {
+    const unsub = base44.entities.CurrencyTransaction.subscribe((event) => {
+      if (event.type === 'create' && event.data?.transaction_type === 'trade') {
+        qc.invalidateQueries({ queryKey: ["recent_trades"] });
+      }
+    });
+    return () => unsub?.();
+  }, [qc]);
 
   return (
     <Card className="bg-slate-900/60 border-purple-900/30">
