@@ -116,7 +116,7 @@ export default function CurrencyIndex() {
   }
 
   const marketCapFormatted = (index.vqc_total_valuation_usd / 1000000000).toFixed(2);
-  const priceFormatted = index.qtc_unit_price_usd.toFixed(6);
+  const priceFormatted = Math.max(0, index.qtc_unit_price_usd).toFixed(6);
 
   return (
     <div className="space-y-4">
@@ -174,7 +174,7 @@ export default function CurrencyIndex() {
             <div>
               <div className="text-xs text-indigo-400/70 mb-1">Circulating</div>
               <div className="text-lg font-bold text-indigo-200">
-                {(index.circulating_supply / 1000000).toFixed(2)}M
+                {(Math.max(0, index.circulating_supply || 0) / 1000000).toFixed(2)}M
               </div>
             </div>
           </div>
@@ -251,7 +251,7 @@ export default function CurrencyIndex() {
                 <Zap className="w-4 h-4 text-amber-400" />
               </div>
               <div className="text-2xl font-bold text-green-300 mb-1">
-                ${index.qtc_unit_price_usd.toFixed(6)}
+                ${Math.max(0, index.qtc_unit_price_usd).toFixed(6)}
               </div>
               <div className="text-xs text-green-400/70">
                 Based on $560B valuation
@@ -281,7 +281,7 @@ export default function CurrencyIndex() {
             <div className="text-center">
               <div className="text-xs text-purple-400/70 mb-2">Total Supply</div>
               <div className="text-2xl font-bold text-purple-200">
-                {(index.total_qtc_supply / 1000000).toFixed(2)}M
+                {(Math.max(0, index.total_qtc_supply || 0) / 1000000).toFixed(2)}M
               </div>
             </div>
             <div className="text-center">
