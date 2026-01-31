@@ -1,16 +1,17 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { base44 } from "@/api/base44Client";
 
 export default function DataFeedsPanel() {
   const { data: prices } = useQuery({
     queryKey: ['market_prices'],
-    queryFn: () => window.base44.entities.MarketPrice.list('-timestamp', 6),
+    queryFn: () => base44.entities.MarketPrice.list('-timestamp', 6),
     initialData: [],
   });
   const { data: liq } = useQuery({
     queryKey: ['dex_liquidity'],
-    queryFn: () => window.base44.entities.DexLiquiditySnapshot.list('-timestamp', 6),
+    queryFn: () => base44.entities.DexLiquiditySnapshot.list('-timestamp', 6),
     initialData: [],
   });
 

@@ -3,6 +3,7 @@ import TradingViewWidget from "./TradingViewWidget";
 import StopOrderForm from "./StopOrderForm";
 import OrderBookView from "../markets/OrderBookView";
 import TradeHistory from "./TradeHistory";
+import QTCPaymentAdoption from "./QTCPaymentAdoption";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -44,6 +45,7 @@ export default function TradingTerminal() {
 
       <div className="lg:col-span-1 space-y-4">
         <StopOrderForm />
+        <QTCPaymentAdoption />
         <OrderBookView />
       </div>
     </div>

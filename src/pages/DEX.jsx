@@ -12,11 +12,13 @@ import PoolsOverview from "../components/dex/PoolsOverview";
 import CrossChainBridge from "../components/dex/CrossChainBridge";
 import MultiChainBridge from "../components/dex/MultiChainBridge";
 import CrossChainExplorer from "../components/dex/CrossChainExplorer";
+import QTCBridge from "../components/dex/QTCBridge";
 import LiquidityInsights from "../components/dex/LiquidityInsights";
 import RealtimeDexTape from "../components/dex/RealtimeDexTape";
 import TradingTerminal from "../components/dex/TradingTerminal";
 import SingleAssetStaking from "../components/dex/SingleAssetStaking";
 import ILProtectedPools from "../components/dex/ILProtectedPools";
+import DataFeedsPanel from "../components/markets/DataFeedsPanel";
 
 export default function DEX() {
   const [activeTab, setActiveTab] = useState("swap");
@@ -24,6 +26,7 @@ export default function DEX() {
   const tabs = [
     { id: "swap", label: "Swap", icon: Repeat, color: "from-cyan-600 to-blue-600" },
     { id: "bridge", label: "Cross-Chain Bridge", icon: ArrowLeftRight, color: "from-purple-600 to-pink-600" },
+    { id: "qtcbridge", label: "QTC Bridge", icon: ArrowLeftRight, color: "from-teal-600 to-emerald-600" },
     { id: "multichain", label: "Multi-Chain Bridge", icon: Network, color: "from-indigo-600 to-purple-600" },
     { id: "explorer", label: "Cross-Chain Explorer", icon: Search, color: "from-blue-600 to-cyan-600" },
     { id: "liquidity", label: "Liquidity", icon: Droplets, color: "from-green-600 to-emerald-600" },
@@ -144,6 +147,17 @@ export default function DEX() {
             </motion.div>
           )}
 
+          {activeTab === "qtcbridge" && (
+            <motion.div
+              key="qtcbridge"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <QTCBridge />
+            </motion.div>
+          )}
+
           {activeTab === "liquidity" && (
             <motion.div
               key="liquidity"
@@ -224,6 +238,9 @@ export default function DEX() {
                 <div className="md:col-span-1">
                   <RealtimeDexTape />
                 </div>
+              </div>
+              <div className="mt-4">
+                <DataFeedsPanel />
               </div>
             </motion.div>
           )}
