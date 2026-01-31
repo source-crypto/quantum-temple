@@ -69,7 +69,7 @@ export default function LiquidityInsights() {
   // APY estimate from fee capture
   const apy = useMemo(() => {
     if (!selectedPool || !tvlUSD) return null;
-    const dailyFees = (selectedPool.total_volume_24h || 0) * (selectedPool.fee_percentage || 0.003) / 100; // fee_percentage is %
+    const dailyFees = (selectedPool.total_volume_24h || 0) * ((selectedPool.fee_percentage ?? 0.3) / 100); // fee_percentage is %
     const dailyYield = tvlUSD > 0 ? dailyFees / tvlUSD : 0;
     return (dailyYield * 365 * 100); // %
   }, [selectedPool, tvlUSD]);
