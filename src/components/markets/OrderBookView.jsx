@@ -24,6 +24,8 @@ export default function OrderBookView() {
       return base44.entities.OrderBook.filter({ market_id: selectedMarket }, '-timestamp', 1);
     },
     enabled: !!selectedMarket,
+    refetchInterval: 15000,
+    refetchIntervalInBackground: true,
     initialData: [],
   });
 
