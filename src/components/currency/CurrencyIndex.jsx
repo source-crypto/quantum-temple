@@ -7,6 +7,7 @@ import { TrendingUp, TrendingDown, DollarSign, BarChart3, Globe, Zap, RefreshCw 
 import { motion } from "framer-motion";
 
 import MarketInsights from "./MarketInsights";
+import QTCNewsPanel from "./QTCNewsPanel";
 
 export default function CurrencyIndex() {
   const queryClient = useQueryClient();
