@@ -28,6 +28,20 @@ export default function Currency() {
     initialData: [],
   });
 
+  const { data: currencyIndexHero } = useQuery({
+    queryKey: ['currencyIndexHero'],
+    queryFn: async () => {
+      const items = await base44.entities.CurrencyIndex.list('-updated_date', 1);
+      return items?.[0] || null;
+    },
+    refetchInterval: 30000,
+    refetchIntervalInBackground: true,
+    initialData: null,
+  });
+
+  const qtcPrice = currencyIndexHero?.qtc_unit_price_usd ?? 0.1;
+  const qtcChange = currencyIndexHero?.price_change_24h ?? 0;
+
   const totalSupply = mints.reduce((sum, mint) => sum + (mint.amount || 0), 0);
   const totalMints = mints.length;
 
