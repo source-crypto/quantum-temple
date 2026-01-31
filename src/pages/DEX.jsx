@@ -15,6 +15,8 @@ import CrossChainExplorer from "../components/dex/CrossChainExplorer";
 import LiquidityInsights from "../components/dex/LiquidityInsights";
 import RealtimeDexTape from "../components/dex/RealtimeDexTape";
 import TradingTerminal from "../components/dex/TradingTerminal";
+import SingleAssetStaking from "../components/dex/SingleAssetStaking";
+import ILProtectedPools from "../components/dex/ILProtectedPools";
 
 export default function DEX() {
   const [activeTab, setActiveTab] = useState("swap");
@@ -26,6 +28,8 @@ export default function DEX() {
     { id: "explorer", label: "Cross-Chain Explorer", icon: Search, color: "from-blue-600 to-cyan-600" },
     { id: "liquidity", label: "Liquidity", icon: Droplets, color: "from-green-600 to-emerald-600" },
     { id: "farm", label: "Yield Farming", icon: TrendingUp, color: "from-amber-600 to-orange-600" },
+    { id: "stake", label: "Stake", icon: TrendingUp, color: "from-emerald-600 to-green-600" },
+    { id: "ilpools", label: "IL Pools", icon: BarChart3, color: "from-teal-600 to-cyan-600" },
     { id: "pools", label: "Pools", icon: BarChart3, color: "from-pink-600 to-rose-600" },
     { id: "trading", label: "Trading", icon: Activity, color: "from-violet-600 to-indigo-600" },
     { id: "insights", label: "Liquidity Insights", icon: LineChartIcon, color: "from-fuchsia-600 to-purple-600" },
@@ -159,6 +163,28 @@ export default function DEX() {
               exit={{ opacity: 0, x: 20 }}
             >
               <YieldFarming />
+            </motion.div>
+          )}
+
+          {activeTab === "stake" && (
+            <motion.div
+              key="stake"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <SingleAssetStaking />
+            </motion.div>
+          )}
+
+          {activeTab === "ilpools" && (
+            <motion.div
+              key="ilpools"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <ILProtectedPools />
             </motion.div>
           )}
 

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
@@ -8,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import ProposalList from "../components/governance/ProposalList";
 import CreateProposal from "../components/governance/CreateProposal";
+import CrossChainPortal from "../components/governance/CrossChainPortal";
 import TreasuryDashboard from "../components/governance/TreasuryDashboard";
 import ProtocolFundDashboard from "../components/admin/ProtocolFundDashboard";
 
@@ -34,6 +34,7 @@ export default function Governance() {
   const tabs = [
     { id: "proposals", label: "Proposals", icon: FileText, color: "from-blue-600 to-cyan-600" },
     { id: "create", label: "Create Proposal", icon: Vote, color: "from-purple-600 to-indigo-600" },
+    { id: "crosschain", label: "Cross-Chain", icon: Shield, color: "from-emerald-600 to-green-600" },
     { id: "treasury", label: "Treasury", icon: Landmark, color: "from-amber-600 to-orange-600" },
     { id: "protocol", label: "Protocol Fund", icon: Shield, color: "from-red-600 to-rose-600" },
   ];
@@ -138,6 +139,17 @@ export default function Governance() {
               exit={{ opacity: 0, x: 20 }}
             >
               <CreateProposal votingPower={votingPower} />
+            </motion.div>
+          )}
+
+          {activeTab === "crosschain" && (
+            <motion.div
+              key="crosschain"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <CrossChainPortal />
             </motion.div>
           )}
 
