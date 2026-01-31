@@ -322,9 +322,17 @@ export default function CurrencyIndex() {
         </CardContent>
       </Card>
 
-      {/* AI Market Insights Section */}
-      <div className="mt-8">
-        <MarketInsights currencyPair="QTC/USD" />
+      {/* AI Market Insights & News */}
+      <div className="mt-8 grid md:grid-cols-3 gap-4">
+        <div className="md:col-span-2">
+          <MarketInsights currencyPair="QTC/USD" />
+        </div>
+        <div className="md:col-span-1">
+          {/* News feed tailored to QTC/DCI */}
+          <React.Suspense fallback={null}>
+            <QTCNewsPanel />
+          </React.Suspense>
+        </div>
       </div>
     </div>
   );
