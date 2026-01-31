@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -156,8 +155,15 @@ export default function CurrencyIndex() {
 
           <div className="grid grid-cols-3 gap-4 pt-4 border-t border-indigo-500/30">
             <div>
-              <div className="text-xs text-indigo-400/70 mb-1">Unit Price</div>
-              <div className="text-lg font-bold text-indigo-200">${priceFormatted}</div>
+              <div className="text-xs text-green-400/70 mb-1">Unit Price</div>
+              <div className="inline-flex items-center gap-2">
+                <span className="px-2 py-1 rounded-md bg-green-500/10 border border-green-500/30 text-green-200 font-semibold">${priceFormatted}</span>
+                {typeof index.price_change_24h === 'number' && (
+                  <Badge className={`${index.price_change_24h >= 0 ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-red-500/20 text-red-300 border-red-500/30'}`}>
+                    {index.price_change_24h >= 0 ? '+' : ''}{index.price_change_24h.toFixed(2)}%
+                  </Badge>
+                )}
+              </div>
             </div>
             <div>
               <div className="text-xs text-indigo-400/70 mb-1">24h Volume</div>
