@@ -30,7 +30,8 @@ export default function CurrencyIndex() {
       if (indices.length > 0) return indices[0];
       
       // Create initial index
-      const totalSupply = mints.reduce((sum, m) => sum + (m.amount || 0), 0) || 1;
+      const totalSupplyRaw = mints.reduce((sum, m) => sum + Math.max(0, Number(m.amount) || 0), 0);
+      const totalSupply = Math.max(1, totalSupplyRaw);
       const vqcValuation = 560000000000; // $560 billion
       const qtcUnitPrice = vqcValuation / totalSupply;
       
@@ -59,7 +60,8 @@ export default function CurrencyIndex() {
     mutationFn: async () => {
       if (!index) return;
       
-      const totalSupply = mints.reduce((sum, m) => sum + (m.amount || 0), 0) || 1;
+      const totalSupplyRaw = mints.reduce((sum, m) => sum + Math.max(0, Number(m.amount) || 0), 0);
+      const totalSupply = Math.max(1, totalSupplyRaw);
       const vqcValuation = 560000000000;
       const qtcUnitPrice = vqcValuation / totalSupply;
       
@@ -168,7 +170,7 @@ export default function CurrencyIndex() {
             <div>
               <div className="text-xs text-indigo-400/70 mb-1">24h Volume</div>
               <div className="text-lg font-bold text-indigo-200">
-                ${(index.volume_24h_usd / 1000000).toFixed(2)}M
+                ${(Math.max(0, index.volume_24h_usd || 0) / 1000000).toFixed(2)}M
               </div>
             </div>
             <div>
