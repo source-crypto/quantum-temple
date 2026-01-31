@@ -72,6 +72,7 @@ import Security from './pages/Security';
 import Settings from './pages/Settings';
 import TempleMode from './pages/TempleMode';
 import WhitePaper from './pages/WhitePaper';
+import TradeOffersAgent from './pages/TradeOffersAgent';
 import __Layout from './Layout.jsx';
 
 
@@ -101,6 +102,7 @@ export const PAGES = {
     "Settings": Settings,
     "TempleMode": TempleMode,
     "WhitePaper": WhitePaper,
+    "TradeOffersAgent": TradeOffersAgent,
 }
 
 export const pagesConfig = {
