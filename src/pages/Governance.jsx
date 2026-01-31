@@ -36,7 +36,7 @@ export default function Governance() {
     { id: "create", label: "Create Proposal", icon: Vote, color: "from-purple-600 to-indigo-600" },
     { id: "crosschain", label: "Cross-Chain", icon: Shield, color: "from-emerald-600 to-green-600" },
     { id: "treasury", label: "Treasury", icon: Landmark, color: "from-amber-600 to-orange-600" },
-    { id: "protocol", label: "Protocol Fund", icon: Shield, color: "from-red-600 to-rose-600" },
+    { id: "protocol", label: "Founding Fathers Fund", icon: Landmark, color: "from-red-600 to-rose-600" },
   ];
 
   return (

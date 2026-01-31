@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -15,9 +15,12 @@ import {
   Lock
 } from "lucide-react";
 import { motion } from "framer-motion";
+import TreasuryQuickActions from "./TreasuryQuickActions";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 export default function TreasuryDashboard() {
+  const qc = useQueryClient();
+
   // Fetch protocol fund data
   const { data: protocolFunds, isLoading: fundsLoading } = useQuery({
     queryKey: ['protocolFunds'],
@@ -73,6 +76,16 @@ export default function TreasuryDashboard() {
     amount: tx.usd_amount || 0,
     type: tx.transaction_type
   }));
+
+  useEffect(() => {
+    const unsub1 = base44.entities.ProtocolFund.subscribe(() => {
+      qc.invalidateQueries({ queryKey: ['protocolFunds'] });
+    });
+    const unsub2 = base44.entities.CentralBankTransaction.subscribe(() => {
+      qc.invalidateQueries({ queryKey: ['centralBankTransactions'] });
+    });
+    return () => { unsub1?.(); unsub2?.(); };
+  }, [qc]);
 
   if (fundsLoading || transactionsLoading) {
     return (
@@ -170,8 +183,10 @@ export default function TreasuryDashboard() {
         </motion.div>
       </div>
 
-      {/* Charts Section */}
-      <div className="grid md:grid-cols-2 gap-6">
+      {/* Quick Actions + Charts Section */}
+      <div className="space-y-6">
+        <TreasuryQuickActions />
+        <div className="grid md:grid-cols-2 gap-6">
         {/* Treasury Growth Chart */}
         <Card className="bg-slate-900/60 border-purple-900/40">
           <CardHeader>
@@ -252,6 +267,7 @@ export default function TreasuryDashboard() {
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
 
       {/* Protocol Funds Details */}

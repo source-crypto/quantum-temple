@@ -1,13 +1,19 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Landmark, Users, Shield, TrendingUp, DollarSign, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
 // OPTIONAL Protocol Fund Dashboard - Shows founding fathers fund status
 export default function ProtocolFundDashboard() {
+  const qc = useQueryClient();
+  const [live, setLive] = useState(false);
+  const [events, setEvents] = useState([]);
+  const subsRef = useRef([]);
+
   const { data: protocolFunds, isLoading } = useQuery({
     queryKey: ['protocolFunds'],
     queryFn: () => base44.entities.ProtocolFund.list(),
@@ -32,6 +38,35 @@ export default function ProtocolFundDashboard() {
   const totalDistributed = foundingFathersFund?.total_distributed || 0;
   const remainingBalance = (foundingFathersFund?.total_balance_usd || 560000000000) - totalDistributed;
 
+  useEffect(() => {
+    // Manage subscriptions when live mode toggles
+    subsRef.current.forEach((u) => u && u());
+    subsRef.current = [];
+
+    if (live) {
+      const u1 = base44.entities.ProtocolFund.subscribe((e) => {
+        qc.invalidateQueries({ queryKey: ['protocolFunds'] });
+        setEvents((prev) => [{
+          at: new Date().toISOString(),
+          text: `ProtocolFund ${e.type}`,
+        }, ...prev].slice(0, 20));
+      });
+      const u2 = base44.entities.CentralBankTransaction.subscribe((e) => {
+        qc.invalidateQueries({ queryKey: ['allCentralBankTransactions'] });
+        setEvents((prev) => [{
+          at: new Date().toISOString(),
+          text: `CentralBank ${e.type}${e.data?.usd_amount ? ` $${(e.data.usd_amount).toLocaleString()}` : ''}`,
+        }, ...prev].slice(0, 20));
+      });
+      subsRef.current = [u1, u2];
+    }
+
+    return () => {
+      subsRef.current.forEach((u) => u && u());
+      subsRef.current = [];
+    };
+  }, [live, qc]);
+
   if (isLoading) {
     return (
       <Card className="bg-slate-900/60 border-amber-900/40 animate-pulse">
@@ -53,6 +88,19 @@ export default function ProtocolFundDashboard() {
           </svg>
         </div>
         <CardContent className="p-8 relative">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2 text-xs">
+              <div className={`w-2 h-2 rounded-full ${live ? 'bg-green-400 animate-pulse' : 'bg-purple-400/50'}`} />
+              <span className="text-amber-300/70">{live ? 'Live stream active' : 'Live stream inactive'}</span>
+            </div>
+            <div className="flex gap-2">
+              {!live ? (
+                <Button onClick={() => setLive(true)} className="bg-emerald-600 hover:bg-emerald-700"><Activity className="w-4 h-4 mr-1" /> Activate</Button>
+              ) : (
+                <Button onClick={() => setLive(false)} variant="outline" className="border-amber-500/40 text-amber-200"><Shield className="w-4 h-4 mr-1" /> Deactivate</Button>
+              )}
+            </div>
+          </div>
           <div className="flex items-start gap-4 mb-6">
             <div className="w-16 h-16 bg-amber-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
               <Landmark className="w-8 h-8 text-amber-400" />
@@ -232,6 +280,27 @@ export default function ProtocolFundDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Live Events */}
+      <Card className="bg-slate-900/60 border-purple-900/40">
+        <CardHeader className="border-b border-purple-900/30">
+          <CardTitle className="text-purple-200">Live Events</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          {events.length === 0 ? (
+            <div className="text-sm text-purple-400/70">No live events yet. Activate to start streaming.</div>
+          ) : (
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {events.map((ev, i) => (
+                <div key={i} className="text-xs p-2 rounded bg-slate-950/50 border border-purple-900/30 flex items-center justify-between">
+                  <span className="text-purple-200">{ev.text}</span>
+                  <span className="text-purple-400/60">{new Date(ev.at).toLocaleTimeString()}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Info Card */}
       <Card className="bg-gradient-to-br from-blue-950/40 to-indigo-950/40 border-blue-500/30">
