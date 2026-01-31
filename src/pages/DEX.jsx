@@ -178,7 +178,14 @@ export default function DEX() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
             >
-              <LiquidityInsights />
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
+                  <LiquidityInsights />
+                </div>
+                <div className="md:col-span-1">
+                  <RealtimeDexTape />
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
