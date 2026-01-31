@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Landmark, Users, Shield, TrendingUp, DollarSign, Sparkles } from "lucide-react";
+import { Landmark, Users, Shield, TrendingUp, DollarSign, Sparkles, Activity } from "lucide-react";
 import { motion } from "framer-motion";
 
 // OPTIONAL Protocol Fund Dashboard - Shows founding fathers fund status
