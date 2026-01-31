@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Repeat, Droplets, TrendingUp, BarChart3, ArrowLeftRight, Network, Search } from "lucide-react";
+import { Repeat, Droplets, TrendingUp, BarChart3, ArrowLeftRight, Network, Search, LineChart as LineChartIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import SwapInterface from "../components/dex/SwapInterface";
@@ -12,6 +12,7 @@ import PoolsOverview from "../components/dex/PoolsOverview";
 import CrossChainBridge from "../components/dex/CrossChainBridge";
 import MultiChainBridge from "../components/dex/MultiChainBridge";
 import CrossChainExplorer from "../components/dex/CrossChainExplorer";
+import LiquidityInsights from "../components/dex/LiquidityInsights";
 
 export default function DEX() {
   const [activeTab, setActiveTab] = useState("swap");
@@ -24,6 +25,7 @@ export default function DEX() {
     { id: "liquidity", label: "Liquidity", icon: Droplets, color: "from-green-600 to-emerald-600" },
     { id: "farm", label: "Yield Farming", icon: TrendingUp, color: "from-amber-600 to-orange-600" },
     { id: "pools", label: "Pools", icon: BarChart3, color: "from-pink-600 to-rose-600" },
+    { id: "insights", label: "Liquidity Insights", icon: LineChartIcon, color: "from-fuchsia-600 to-purple-600" },
   ];
 
   return (
@@ -165,6 +167,17 @@ export default function DEX() {
               exit={{ opacity: 0, x: 20 }}
             >
               <PoolsOverview />
+            </motion.div>
+          )}
+
+          {activeTab === "insights" && (
+            <motion.div
+              key="insights"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <LiquidityInsights />
             </motion.div>
           )}
         </AnimatePresence>
