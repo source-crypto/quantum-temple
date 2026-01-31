@@ -23,6 +23,7 @@ import {
               Link2
               } from "lucide-react";
 import InAppAnnouncementBar from "./components/app/InAppAnnouncementBar";
+import QTCPriceWidget from "./components/currency/QTCPriceWidget";
 import {
   Sidebar,
   SidebarContent,
@@ -233,6 +234,17 @@ export default function Layout({ children }) {
                     </SidebarMenuItem>
                   ))}
                 </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup className="mt-4">
+              <SidebarGroupLabel className="text-xs font-medium text-purple-400/60 uppercase tracking-wider px-3 py-2">
+                Market
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <div className="px-3">
+                  <QTCPriceWidget />
+                </div>
               </SidebarGroupContent>
             </SidebarGroup>
 
