@@ -77,7 +77,16 @@ export default function Currency() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-200 via-orange-200 to-amber-300 bg-clip-text text-transparent">
                 Divine Currency
               </h1>
-              <p className="text-purple-400/70">$560B valuation • Cross-chain bridges • Unlimited minting</p>
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="text-purple-400/70">$560B valuation • Cross-chain bridges • Unlimited minting</p>
+                <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-sm font-semibold
+                  ${qtcChange >= 0 ? 'border-green-500/30 bg-green-950/30 text-green-300' : 'border-red-500/30 bg-red-950/30 text-red-300'}`}
+                >
+                  <span className="text-xs opacity-80">QTC</span>
+                  <span>${qtcPrice?.toFixed(4)}</span>
+                  <span className="text-xs">{qtcChange >= 0 ? '+' : ''}{Number(qtcChange).toFixed(2)}%</span>
+                </span>
+              </div>
             </div>
           </div>
 
