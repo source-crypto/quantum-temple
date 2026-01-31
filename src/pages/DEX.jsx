@@ -13,6 +13,7 @@ import CrossChainBridge from "../components/dex/CrossChainBridge";
 import MultiChainBridge from "../components/dex/MultiChainBridge";
 import CrossChainExplorer from "../components/dex/CrossChainExplorer";
 import LiquidityInsights from "../components/dex/LiquidityInsights";
+import RealtimeDexTape from "../components/dex/RealtimeDexTape";
 
 export default function DEX() {
   const [activeTab, setActiveTab] = useState("swap");
