@@ -30,6 +30,16 @@ export default function OrderBookView() {
     initialData: [],
   });
 
+  useEffect(() => {
+    if (!selectedMarket) return;
+    const unsubscribe = base44.entities.OrderBook.subscribe((event) => {
+      if ((event.type === 'create' || event.type === 'update') && event.data?.market_id === selectedMarket) {
+        qc.invalidateQueries({ queryKey: ['orderbooks', selectedMarket] });
+      }
+    });
+    return () => unsubscribe?.();
+  }, [qc, selectedMarket]);
+
   const currentOrderbook = orderbooks.length > 0 ? orderbooks[0] : null;
 
   // Calculate orderbook metrics
