@@ -28,8 +28,11 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import DeterministicExchangeRates from "../components/widgets/DeterministicExchangeRates";
+import QTCNodeHealth from "../components/widgets/QTCNodeHealth";
+import CryptoWalletPanel from "../components/widgets/CryptoWalletPanel";
 
-export default function Home() {
+ export default function Home() {
   const [quantumState, setQuantumState] = useState(0);
 
   useEffect(() => {
@@ -343,9 +346,16 @@ export default function Home() {
               </CardContent>
             </Card>
           </motion.div>
-        )}
+          )}
 
-        {/* Charts Section */}
+          {/* Transparency Widgets */}
+          <div className="grid md:grid-cols-3 gap-4">
+          <DeterministicExchangeRates />
+          <QTCNodeHealth />
+          <CryptoWalletPanel />
+          </div>
+
+          {/* Charts Section */}
         {user && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}

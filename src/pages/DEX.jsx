@@ -5,7 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Repeat, Droplets, TrendingUp, BarChart3, ArrowLeftRight, Network, Search, LineChart as LineChartIcon, Activity } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-import SwapInterface from "../components/dex/SwapInterface";
+import DeterministicExchangeRates from "../components/widgets/DeterministicExchangeRates";
+import QTCNodeHealth from "../components/widgets/QTCNodeHealth";
+
+ import SwapInterface from "../components/dex/SwapInterface";
 import LiquidityInterface from "../components/dex/LiquidityInterface";
 import YieldFarming from "../components/dex/YieldFarming";
 import PoolsOverview from "../components/dex/PoolsOverview";
@@ -74,9 +77,15 @@ export default function DEX() {
               <span className="text-sm font-semibold text-green-300">Yield Farming</span>
             </div>
           </div>
-        </motion.div>
+          </motion.div>
 
-        {/* Tabs */}
+          {/* Transparency Strip */}
+          <div className="grid md:grid-cols-2 gap-4 mb-6">
+          <DeterministicExchangeRates />
+          <QTCNodeHealth />
+          </div>
+
+          {/* Tabs */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
