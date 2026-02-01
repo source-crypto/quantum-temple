@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { useQueryClient } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 import { 
               Sparkles, 
               Shield, 
@@ -164,6 +166,15 @@ const navigationItems = [
 
 export default function Layout({ children }) {
   const location = useLocation();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    // Global real-time broadcast for CurrencyIndex
+    const unsubscribe = base44.entities.CurrencyIndex.subscribe(() => {
+      queryClient.invalidateQueries(); // wake up all listeners
+    });
+    return () => unsubscribe?.();
+  }, [queryClient]);
 
   return (
     <SidebarProvider>
