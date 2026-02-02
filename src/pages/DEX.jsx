@@ -22,8 +22,9 @@ import TradingTerminal from "../components/dex/TradingTerminal";
 import SingleAssetStaking from "../components/dex/SingleAssetStaking";
 import ILProtectedPools from "../components/dex/ILProtectedPools";
 import DataFeedsPanel from "../components/markets/DataFeedsPanel";
+import AutoYieldControls from "../components/dex/AutoYieldControls";
 
-export default function DEX() {
+ export default function DEX() {
   const [activeTab, setActiveTab] = useState("swap");
 
   const tabs = [
@@ -80,9 +81,13 @@ export default function DEX() {
           </motion.div>
 
           {/* Transparency Strip */}
-          <div className="grid md:grid-cols-2 gap-4 mb-6">
-          <DeterministicExchangeRates />
-          <QTCNodeHealth />
+          <div className="grid md:grid-cols-2 gap-4 mb-4">
+            <DeterministicExchangeRates />
+            <QTCNodeHealth />
+          </div>
+
+          <div className="mb-6">
+            <AutoYieldControls />
           </div>
 
           {/* Tabs */}
