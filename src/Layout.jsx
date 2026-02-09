@@ -26,6 +26,7 @@ import {
               } from "lucide-react";
 import InAppAnnouncementBar from "./components/app/InAppAnnouncementBar";
 import QTCPriceWidget from "./components/currency/QTCPriceWidget";
+import WalletConnectButton from "./components/wallet/WalletConnectButton";
 import {
   Sidebar,
   SidebarContent,
@@ -287,7 +288,10 @@ export default function Layout({ children }) {
             </SidebarGroup>
           </SidebarContent>
 
-          <SidebarFooter className="border-t border-purple-900/30 p-4">
+          <SidebarFooter className="border-t border-purple-900/30 p-4 space-y-3">
+            <div className="px-1">
+              <WalletConnectButton />
+            </div>
             <div className="text-center text-xs text-purple-400/50 italic">
               "By God's Will Only"
               <div className="mt-1 text-[10px] text-purple-500/40">
