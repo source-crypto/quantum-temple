@@ -2,8 +2,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 const GITHUB_API = 'https://api.github.com';
 
-async function githubRequest(path, options = {}) {
-  const token = Deno.env.get('GITHUB_TOKEN');
+async function githubRequest(path, options = {}, tokenOverride) {
+  const token = tokenOverride || Deno.env.get('GITHUB_TOKEN');
   if (!token) throw new Error('GITHUB_TOKEN not set');
   const url = `${GITHUB_API}${path}`;
   const res = await fetch(url, {
@@ -53,6 +53,9 @@ Deno.serve(async (req) => {
     const branch = (payload.branch || 'develop').trim();
     const commitMessage = (payload.message || 'feat: wallet + market data + charts').trim();
 
+    const tokenOverride = (payload.token || '').trim() || undefined;
+    const gh = (path, options) => githubRequest(path, options, tokenOverride);
+
     if (!repoInput || !repoInput.includes('/')) {
       return Response.json({ error: 'Invalid repo. Provide owner/repo in payload.repo or set GITHUB_REPO' }, { status: 400 });
     }
@@ -73,24 +76,24 @@ Deno.serve(async (req) => {
     // Ensure target branch exists
     let headRef;
     try {
-      headRef = await githubRequest(`/repos/${owner}/${repo}/git/ref/heads/${branch}`);
+      headRef = await gh(`/repos/${owner}/${repo}/git/ref/heads/${branch}`);
     } catch (e) {
       // create from main
-      const mainRef = await githubRequest(`/repos/${owner}/${repo}/git/ref/heads/main`);
-      await githubRequest(`/repos/${owner}/${repo}/git/refs`, {
+      const mainRef = await gh(`/repos/${owner}/${repo}/git/ref/heads/main`);
+      await gh(`/repos/${owner}/${repo}/git/refs`, {
         method: 'POST',
         body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: mainRef.object.sha }),
       });
-      headRef = await githubRequest(`/repos/${owner}/${repo}/git/ref/heads/${branch}`);
+      headRef = await gh(`/repos/${owner}/${repo}/git/ref/heads/${branch}`);
     }
 
     const latestCommitSha = headRef.object.sha;
-    const latestCommit = await githubRequest(`/repos/${owner}/${repo}/git/commits/${latestCommitSha}`);
+    const latestCommit = await gh(`/repos/${owner}/${repo}/git/commits/${latestCommitSha}`);
 
     // Create blobs
     const blobShas = [];
     for (const f of files) {
-      const blob = await githubRequest(`/repos/${owner}/${repo}/git/blobs`, {
+      const blob = await gh(`/repos/${owner}/${repo}/git/blobs`, {
         method: 'POST',
         body: JSON.stringify({ content: f.content, encoding: 'utf-8' }),
       });
@@ -98,7 +101,7 @@ Deno.serve(async (req) => {
     }
 
     // Create tree from base
-    const tree = await githubRequest(`/repos/${owner}/${repo}/git/trees`, {
+    const tree = await gh(`/repos/${owner}/${repo}/git/trees`, {
       method: 'POST',
       body: JSON.stringify({
         base_tree: latestCommit.tree.sha,
@@ -107,13 +110,13 @@ Deno.serve(async (req) => {
     });
 
     // Create commit
-    const newCommit = await githubRequest(`/repos/${owner}/${repo}/git/commits`, {
+    const newCommit = await gh(`/repos/${owner}/${repo}/git/commits`, {
       method: 'POST',
       body: JSON.stringify({ message: commitMessage, tree: tree.sha, parents: [latestCommitSha] }),
     });
 
     // Update ref to point to new commit
-    await githubRequest(`/repos/${owner}/${repo}/git/refs/heads/${branch}`, {
+    await gh(`/repos/${owner}/${repo}/git/refs/heads/${branch}`, {
       method: 'PATCH',
       body: JSON.stringify({ sha: newCommit.sha, force: false }),
     });
