@@ -73,16 +73,29 @@ Deno.serve(async (req) => {
           { path: 'components/wallet/WalletConnectButton.jsx', content: walletBtnContent || (await (await fetch(`${new URL(req.url).origin}/components/wallet/WalletConnectButton.jsx`)).text()) },
         ];
 
-    // Ensure target branch exists
+    // Ensure target branch exists (create from default branch if missing)
     let headRef;
     try {
       headRef = await gh(`/repos/${owner}/${repo}/git/ref/heads/${branch}`);
     } catch (e) {
-      // create from main
-      const mainRef = await gh(`/repos/${owner}/${repo}/git/ref/heads/main`);
+      let baseSha = null;
+      try {
+        const repoMeta = await gh(`/repos/${owner}/${repo}`);
+        const baseBranch = repoMeta.default_branch || 'main';
+        const baseRef = await gh(`/repos/${owner}/${repo}/git/ref/heads/${baseBranch}`);
+        baseSha = baseRef.object.sha;
+      } catch (_) {
+        try {
+          const mainRef = await gh(`/repos/${owner}/${repo}/git/ref/heads/main`);
+          baseSha = mainRef.object.sha;
+        } catch (__){
+          const masterRef = await gh(`/repos/${owner}/${repo}/git/ref/heads/master`);
+          baseSha = masterRef.object.sha;
+        }
+      }
       await gh(`/repos/${owner}/${repo}/git/refs`, {
         method: 'POST',
-        body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: mainRef.object.sha }),
+        body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }),
       });
       headRef = await gh(`/repos/${owner}/${repo}/git/ref/heads/${branch}`);
     }
