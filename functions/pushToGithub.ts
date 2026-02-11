@@ -51,7 +51,8 @@ Deno.serve(async (req) => {
     // Inputs (payload overrides env defaults)
     const repoInput = (payload.repo || Deno.env.get('GITHUB_REPO') || '').trim();
     const branch = (payload.branch || 'develop').trim();
-    const commitMessage = (payload.message || 'feat: wallet + market data + charts').trim();
+    const now = new Date().toISOString().replace('T',' ').replace('Z',' UTC');
+    const commitMessage = (payload.commit_message || payload.message || `Sync from Base44 • ${now}`).trim();
 
     const tokenOverride = (payload.token || '').trim() || undefined;
     const gh = (path, options) => githubRequest(path, options, tokenOverride);
