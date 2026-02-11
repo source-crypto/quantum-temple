@@ -77,20 +77,20 @@ Deno.serve(async (req) => {
     // Ensure target branch exists (create from default branch if missing)
     let headRef;
     try {
-      headRef = await gh(`/repos/${owner}/${repo}/git/ref/heads/${branch}`);
+      headRef = await gh(`/repos/${owner}/${repo}/git/refs/heads/${branch}`);
     } catch (e) {
       let baseSha = null;
       try {
         const repoMeta = await gh(`/repos/${owner}/${repo}`);
         const baseBranch = repoMeta.default_branch || 'main';
-        const baseRef = await gh(`/repos/${owner}/${repo}/git/ref/heads/${baseBranch}`);
+        const baseRef = await gh(`/repos/${owner}/${repo}/git/refs/heads/${baseBranch}`);
         baseSha = baseRef.object.sha;
       } catch (_) {
         try {
-          const mainRef = await gh(`/repos/${owner}/${repo}/git/ref/heads/main`);
+          const mainRef = await gh(`/repos/${owner}/${repo}/git/refs/heads/main`);
           baseSha = mainRef.object.sha;
         } catch (__){
-          const masterRef = await gh(`/repos/${owner}/${repo}/git/ref/heads/master`);
+          const masterRef = await gh(`/repos/${owner}/${repo}/git/refs/heads/master`);
           baseSha = masterRef.object.sha;
         }
       }
@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
         method: 'POST',
         body: JSON.stringify({ ref: `refs/heads/${branch}`, sha: baseSha }),
       });
-      headRef = await gh(`/repos/${owner}/${repo}/git/ref/heads/${branch}`);
+      headRef = await gh(`/repos/${owner}/${repo}/git/refs/heads/${branch}`);
     }
 
     const latestCommitSha = headRef.object.sha;
