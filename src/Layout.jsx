@@ -104,6 +104,11 @@ const navigationItems = [
     icon: TrendingUp,
   },
   {
+    title: "Cross-CB System",
+    url: createPageUrl("CrossCBSystem"),
+    icon: Network,
+  }
+  {
     title: "Wallet Integration",
     url: createPageUrl("WalletIntegration"),
     icon: Wallet,
