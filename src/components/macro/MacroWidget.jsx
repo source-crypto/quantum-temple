@@ -193,6 +193,13 @@ export default function MacroWidget() {
             ))}
           </div>
 
+          <div className="flex flex-wrap items-center gap-3 mb-2">
+            <Button variant="secondary" className="gap-2" onClick={() => addNcbContributions()}>
+              <Plus className="w-4 h-4" /> Add NCB Contributions (Total Assets)
+            </Button>
+            <span className="text-xs text-slate-400">Loads ILM.W.<REF_AREA>.N.T000000.Z5.Z01 per NCB</span>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3 mb-4">
             <Input value={customFlowRef} onChange={(e) => setCustomFlowRef(e.target.value)} placeholder="flowRef (e.g. FM, ICP)" className="md:col-span-2 bg-slate-800/60 text-slate-200 border-purple-900/30" />
             <Input value={customKey} onChange={(e) => setCustomKey(e.target.value)} placeholder="key (e.g. M.U2.EUR.4F.KR.DF.LEV)" className="md:col-span-7 bg-slate-800/60 text-slate-200 border-purple-900/30" />
