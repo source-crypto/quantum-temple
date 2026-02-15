@@ -16,6 +16,7 @@ import MyPositions from "../components/markets/MyPositions";
 import DataSourceManager from "../components/markets/DataSourceManager";
 import BlockchainNodeMonitor from "../components/markets/BlockchainNodeMonitor";
 import MarketAnalytics from "../components/markets/MarketAnalytics";
+import MacroWidget from "../components/macro/MacroWidget";
 import CEXListings from "../components/markets/CEXListings";
 
 export default function Markets() {
@@ -32,6 +33,7 @@ export default function Markets() {
     { id: "cex", label: "Major CEX Listings", icon: Building2, color: "from-yellow-600 to-orange-600" },
     { id: "trading", label: "Advanced Trading", icon: Target, color: "from-purple-600 to-indigo-600" },
     { id: "chart", label: "Technical Chart", icon: BarChart3, color: "from-amber-600 to-orange-600" },
+    { id: "macro", label: "Macro", icon: BarChart3, color: "from-sky-600 to-cyan-600" },
     { id: "ai", label: "AI Analyst", icon: Brain, color: "from-pink-600 to-rose-600" },
     { id: "bridge", label: "Cross-Chain Bridge", icon: ArrowLeftRight, color: "from-violet-600 to-purple-600" },
     { id: "orderbook", label: "Order Books", icon: Database, color: "from-indigo-600 to-purple-600" },
@@ -131,6 +133,12 @@ export default function Markets() {
           {activeTab === "chart" && (
             <motion.div key="chart" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
               <TechnicalChart market={selectedMarket} />
+            </motion.div>
+          )}
+
+          {activeTab === "macro" && (
+            <motion.div key="macro" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
+              <MacroWidget />
             </motion.div>
           )}
 
