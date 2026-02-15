@@ -14,8 +14,12 @@ const DEFAULT_ECB_SERIES = [
   { flowRef: 'FM', key: 'M.U2.EUR.4F.KR.MRR_FR.LEV', label: 'ECB MRO (Main Refinancing Rate)' },
   { flowRef: 'FM', key: 'M.U2.EUR.4F.KR.DF.LEV', label: 'ECB Deposit Facility Rate' },
   { flowRef: 'FM', key: 'M.U2.EUR.4F.KR.MLF.LEV', label: 'ECB Marginal Lending Facility' },
+  { flowRef: 'ILM', key: 'W.U2.C.T000000.Z5.Z01', label: 'Eurosystem Total Assets (weekly)' },
   { flowRef: 'ICP', key: 'M.U2.N.CP00.4.ANR', label: 'HICP YoY (Headline)' },
   { flowRef: 'ICP', key: 'M.U2.N.XEFG.4.ANR', label: 'HICP YoY (Core: ex energy & unproc. food)' },
+  { flowRef: 'ICP', key: 'M.U2.N.CP01.4.ANR', label: 'HICP YoY - Food & non-alcoholic bev.' },
+  { flowRef: 'ICP', key: 'M.U2.N.CP04.4.ANR', label: 'HICP YoY - Housing & utilities' },
+  { flowRef: 'ICP', key: 'M.U2.N.CP07.4.ANR', label: 'HICP YoY - Transport' },
 ];
 
 export default function MacroWidget() {
@@ -58,7 +62,7 @@ export default function MacroWidget() {
   }, [data, chartType]);
 
   const options = useMemo(() => ({
-    title: { text: 'Macro Dashboard (ECB)' },
+    title: { text: 'Macro Dashboard (ECB: Policy Rates, HICP, Balance Sheet)' },
     chart: { backgroundColor: 'transparent' },
     xAxis: {
       categories,

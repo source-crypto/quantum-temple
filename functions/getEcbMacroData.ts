@@ -54,10 +54,16 @@ Deno.serve(async (req) => {
       { flowRef: 'FM', key: 'M.U2.EUR.4F.KR.MRR_FR.LEV', label: 'ECB MRO (Main Refinancing Rate)' },
       { flowRef: 'FM', key: 'M.U2.EUR.4F.KR.DF.LEV', label: 'ECB Deposit Facility Rate' },
       { flowRef: 'FM', key: 'M.U2.EUR.4F.KR.MLF.LEV', label: 'ECB Marginal Lending Facility' },
+      // Eurosystem consolidated balance sheet - Total assets (weekly)
+      { flowRef: 'ILM', key: 'W.U2.C.T000000.Z5.Z01', label: 'Eurosystem Total Assets (weekly)' },
       // HICP YoY headline (ICP flow, COICOP CP00 = All-items; ANR = Annual rate of change)
       { flowRef: 'ICP', key: 'M.U2.N.CP00.4.ANR', label: 'HICP YoY (Headline, Euro area)' },
       // Core proxy (excluding energy and unprocessed food) commonly referenced as XEFG
       { flowRef: 'ICP', key: 'M.U2.N.XEFG.4.ANR', label: 'HICP YoY (Core: ex energy & unproc. food)' },
+      // Selected HICP components (YoY): Food (CP01), Housing (CP04), Transport (CP07)
+      { flowRef: 'ICP', key: 'M.U2.N.CP01.4.ANR', label: 'HICP YoY - Food & non-alcoholic bev.' },
+      { flowRef: 'ICP', key: 'M.U2.N.CP04.4.ANR', label: 'HICP YoY - Housing & utilities' },
+      { flowRef: 'ICP', key: 'M.U2.N.CP07.4.ANR', label: 'HICP YoY - Transport' },
     ];
 
     const inputSeries = Array.isArray(payload.series) && payload.series.length > 0 ? payload.series : defaultSeries;
