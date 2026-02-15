@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { RefreshCcw, Plus, Trash2 } from 'lucide-react';
+import FredKeySettings from './FredKeySettings';
+import { RefreshCcw, Plus, Trash2, Settings } from 'lucide-react';
 
 const DEFAULT_ECB_SERIES = [
   { flowRef: 'FM', key: 'M.U2.EUR.4F.KR.MRR_FR.LEV', label: 'ECB MRO (Main Refinancing Rate)' },
@@ -24,6 +25,8 @@ const DEFAULT_ECB_SERIES = [
 
 export default function MacroWidget() {
   const [chartType, setChartType] = useState('line'); // 'line' | 'area' | 'column'
+  const [currency, setCurrency] = useState('USD'); // 'EUR' | 'USD'
+  const [showSettings, setShowSettings] = useState(false);
   const [activeSeries, setActiveSeries] = useState(() => DEFAULT_ECB_SERIES.map((s) => ({ ...s, enabled: true })));
   const [customFlowRef, setCustomFlowRef] = useState('');
   const [customKey, setCustomKey] = useState('');
@@ -32,9 +35,9 @@ export default function MacroWidget() {
   const enabledInputs = activeSeries.filter((s) => s.enabled).map(({ flowRef, key, label }) => ({ flowRef, key, label }));
 
   const { data, isLoading, refetch, isFetching } = useQuery({
-    queryKey: ['ecb-macro', enabledInputs],
+    queryKey: ['ecb-macro', enabledInputs, currency],
     queryFn: async () => {
-      const { data: res } = await base44.functions.invoke('getEcbMacroData', { series: enabledInputs, lastN: 300 });
+      const { data: res } = await base44.functions.invoke('getEcbMacroData', { series: enabledInputs, lastN: 300, currency });
       return res;
     },
     refetchInterval: 5 * 60 * 1000, // 5 minutes
@@ -122,8 +125,20 @@ export default function MacroWidget() {
                 <SelectItem value="column">Bar</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={currency} onValueChange={setCurrency}>
+              <SelectTrigger className="w-28 bg-slate-800/60 text-slate-200 border-purple-900/30">
+                <SelectValue placeholder="Currency" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="USD">USD</SelectItem>
+                <SelectItem value="EUR">EUR</SelectItem>
+              </SelectContent>
+            </Select>
             <Button variant="outline" className="gap-2 border-purple-900/30" onClick={() => refetch()} disabled={isFetching}>
               <RefreshCcw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} /> Refresh
+            </Button>
+            <Button variant="outline" className="gap-2 border-purple-900/30" onClick={() => setShowSettings((s) => !s)}>
+              <Settings className="w-4 h-4" /> Settings
             </Button>
           </div>
         </CardHeader>
@@ -147,6 +162,12 @@ export default function MacroWidget() {
             <Button onClick={addCustom} className="md:col-span-1 bg-purple-600 hover:bg-purple-700 gap-2"><Plus className="w-4 h-4" /> Add</Button>
           </div>
 
+          {showSettings && (
+            <div className="mb-4">
+              <FredKeySettings />
+            </div>
+          )}
+
           <div className="rounded-lg overflow-hidden bg-slate-900/40 p-2">
             {isLoading ? (
               <div className="text-slate-400 text-sm">Loading ECB data…</div>
@@ -156,7 +177,7 @@ export default function MacroWidget() {
           </div>
 
           <div className="mt-3 text-xs text-slate-400">
-            US series (FRED) will appear here once a FRED_API_KEY is set. Currently showing ECB data only.
+            US series (FRED) will appear once a FRED API key is saved in Settings. Currently showing ECB data only.
           </div>
         </CardContent>
       </Card>
