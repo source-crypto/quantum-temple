@@ -117,7 +117,7 @@ const navigationItems = [
     title: "Transactions",
     url: createPageUrl("Transactions"),
     icon: Activity,
-  }
+  },
   {
     title: "Quantum Construct",
     url: createPageUrl("QuantumConstruct"),
