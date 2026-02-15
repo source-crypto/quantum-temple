@@ -107,7 +107,7 @@ const navigationItems = [
     title: "Cross-CB System",
     url: createPageUrl("CrossCBSystem"),
     icon: Network,
-  }
+  },
   {
     title: "Wallet Integration",
     url: createPageUrl("WalletIntegration"),
