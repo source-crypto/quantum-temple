@@ -107,7 +107,7 @@ const navigationItems = [
     title: "Wallet Integration",
     url: createPageUrl("WalletIntegration"),
     icon: Wallet,
-  }
+  },
   {
     title: "Quantum Construct",
     url: createPageUrl("QuantumConstruct"),
