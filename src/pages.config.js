@@ -73,6 +73,7 @@ import Settings from './pages/Settings';
 import TempleMode from './pages/TempleMode';
 import TradeOffersAgent from './pages/TradeOffersAgent';
 import WhitePaper from './pages/WhitePaper';
+import MacroDashboard from './pages/MacroDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -103,6 +104,7 @@ export const PAGES = {
     "TempleMode": TempleMode,
     "TradeOffersAgent": TradeOffersAgent,
     "WhitePaper": WhitePaper,
+    "MacroDashboard": MacroDashboard,
 }
 
 export const pagesConfig = {
