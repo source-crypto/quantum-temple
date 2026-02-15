@@ -4,7 +4,6 @@ import HighchartsReact from 'highcharts-react-official';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -24,11 +23,32 @@ const DEFAULT_ECB_SERIES = [
   { flowRef: 'ICP', key: 'M.U2.N.CP07.4.ANR', label: 'HICP YoY - Transport' },
 ];
 
+const NCB_LIST = [
+  { code: 'DE', name: 'Bundesbank (DE)' },
+  { code: 'FR', name: 'Banque de France (FR)' },
+  { code: 'IT', name: 'Banca d’\u2019Italia (IT)' },
+  { code: 'ES', name: 'Banco de España (ES)' },
+  { code: 'NL', name: 'De Nederlandsche Bank (NL)' },
+  { code: 'BE', name: 'National Bank of Belgium (BE)' },
+  { code: 'AT', name: 'OeNB (AT)' },
+  { code: 'IE', name: 'Central Bank of Ireland (IE)' },
+  { code: 'PT', name: 'Banco de Portugal (PT)' },
+  { code: 'FI', name: 'Bank of Finland (FI)' },
+  { code: 'GR', name: 'Bank of Greece (GR)' },
+  { code: 'LU', name: 'Banque centrale du Luxembourg (LU)' },
+  { code: 'CY', name: 'Central Bank of Cyprus (CY)' },
+  { code: 'MT', name: 'Central Bank of Malta (MT)' },
+  { code: 'SI', name: 'Bank of Slovenia (SI)' },
+  { code: 'SK', name: 'National Bank of Slovakia (SK)' },
+  { code: 'EE', name: 'Eesti Pank (EE)' },
+  { code: 'LV', name: 'Latvijas Banka (LV)' },
+  { code: 'LT', name: 'Lietuvos bankas (LT)' },
+];
+
 export default function MacroWidget() {
   const [chartType, setChartType] = useState('line'); // 'line' | 'area' | 'column'
   const [currency, setCurrency] = useState('USD'); // 'EUR' | 'USD'
   const [showSettings, setShowSettings] = useState(false);
-  const [includeContrib, setIncludeContrib] = useState(true);
   const [activeSeries, setActiveSeries] = useState(() => DEFAULT_ECB_SERIES.map((s) => ({ ...s, enabled: true })));
   const [customFlowRef, setCustomFlowRef] = useState('');
   const [customKey, setCustomKey] = useState('');
@@ -45,21 +65,8 @@ export default function MacroWidget() {
     refetchInterval: 5 * 60 * 1000, // 5 minutes
   });
 
-  const { data: contribData } = useQuery({
-    queryKey: ['ecb-contrib', currency, includeContrib],
-    queryFn: async () => {
-      const { data: res } = await base44.functions.invoke('getEcbContributions', { balance_item: 'T000000', lastN: 300, currency });
-      return res;
-    },
-    enabled: includeContrib,
-    refetchInterval: 5 * 60 * 1000,
-  });
-
   const { series: chartSeries, categories } = useMemo(() => {
-    const results = [
-      ...(data?.results || []),
-      ...(includeContrib ? (contribData?.results || []) : []),
-    ];
+    const results = data?.results || [];
     // Build a sorted set of time categories
     const catSet = new Set();
     results.forEach((r) => r.points.forEach((p) => catSet.add(p.t)));
@@ -92,7 +99,7 @@ export default function MacroWidget() {
       labels: { style: { color: '#cbd5e1' } },
       gridLineColor: 'rgba(148, 163, 184, 0.15)'
     },
-    legend: { itemStyle: { color: '#e2e8f0' }, maxHeight: 120 },
+    legend: { itemStyle: { color: '#e2e8f0' } },
     tooltip: { shared: true, crosshairs: true },
     plotOptions: {
       series: {
@@ -120,7 +127,23 @@ export default function MacroWidget() {
     setCustomLabel('');
   };
 
-  const removeSeries = (idx) => {
+  const addNcbContributions = (codes = NCB_LIST.map(n => n.code)) => {
+    const build = (code) => ({
+      flowRef: 'ILM',
+      key: `W.${code}.N.T000000.Z5.Z01`,
+      label: `${(NCB_LIST.find(n => n.code === code)?.name) || code} – Total Assets (NCB)`,
+    });
+    setActiveSeries((prev) => {
+      const existing = new Set(prev.map(s => `${s.flowRef}/${s.key}`));
+      const toAdd = codes
+        .map(build)
+        .filter(s => !existing.has(`${s.flowRef}/${s.key}`))
+        .map(s => ({ ...s, enabled: true }));
+      return [...prev, ...toAdd];
+    });
+  };
+
+   const removeSeries = (idx) => {
     setActiveSeries((prev) => prev.filter((_, i) => i !== idx));
   };
 
@@ -149,10 +172,6 @@ export default function MacroWidget() {
                 <SelectItem value="EUR">EUR</SelectItem>
               </SelectContent>
             </Select>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-800/50 border border-purple-900/30">
-              <span className="text-xs text-slate-300">NCB contributions</span>
-              <Switch checked={includeContrib} onCheckedChange={setIncludeContrib} />
-            </div>
             <Button variant="outline" className="gap-2 border-purple-900/30" onClick={() => refetch()} disabled={isFetching}>
               <RefreshCcw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} /> Refresh
             </Button>
