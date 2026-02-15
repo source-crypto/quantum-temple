@@ -197,7 +197,7 @@ export default function MacroWidget() {
             <Button variant="secondary" className="gap-2" onClick={() => addNcbContributions()}>
               <Plus className="w-4 h-4" /> Add NCB Contributions (Total Assets)
             </Button>
-            <span className="text-xs text-slate-400">Loads ILM.W.<REF_AREA>.N.T000000.Z5.Z01 per NCB</span>
+            <span className="text-xs text-slate-400">Loads ILM.W.&lt;REF_AREA&gt;.N.T000000.Z5.Z01 per NCB</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3 mb-4">
