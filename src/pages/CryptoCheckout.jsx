@@ -4,7 +4,8 @@ import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Wallet, Shield, ExternalLink, Coins } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Loader2, Wallet, Shield, ExternalLink, Coins } from "lucide-react";
 
 const tiers = [
   { key: "seed", label: "Seed", perks: ["Starter blessing", "Basic insights"], color: "from-emerald-500 to-teal-600" },
@@ -20,6 +21,23 @@ export default function CryptoCheckout() {
   });
 
   const linkByTier = Object.fromEntries((links || []).map(l => [l.tier, l.url]));
+
+  const [confirm, setConfirm] = React.useState(null); // {label, url}
+  const [loading, setLoading] = React.useState(false);
+
+  const handleOpen = (tLabel, url) => {
+    if (!url) return;
+    setConfirm({ label: tLabel, url });
+  };
+
+  const proceed = () => {
+    setLoading(true);
+    setTimeout(()=>{
+      window.open(confirm.url, '_blank', 'noopener');
+      setLoading(false);
+      setConfirm(null);
+    }, 300);
+  };
 
   return (
     <div className="min-h-screen p-6 md:p-10">
@@ -50,10 +68,8 @@ export default function CryptoCheckout() {
                     {t.perks.map(p => <div key={p}>• {p}</div>)}
                   </div>
                   {url ? (
-                    <Button asChild className="w-full bg-purple-600 hover:bg-purple-500">
-                      <a href={url} target="_blank" rel="noopener noreferrer">
-                        <Coins className="w-4 h-4 mr-2" /> Pay with Crypto <ExternalLink className="w-4 h-4 ml-2" />
-                      </a>
+                    <Button className="w-full bg-purple-600 hover:bg-purple-500" onClick={() => handleOpen(t.label, url)}>
+                      <Coins className="w-4 h-4 mr-2" /> Pay with Crypto <ExternalLink className="w-4 h-4 ml-2" />
                     </Button>
                   ) : (
                     <div className="text-xs text-purple-400/70">Admin: add a CryptoCheckoutLink for tier "{t.key}" to enable.</div>
@@ -68,6 +84,25 @@ export default function CryptoCheckout() {
           Note: This opens an external hosted checkout. Access tier is granted automatically for Stripe payments. For crypto, an admin may verify and grant the corresponding tier.
         </div>
       </div>
+
+      <Dialog open={!!confirm} onOpenChange={(o)=>!o && setConfirm(null)}>
+        <DialogContent className="bg-slate-950/90 border-purple-900/40">
+          <DialogHeader>
+            <DialogTitle className="text-purple-100">Confirm Crypto Checkout</DialogTitle>
+          </DialogHeader>
+          <div className="text-sm text-purple-200/80 space-y-1">
+            <div>Tier: <span className="font-semibold">{confirm?.label}</span></div>
+            <div className="text-xs text-purple-400/70">An external hosted crypto checkout will open in a new tab.</div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={()=>setConfirm(null)} className="border-purple-900/40">Cancel</Button>
+            <Button onClick={proceed} disabled={loading} className="gap-2">
+              {loading && <Loader2 className="w-4 h-4 animate-spin"/>}
+              Proceed
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

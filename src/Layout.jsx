@@ -114,6 +114,11 @@ const navigationItems = [
     icon: Wallet,
   },
   {
+    title: "Transactions",
+    url: createPageUrl("Transactions"),
+    icon: Activity,
+  }
+  {
     title: "Quantum Construct",
     url: createPageUrl("QuantumConstruct"),
     icon: Waves,

@@ -76,6 +76,7 @@ import WhitePaper from './pages/WhitePaper';
 import MacroDashboard from './pages/MacroDashboard';
 import WalletIntegration from './pages/WalletIntegration';
 import CrossCBSystem from './pages/CrossCBSystem';
+import Transactions from './pages/Transactions';
 import __Layout from './Layout.jsx';
 
 
@@ -109,6 +110,7 @@ export const PAGES = {
     "MacroDashboard": MacroDashboard,
     "WalletIntegration": WalletIntegration,
     "CrossCBSystem": CrossCBSystem,
+    "Transactions": Transactions,
 }
 
 export const pagesConfig = {
