@@ -4,6 +4,7 @@ import HighchartsReact from 'highcharts-react-official';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -27,6 +28,7 @@ export default function MacroWidget() {
   const [chartType, setChartType] = useState('line'); // 'line' | 'area' | 'column'
   const [currency, setCurrency] = useState('USD'); // 'EUR' | 'USD'
   const [showSettings, setShowSettings] = useState(false);
+  const [includeContrib, setIncludeContrib] = useState(true);
   const [activeSeries, setActiveSeries] = useState(() => DEFAULT_ECB_SERIES.map((s) => ({ ...s, enabled: true })));
   const [customFlowRef, setCustomFlowRef] = useState('');
   const [customKey, setCustomKey] = useState('');
@@ -43,8 +45,21 @@ export default function MacroWidget() {
     refetchInterval: 5 * 60 * 1000, // 5 minutes
   });
 
+  const { data: contribData } = useQuery({
+    queryKey: ['ecb-contrib', currency, includeContrib],
+    queryFn: async () => {
+      const { data: res } = await base44.functions.invoke('getEcbContributions', { balance_item: 'T000000', lastN: 300, currency });
+      return res;
+    },
+    enabled: includeContrib,
+    refetchInterval: 5 * 60 * 1000,
+  });
+
   const { series: chartSeries, categories } = useMemo(() => {
-    const results = data?.results || [];
+    const results = [
+      ...(data?.results || []),
+      ...(includeContrib ? (contribData?.results || []) : []),
+    ];
     // Build a sorted set of time categories
     const catSet = new Set();
     results.forEach((r) => r.points.forEach((p) => catSet.add(p.t)));
@@ -77,7 +92,7 @@ export default function MacroWidget() {
       labels: { style: { color: '#cbd5e1' } },
       gridLineColor: 'rgba(148, 163, 184, 0.15)'
     },
-    legend: { itemStyle: { color: '#e2e8f0' } },
+    legend: { itemStyle: { color: '#e2e8f0' }, maxHeight: 120 },
     tooltip: { shared: true, crosshairs: true },
     plotOptions: {
       series: {
@@ -134,6 +149,10 @@ export default function MacroWidget() {
                 <SelectItem value="EUR">EUR</SelectItem>
               </SelectContent>
             </Select>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-800/50 border border-purple-900/30">
+              <span className="text-xs text-slate-300">NCB contributions</span>
+              <Switch checked={includeContrib} onCheckedChange={setIncludeContrib} />
+            </div>
             <Button variant="outline" className="gap-2 border-purple-900/30" onClick={() => refetch()} disabled={isFetching}>
               <RefreshCcw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} /> Refresh
             </Button>
