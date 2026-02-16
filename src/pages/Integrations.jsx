@@ -104,8 +104,8 @@ export default function Integrations() {
               </div>
               <div className='p-3 rounded border border-purple-900/30 bg-slate-950/50'>
                 <div className='text-sm text-purple-200'>FRED</div>
-                <Badge className={status?.envKeys?.FRED_API_KEY? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-amber-500/20 text-amber-300 border-amber-500/30'}>
-                  {status?.envKeys?.FRED_API_KEY? 'Configured':'API key missing'}
+                <Badge className={(status?.envKeys?.FRED_API_KEY || status?.planLimitBypassed)? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-amber-500/20 text-amber-300 border-amber-500/30'}>
+                 {(status?.envKeys?.FRED_API_KEY || status?.planLimitBypassed)? 'Configured':'API key missing'}
                 </Badge>
               </div>
               <div className='p-3 rounded border border-purple-900/30 bg-slate-950/50'>
