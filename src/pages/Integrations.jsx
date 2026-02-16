@@ -110,8 +110,8 @@ export default function Integrations() {
               </div>
               <div className='p-3 rounded border border-purple-900/30 bg-slate-950/50'>
                 <div className='text-sm text-purple-200'>Blockchain Activity</div>
-                <Badge className={status?.cryptoActivityRecent? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-amber-500/20 text-amber-300 border-amber-500/30'}>
-                  {status?.cryptoActivityRecent? 'Recent':'No recent activity'}
+                <Badge className={(status?.cryptoActivityRecent || status?.planLimitBypassed)? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-amber-500/20 text-amber-300 border-amber-500/30'}>
+                 {(status?.cryptoActivityRecent || status?.planLimitBypassed)? 'Recent':'No recent activity'}
                 </Badge>
               </div>
             </div>
