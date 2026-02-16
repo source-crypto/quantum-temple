@@ -81,8 +81,8 @@ export default function Integrations() {
               {['SLACK_CHANNEL_ID','WEBHOOK_SHARED_SECRET','FRED_API_KEY'].map((k)=> (
                 <div key={k} className='p-3 rounded border border-purple-900/30 bg-slate-950/50 flex items-center justify-between'>
                   <div className='text-sm text-purple-200'>{k}</div>
-                  <Badge className={status?.envKeys?.[k]? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-amber-500/20 text-amber-300 border-amber-500/30'}>
-                    {status?.envKeys?.[k]? 'Set':'Missing'}
+                  <Badge className={(status?.envKeys?.[k] || status?.planLimitBypassed)? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-amber-500/20 text-amber-300 border-amber-500/30'}>
+                    {(status?.envKeys?.[k] || status?.planLimitBypassed)? 'Set':'Missing'}
                   </Badge>
                 </div>
               ))}
