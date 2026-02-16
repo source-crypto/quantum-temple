@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Loader2, Sparkles, Shield, CreditCard, Coins } from 'lucide-react';
 
 export default function Checkout() {
@@ -96,6 +96,7 @@ export default function Checkout() {
         <DialogContent className="bg-slate-950/90 border-purple-900/40">
           <DialogHeader>
             <DialogTitle className="text-purple-100">Confirm Checkout</DialogTitle>
+            <DialogDescription className="text-purple-300/70">Review details before redirecting to secure checkout.</DialogDescription>
           </DialogHeader>
           <div className="text-sm text-purple-200/80 space-y-1">
             {confirm?.type === 'tier' ? (

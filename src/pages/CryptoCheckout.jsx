@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Loader2, Wallet, Shield, ExternalLink, Coins } from "lucide-react";
 
 const tiers = [
@@ -89,6 +89,7 @@ export default function CryptoCheckout() {
         <DialogContent className="bg-slate-950/90 border-purple-900/40">
           <DialogHeader>
             <DialogTitle className="text-purple-100">Confirm Crypto Checkout</DialogTitle>
+            <DialogDescription className="text-purple-300/70">An external crypto checkout will open in a new tab.</DialogDescription>
           </DialogHeader>
           <div className="text-sm text-purple-200/80 space-y-1">
             <div>Tier: <span className="font-semibold">{confirm?.label}</span></div>

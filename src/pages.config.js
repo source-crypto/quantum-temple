@@ -51,6 +51,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Attestation from './pages/Attestation';
 import Ceremonial from './pages/Ceremonial';
 import Checkout from './pages/Checkout';
+import CrossCBSystem from './pages/CrossCBSystem';
 import CrossChain from './pages/CrossChain';
 import CryptoCheckout from './pages/CryptoCheckout';
 import Currency from './pages/Currency';
@@ -61,6 +62,7 @@ import Insights from './pages/Insights';
 import Integrations from './pages/Integrations';
 import IntentNetwork from './pages/IntentNetwork';
 import Interactions from './pages/Interactions';
+import MacroDashboard from './pages/MacroDashboard';
 import Manifesto from './pages/Manifesto';
 import ManifestoAgentTest from './pages/ManifestoAgentTest';
 import Markets from './pages/Markets';
@@ -72,11 +74,9 @@ import Security from './pages/Security';
 import Settings from './pages/Settings';
 import TempleMode from './pages/TempleMode';
 import TradeOffersAgent from './pages/TradeOffersAgent';
-import WhitePaper from './pages/WhitePaper';
-import MacroDashboard from './pages/MacroDashboard';
-import WalletIntegration from './pages/WalletIntegration';
-import CrossCBSystem from './pages/CrossCBSystem';
 import Transactions from './pages/Transactions';
+import WalletIntegration from './pages/WalletIntegration';
+import WhitePaper from './pages/WhitePaper';
 import __Layout from './Layout.jsx';
 
 
@@ -85,6 +85,7 @@ export const PAGES = {
     "Attestation": Attestation,
     "Ceremonial": Ceremonial,
     "Checkout": Checkout,
+    "CrossCBSystem": CrossCBSystem,
     "CrossChain": CrossChain,
     "CryptoCheckout": CryptoCheckout,
     "Currency": Currency,
@@ -95,6 +96,7 @@ export const PAGES = {
     "Integrations": Integrations,
     "IntentNetwork": IntentNetwork,
     "Interactions": Interactions,
+    "MacroDashboard": MacroDashboard,
     "Manifesto": Manifesto,
     "ManifestoAgentTest": ManifestoAgentTest,
     "Markets": Markets,
@@ -106,11 +108,9 @@ export const PAGES = {
     "Settings": Settings,
     "TempleMode": TempleMode,
     "TradeOffersAgent": TradeOffersAgent,
-    "WhitePaper": WhitePaper,
-    "MacroDashboard": MacroDashboard,
-    "WalletIntegration": WalletIntegration,
-    "CrossCBSystem": CrossCBSystem,
     "Transactions": Transactions,
+    "WalletIntegration": WalletIntegration,
+    "WhitePaper": WhitePaper,
 }
 
 export const pagesConfig = {
