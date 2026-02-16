@@ -174,6 +174,11 @@ const navigationItems = [
     icon: PlugZap,
   },
   {
+    title: "Intent Manifest",
+    url: createPageUrl("IntentManifest"),
+    icon: Scroll,
+  },
+  {
     title: "Admin Dashboard",
     url: createPageUrl("AdminDashboard"),
     icon: Activity,

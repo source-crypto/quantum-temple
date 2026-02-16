@@ -77,6 +77,7 @@ import TradeOffersAgent from './pages/TradeOffersAgent';
 import Transactions from './pages/Transactions';
 import WalletIntegration from './pages/WalletIntegration';
 import WhitePaper from './pages/WhitePaper';
+import IntentManifest from './pages/IntentManifest';
 import __Layout from './Layout.jsx';
 
 
@@ -111,6 +112,7 @@ export const PAGES = {
     "Transactions": Transactions,
     "WalletIntegration": WalletIntegration,
     "WhitePaper": WhitePaper,
+    "IntentManifest": IntentManifest,
 }
 
 export const pagesConfig = {
