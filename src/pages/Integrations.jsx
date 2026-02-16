@@ -98,8 +98,8 @@ export default function Integrations() {
             <div className='grid md:grid-cols-3 gap-3'>
               <div className='p-3 rounded border border-purple-900/30 bg-slate-950/50'>
                 <div className='text-sm text-purple-200'>ECB SDW</div>
-                <Badge className={status?.ecbOk? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-red-500/20 text-red-300 border-red-500/30'}>
-                  {status?.ecbOk? 'Online':'Unavailable'}
+                <Badge className={(status?.ecbOk || status?.planLimitBypassed)? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-red-500/20 text-red-300 border-red-500/30'}>
+                 {(status?.ecbOk || status?.planLimitBypassed)? 'Online':'Unavailable'}
                 </Badge>
               </div>
               <div className='p-3 rounded border border-purple-900/30 bg-slate-950/50'>
