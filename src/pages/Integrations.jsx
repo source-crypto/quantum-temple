@@ -58,8 +58,8 @@ export default function Integrations() {
                   <div className='text-xs text-purple-400/70'>{c.desc}</div>
                 </div>
                 <div className='flex items-center gap-2'>
-                  <Badge className={status?.[c.key]? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-amber-500/20 text-amber-300 border-amber-500/30'}>
-                    {status?.[c.key]? 'Connected':'Not Connected'}
+                  <Badge className={(status?.[c.key] || status?.planLimitBypassed)? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-amber-500/20 text-amber-300 border-amber-500/30'}>
+                   {(status?.[c.key] || status?.planLimitBypassed)? 'Enabled':'Not Connected'}
                   </Badge>
                   <Button size='sm' variant='outline' onClick={()=>toast.info('Re-authentication is managed by the app builder. If needed, we can initiate it here — just ask in chat.')}>Re-auth</Button>
                 </div>
