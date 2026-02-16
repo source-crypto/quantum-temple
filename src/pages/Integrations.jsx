@@ -35,6 +35,11 @@ export default function Integrations() {
       <div className='max-w-5xl mx-auto space-y-6'>
         <div className='flex items-center justify-between'>
           <h1 className='text-3xl font-bold text-purple-100'>Integrations Hub</h1>
+          {status?.planLimitBypassed && (
+            <div className='text-xs px-2 py-1 rounded border border-emerald-600/40 bg-emerald-900/30 text-emerald-200'>
+              Limit checks bypassed (soft). All integrations enabled.
+            </div>
+          )}
         </div>
 
         <Card className='bg-slate-900/60 border-purple-900/40'>
