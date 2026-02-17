@@ -50,17 +50,26 @@ export default function IntentManifest() {
     if (!payload) return;
     setLoading((s) => ({ ...s, preview: true }));
     setConfirmRes(null);
-    const { data } = await base44.functions.invoke('coreMemoryIngest', {
-      payload,
-      entropySeed,
-      sealed,
-      confirm: false
-    });
-    setPreview({
-      computed_digest: data?.computed_digest,
-      matches_sealed: data?.matches_sealed
-    });
-    setLoading((s) => ({ ...s, preview: false }));
+    try {
+      const { data } = await base44.functions.invoke('coreMemoryIngest', {
+        payload,
+        entropySeed,
+        sealed,
+        confirm: false
+      });
+      if (!data || data.error) {
+        throw new Error(data?.error || 'Preview failed');
+      }
+      setPreview({
+        computed_digest: data?.computed_digest,
+        matches_sealed: data?.matches_sealed
+      });
+    } catch (e) {
+      setPreview(null);
+      toast({ title: 'Preview Error', description: e.message || 'Failed to compute digest', variant: 'destructive' });
+    } finally {
+      setLoading((s) => ({ ...s, preview: false }));
+    }
   };
 
   const handleConfirm = async () => {
