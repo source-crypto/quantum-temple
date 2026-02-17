@@ -283,10 +283,10 @@ export default function Layout({ children }) {
                                     <SidebarMenuItem key={item.title}>
                                       <SidebarMenuButton 
                                         className={`hover:bg-purple-900/30 hover:text-purple-300 transition-all duration-300 rounded-lg mb-1 ${
-                                          location.pathname === item.url 
-                                            ? 'bg-purple-900/40 text-purple-200 quantum-glow border border-purple-500/30' 
-                                            : 'text-purple-400/70'
-                                        }`}
+                                                                        (location.pathname + location.search) === item.url 
+                                                                          ? 'bg-purple-900/40 text-purple-200 quantum-glow border border-purple-500/30' 
+                                                                          : 'text-purple-400/70'
+                                                                      }`
                                         onClick={(e) => {
                                           e.preventDefault();
                                           const pageName = pageRouteMap[item.title] || item.title;
