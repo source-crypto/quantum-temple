@@ -185,6 +185,37 @@ const navigationItems = [
   }
   ];
 
+const pageRouteMap = {
+  "Temple Home": "Home",
+  "White Paper": "WhitePaper",
+  "Manifesto": "Manifesto",
+  "Temple Mode": "TempleMode",
+  "Attestation": "Attestation",
+  "Ceremonial": "Ceremonial",
+  "Divine Currency": "Currency",
+  "Checkout": "Checkout",
+  "Crypto Checkout": "CryptoCheckout",
+  "Governance": "Governance",
+  "DEX": "DEX",
+  "Markets": "Markets",
+  "Cross-CB System": "CrossCBSystem",
+  "Wallet Integration": "WalletIntegration",
+  "Transactions": "Transactions",
+  "Quantum Construct": "QuantumConstruct",
+  "Intent Network": "IntentNetwork",
+  "Operational Readiness": "OperationalReadinessDashboard",
+  "Security": "Security",
+  "Interactions": "Interactions",
+  "Registry": "Registry",
+  "Portfolio": "Portfolio",
+  "Insights": "Insights",
+  "Cross-Chain": "CrossChain",
+  "Settings": "Settings",
+  "Integrations": "Integrations",
+  "Intent Manifest": "IntentManifest",
+  "Admin Dashboard": "AdminDashboard"
+};
+
 export default function Layout({ children }) {
   const location = useLocation();
   const queryClient = useQueryClient();
