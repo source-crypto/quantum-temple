@@ -280,22 +280,29 @@ export default function Layout({ children }) {
               <SidebarGroupContent>
                 <SidebarMenu>
                   {navigationItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton 
-                        asChild 
-                        className={`hover:bg-purple-900/30 hover:text-purple-300 transition-all duration-300 rounded-lg mb-1 ${
-                          location.pathname === item.url 
-                            ? 'bg-purple-900/40 text-purple-200 quantum-glow border border-purple-500/30' 
-                            : 'text-purple-400/70'
-                        }`}
-                      >
-                        <Link to={item.url} className="flex items-center gap-3 px-3 py-2.5">
-                          <item.icon className="w-4 h-4" />
-                          <span className="font-medium">{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                                    <SidebarMenuItem key={item.title}>
+                                      <SidebarMenuButton 
+                                        className={`hover:bg-purple-900/30 hover:text-purple-300 transition-all duration-300 rounded-lg mb-1 ${
+                                          location.pathname === item.url 
+                                            ? 'bg-purple-900/40 text-purple-200 quantum-glow border border-purple-500/30' 
+                                            : 'text-purple-400/70'
+                                        }`}
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          const pageName = pageRouteMap[item.title] || item.title;
+                                          const url = createPageUrl(pageName);
+                                          window.history.pushState({}, '', url);
+                                          // Dispatch a navigation event to react-router (fallback for published static hosting)
+                                          window.dispatchEvent(new PopStateEvent('popstate'));
+                                        }}
+                                      >
+                                        <div className="flex items-center gap-3 px-3 py-2.5 w-full">
+                                          <item.icon className="w-4 h-4" />
+                                          <span className="font-medium">{item.title}</span>
+                                        </div>
+                                      </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                  ))}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
