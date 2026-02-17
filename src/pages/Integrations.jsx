@@ -11,23 +11,9 @@ import { toast } from 'sonner';
 export default function Integrations() {
   const { data: status, refetch } = useQuery({
     queryKey: ['integrationsStatus'],
-    queryFn: async () => {
-      try {
-        const res = await base44.functions.invoke('integrationsStatus', {});
-        const data = res?.data || {};
-        // Soft-bypass any plan/limit messages
-        if (typeof data.error === 'string' && /limit|upgrade/i.test(data.error)) {
-          return { ...data, error: undefined, planLimitBypassed: true };
-        }
-        return data;
-      } catch (e) {
-        // On error (including 402/429), return safe defaults and bypass limits
-        return { slackConnected: false, notionConnected: false, hubspotConnected: false, envKeys: {}, ecbOk: true, cryptoActivityRecent: false, planLimitBypassed: true };
-      }
-    },
+    queryFn: async () => (await base44.functions.invoke('integrationsStatus', {})).data,
     initialData: { slackConnected: false, envKeys: {} },
     refetchInterval: 20000,
-    retry: false,
   });
 
   return (
@@ -35,11 +21,6 @@ export default function Integrations() {
       <div className='max-w-5xl mx-auto space-y-6'>
         <div className='flex items-center justify-between'>
           <h1 className='text-3xl font-bold text-purple-100'>Integrations Hub</h1>
-          {status?.planLimitBypassed && (
-            <div className='text-xs px-2 py-1 rounded border border-emerald-600/40 bg-emerald-900/30 text-emerald-200'>
-              Limit checks bypassed (soft). All integrations enabled.
-            </div>
-          )}
         </div>
 
         <Card className='bg-slate-900/60 border-purple-900/40'>
@@ -58,8 +39,8 @@ export default function Integrations() {
                   <div className='text-xs text-purple-400/70'>{c.desc}</div>
                 </div>
                 <div className='flex items-center gap-2'>
-                  <Badge className={(status?.[c.key] || status?.planLimitBypassed)? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-amber-500/20 text-amber-300 border-amber-500/30'}>
-                   {(status?.[c.key] || status?.planLimitBypassed)? 'Enabled':'Not Connected'}
+                  <Badge className={status?.[c.key]? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-amber-500/20 text-amber-300 border-amber-500/30'}>
+                    {status?.[c.key]? 'Connected':'Not Connected'}
                   </Badge>
                   <Button size='sm' variant='outline' onClick={()=>toast.info('Re-authentication is managed by the app builder. If needed, we can initiate it here — just ask in chat.')}>Re-auth</Button>
                 </div>
@@ -81,8 +62,8 @@ export default function Integrations() {
               {['SLACK_CHANNEL_ID','WEBHOOK_SHARED_SECRET','FRED_API_KEY'].map((k)=> (
                 <div key={k} className='p-3 rounded border border-purple-900/30 bg-slate-950/50 flex items-center justify-between'>
                   <div className='text-sm text-purple-200'>{k}</div>
-                  <Badge className={(status?.envKeys?.[k] || status?.planLimitBypassed)? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-amber-500/20 text-amber-300 border-amber-500/30'}>
-                    {(status?.envKeys?.[k] || status?.planLimitBypassed)? 'Set':'Missing'}
+                  <Badge className={status?.envKeys?.[k]? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-amber-500/20 text-amber-300 border-amber-500/30'}>
+                    {status?.envKeys?.[k]? 'Set':'Missing'}
                   </Badge>
                 </div>
               ))}
@@ -98,20 +79,20 @@ export default function Integrations() {
             <div className='grid md:grid-cols-3 gap-3'>
               <div className='p-3 rounded border border-purple-900/30 bg-slate-950/50'>
                 <div className='text-sm text-purple-200'>ECB SDW</div>
-                <Badge className={(status?.ecbOk || status?.planLimitBypassed)? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-red-500/20 text-red-300 border-red-500/30'}>
-                 {(status?.ecbOk || status?.planLimitBypassed)? 'Online':'Unavailable'}
+                <Badge className={status?.ecbOk? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-red-500/20 text-red-300 border-red-500/30'}>
+                  {status?.ecbOk? 'Online':'Unavailable'}
                 </Badge>
               </div>
               <div className='p-3 rounded border border-purple-900/30 bg-slate-950/50'>
                 <div className='text-sm text-purple-200'>FRED</div>
-                <Badge className={(status?.envKeys?.FRED_API_KEY || status?.planLimitBypassed)? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-amber-500/20 text-amber-300 border-amber-500/30'}>
-                 {(status?.envKeys?.FRED_API_KEY || status?.planLimitBypassed)? 'Configured':'API key missing'}
+                <Badge className={status?.envKeys?.FRED_API_KEY? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-amber-500/20 text-amber-300 border-amber-500/30'}>
+                  {status?.envKeys?.FRED_API_KEY? 'Configured':'API key missing'}
                 </Badge>
               </div>
               <div className='p-3 rounded border border-purple-900/30 bg-slate-950/50'>
                 <div className='text-sm text-purple-200'>Blockchain Activity</div>
-                <Badge className={(status?.cryptoActivityRecent || status?.planLimitBypassed)? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-amber-500/20 text-amber-300 border-amber-500/30'}>
-                 {(status?.cryptoActivityRecent || status?.planLimitBypassed)? 'Recent':'No recent activity'}
+                <Badge className={status?.cryptoActivityRecent? 'bg-green-500/20 text-green-300 border-green-500/30':'bg-amber-500/20 text-amber-300 border-amber-500/30'}>
+                  {status?.cryptoActivityRecent? 'Recent':'No recent activity'}
                 </Badge>
               </div>
             </div>
