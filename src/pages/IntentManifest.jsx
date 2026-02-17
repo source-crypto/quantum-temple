@@ -80,15 +80,24 @@ export default function IntentManifest() {
     const payload = parsePayload();
     if (!payload) return;
     setLoading((s) => ({ ...s, confirm: true }));
-    const { data } = await base44.functions.invoke('coreMemoryIngest', {
-      payload,
-      entropySeed,
-      sealed,
-      confirm: true,
-      expected_digest: preview.computed_digest
-    });
-    setConfirmRes(data);
-    setLoading((s) => ({ ...s, confirm: false }));
+    try {
+      const { data } = await base44.functions.invoke('coreMemoryIngest', {
+        payload,
+        entropySeed,
+        sealed,
+        confirm: true,
+        expected_digest: preview.computed_digest
+      });
+      if (!data || data.error) {
+        throw new Error(data?.error || 'Confirmation failed');
+      }
+      setConfirmRes(data);
+      toast({ title: 'Stored', description: 'CoreMemory confirmed and stored.' });
+    } catch (e) {
+      toast({ title: 'Confirm Error', description: e.message || 'Failed to store CoreMemory', variant: 'destructive' });
+    } finally {
+      setLoading((s) => ({ ...s, confirm: false }));
+    }
   };
 
   const copy = (text) => {
