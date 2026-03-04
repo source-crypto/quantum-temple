@@ -59,6 +59,7 @@ import DEX from './pages/DEX';
 import Governance from './pages/Governance';
 import Home from './pages/Home';
 import Insights from './pages/Insights';
+import Integrations from './pages/Integrations';
 import IntentManifest from './pages/IntentManifest';
 import IntentNetwork from './pages/IntentNetwork';
 import Interactions from './pages/Interactions';
@@ -77,7 +78,6 @@ import TradeOffersAgent from './pages/TradeOffersAgent';
 import Transactions from './pages/Transactions';
 import WalletIntegration from './pages/WalletIntegration';
 import WhitePaper from './pages/WhitePaper';
-import Integrations from './pages/Integrations';
 import __Layout from './Layout.jsx';
 
 
@@ -94,6 +94,7 @@ export const PAGES = {
     "Governance": Governance,
     "Home": Home,
     "Insights": Insights,
+    "Integrations": Integrations,
     "IntentManifest": IntentManifest,
     "IntentNetwork": IntentNetwork,
     "Interactions": Interactions,
@@ -112,7 +113,6 @@ export const PAGES = {
     "Transactions": Transactions,
     "WalletIntegration": WalletIntegration,
     "WhitePaper": WhitePaper,
-    "Integrations": Integrations,
 }
 
 export const pagesConfig = {

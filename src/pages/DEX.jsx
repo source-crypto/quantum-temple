@@ -10,6 +10,7 @@ import QTCNodeHealth from "../components/widgets/QTCNodeHealth";
 
  import SwapInterface from "../components/dex/SwapInterface";
 import LiquidityInterface from "../components/dex/LiquidityInterface";
+import WindsSwap from "../components/dex/WindsSwap";
 import YieldFarming from "../components/dex/YieldFarming";
 import PoolsOverview from "../components/dex/PoolsOverview";
 import CrossChainBridge from "../components/dex/CrossChainBridge";
@@ -29,6 +30,7 @@ import AutoYieldControls from "../components/dex/AutoYieldControls";
 
   const tabs = [
     { id: "swap", label: "Swap", icon: Repeat, color: "from-cyan-600 to-blue-600" },
+    { id: "windswap", label: "Winds Swap", icon: Repeat, color: "from-teal-600 to-emerald-600" },
     { id: "bridge", label: "Cross-Chain Bridge", icon: ArrowLeftRight, color: "from-purple-600 to-pink-600" },
     { id: "qtcbridge", label: "QTC Bridge", icon: ArrowLeftRight, color: "from-teal-600 to-emerald-600" },
     { id: "multichain", label: "Multi-Chain Bridge", icon: Network, color: "from-indigo-600 to-purple-600" },
@@ -125,6 +127,17 @@ import AutoYieldControls from "../components/dex/AutoYieldControls";
               exit={{ opacity: 0, x: 20 }}
             >
               <SwapInterface />
+            </motion.div>
+          )}
+
+          {activeTab === "windswap" && (
+            <motion.div
+              key="windswap"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <WindsSwap />
             </motion.div>
           )}
 
