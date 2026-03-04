@@ -27,6 +27,7 @@ import {
 import InAppAnnouncementBar from "./components/app/InAppAnnouncementBar";
 import QTCPriceWidget from "./components/currency/QTCPriceWidget";
 import WalletConnectButton from "./components/wallet/WalletConnectButton";
+import ErrorBoundary from "./components/common/ErrorBoundary";
 import {
   Sidebar,
   SidebarContent,
