@@ -95,7 +95,11 @@ export default function WindsSwap() {
   const [working, setWorking] = useState(false);
   const [tokenInfo, setTokenInfo] = useState({ from: null, to: null });
   const [useV3, setUseV3] = useState(false);
-  const [feeTier, setFeeTier] = useState("3000"); // 0.3% default
+  const [feeTier, setFeeTier] = useState("3000");
+  const [useAggregator, setUseAggregator] = useState(false);
+  const [midTokensInput, setMidTokensInput] = useState("");
+  const pathMids = useMemo(() => midTokensInput.split(',').map(s=>s.trim()).filter(Boolean), [midTokensInput]);
+  const [deadlineMins, setDeadlineMins] = useState(10); // 0.3% default
 
   // Initialize defaults when config loads
   useEffect(() => {
@@ -104,6 +108,7 @@ export default function WindsSwap() {
 
   // Helpers: providers
   const readProvider = useMemo(() => (rpcUrl ? new JsonRpcProvider(rpcUrl) : null), [rpcUrl]);
+  const zeroExBase = useMemo(() => getZeroExBaseUrl(chainId), [chainId]);
 
   async function getBrowserProvider() {
     if (!window.ethereum) throw new Error("No injected wallet found");
@@ -148,7 +153,19 @@ export default function WindsSwap() {
         const fromDec = tokenInfo.from?.decimals ?? 18;
         const amtIn = parseUnits(String(amount), fromDec);
 
-        if (useV3 && quoterV3Address) {
+        if (useAggregator && zeroExBase) {
+          const sellDec = tokenInfo.from?.decimals ?? 18;
+          const amtIn = parseUnits(String(amount), sellDec);
+          const slpPct = Math.max(0, Math.min(100, Number(slippage))) / 100;
+          const url = `${zeroExBase}/swap/v1/quote?sellToken=${fromAddress}&buyToken=${toAddress}&sellAmount=${amtIn.toString()}&slippagePercentage=${slpPct}`;
+          const res = await fetch(url);
+          if (res.ok) {
+            const q = await res.json();
+            const outDec = tokenInfo.to?.decimals ?? 18;
+            const out = formatUnits(BigInt(q.buyAmount), outDec);
+            setEstOut(out);
+          }
+        } else if (useV3 && quoterV3Address && pathMids.length===0) {
           const quoter = new Contract(quoterV3Address, UNI_V3_QUOTER_ABI, readProvider);
           const fee = Number(feeTier) || 3000;
           const quoted = await quoter.quoteExactInputSingle(fromAddress, toAddress, fee, amtIn, 0n);
@@ -157,7 +174,8 @@ export default function WindsSwap() {
           setEstOut(out);
         } else if (routerAddress) {
           const router = new Contract(routerAddress, UNI_V2_ROUTER_ABI, readProvider);
-          const amounts = await router.getAmountsOut(amtIn, [fromAddress, toAddress]);
+          const path = [fromAddress, ...pathMids, toAddress];
+          const amounts = await router.getAmountsOut(amtIn, path);
           const outDec = tokenInfo.to?.decimals ?? 18;
           const out = formatUnits(amounts[1], outDec);
           setEstOut(out);
@@ -169,8 +187,8 @@ export default function WindsSwap() {
     estimate();
   }, [fromAmount, fromAddress, toAddress, routerAddress, quoterV3Address, useV3, feeTier, readProvider, tokenInfo.from?.decimals, tokenInfo.to?.decimals]);
 
-  const needsRouter = useV3 ? (!routerV3Address || !quoterV3Address) : !routerAddress;
-  const canSwap = !!(fromAddress && toAddress && fromAmount && Number(fromAmount) > 0 && (useV3 ? routerV3Address : routerAddress));
+  const needsRouter = useAggregator ? false : (useV3 ? (!routerV3Address || !quoterV3Address) : !routerAddress);
+  const canSwap = !!(fromAddress && toAddress && fromAmount && Number(fromAmount) > 0 && (useAggregator ? zeroExBase : (useV3 ? routerV3Address : routerAddress)));
 
   const handleSwap = async () => {
     if (!canSwap) return;
@@ -191,6 +209,31 @@ export default function WindsSwap() {
             // Best-effort add chain (no detailed params known; user should switch manually if it fails)
           }
         }
+      }
+
+      // Aggregator path (0x)
+      if (useAggregator && zeroExBase) {
+        const owner = await signer.getAddress();
+        const sellDec = tokenInfo.from?.decimals ?? 18;
+        const sellAmount = parseUnits(String(fromAmount), sellDec).toString();
+        const slpPct = Math.max(0, Math.min(100, Number(slippage))) / 100;
+        const res = await fetch(`${zeroExBase}/swap/v1/quote?sellToken=${fromAddress}&buyToken=${toAddress}&sellAmount=${sellAmount}&slippagePercentage=${slpPct}&takerAddress=${owner}`);
+        if (!res.ok) throw new Error("0x quote failed");
+        const quote = await res.json();
+        const token = new Contract(fromAddress, ERC20_ABI, signer);
+        const allowance = await token.allowance(owner, quote.allowanceTarget);
+        if (allowance < BigInt(quote.sellAmount)) {
+          const txApprove = await token.approve(quote.allowanceTarget, BigInt(quote.sellAmount));
+          await txApprove.wait?.();
+        }
+        const txAgg = await signer.sendTransaction({ to: quote.to, data: quote.data, value: BigInt(quote.value || 0) });
+        await txAgg.wait?.();
+        await refetch();
+        setFromAmount("");
+        setEstOut(null);
+        alert("Swap submitted via 0x");
+        setWorking(false);
+        return;
       }
 
       // Contracts
@@ -222,7 +265,7 @@ export default function WindsSwap() {
         }
       } catch (_e) { /* ignore */ }
 
-      const deadline = Math.floor(Date.now() / 1000) + 60 * 10; // 10 minutes
+      const deadline = Math.floor(Date.now() / 1000) + 60 * Number(deadlineMins || 10);
       if (useV3 && routerV3) {
         const params = {
           tokenIn: fromAddress,
@@ -237,7 +280,7 @@ export default function WindsSwap() {
         const tx = await routerV3.exactInputSingle(params);
         await tx.wait?.();
       } else if (routerV2) {
-        const path = [fromAddress, toAddress];
+        const path = [fromAddress, ...pathMids, toAddress];
         const tx = await routerV2.swapExactTokensForTokens(amtIn, outMin, path, owner, deadline);
         await tx.wait?.();
       } else {
@@ -292,15 +335,40 @@ export default function WindsSwap() {
             </div>
           )}
 
-          <div className="p-3 bg-slate-950/50 rounded-lg border border-cyan-900/30 flex items-center justify-between gap-3">
-            <label className="text-sm text-cyan-400/80 flex items-center gap-2">
-              <input type="checkbox" checked={useV3} onChange={(e) => setUseV3(e.target.checked)} />
-              Use Uniswap V3 (Quoter)
-            </label>
-            {useV3 && (
+          <div className="p-3 bg-slate-950/50 rounded-lg border border-cyan-900/30 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <label className="text-sm text-cyan-400/80 flex items-center gap-2">
+                <input type="checkbox" checked={useV3} onChange={(e) => setUseV3(e.target.checked)} />
+                Use Uniswap V3 (Quoter)
+              </label>
+              {useV3 && (
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs text-cyan-400/70">Fee tier (bps)</Label>
+                  <Input value={feeTier} onChange={(e) => setFeeTier(e.target.value)} className="w-28 bg-slate-900/50 border-cyan-900/30" />
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between gap-3">
+              <label className="text-sm text-cyan-400/80 flex items-center gap-2">
+                <input type="checkbox" checked={useAggregator} onChange={(e) => setUseAggregator(e.target.checked)} />
+                Use 0x Aggregator (best route)
+              </label>
               <div className="flex items-center gap-2">
-                <Label className="text-xs text-cyan-400/70">Fee tier (bps)</Label>
-                <Input value={feeTier} onChange={(e) => setFeeTier(e.target.value)} className="w-28 bg-slate-900/50 border-cyan-900/30" />
+                <Label className="text-xs text-cyan-400/70">Deadline (min)</Label>
+                <Input type="number" min={1} value={deadlineMins} onChange={(e) => setDeadlineMins(Number(e.target.value))} className="w-24 bg-slate-900/50 border-cyan-900/30" />
+              </div>
+            </div>
+
+            {!useAggregator && (
+              <div className="flex items-center gap-2">
+                <Label className="text-xs text-cyan-400/70 whitespace-nowrap">Intermediates</Label>
+                <Input
+                  placeholder="0x... , 0x... (optional)"
+                  value={midTokensInput}
+                  onChange={(e) => setMidTokensInput(e.target.value)}
+                  className="bg-slate-900/50 border-cyan-900/30"
+                />
               </div>
             )}
           </div>
