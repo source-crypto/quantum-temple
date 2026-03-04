@@ -57,6 +57,18 @@ function guessIconUrl(chainId, address) {
   return null;
 }
 
+function getZeroExBaseUrl(chainId) {
+  switch (Number(chainId)) {
+    case 1: return 'https://api.0x.org'; // Ethereum
+    case 137: return 'https://polygon.api.0x.org';
+    case 42161: return 'https://arbitrum.api.0x.org';
+    case 10: return 'https://optimism.api.0x.org';
+    case 56: return 'https://bsc.api.0x.org';
+    case 8453: return 'https://base.api.0x.org';
+    default: return null;
+  }
+}
+
 export default function WindsSwap() {
   // Load Winds config (env + health)
   const { data: config, isLoading: loadingCfg, refetch } = useQuery({
