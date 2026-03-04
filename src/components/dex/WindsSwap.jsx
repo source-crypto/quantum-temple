@@ -25,6 +25,15 @@ const UNI_V2_ROUTER_ABI = [
   "function swapExactTokensForTokens(uint256 amountIn, uint256 amountOutMin, address[] calldata path, address to, uint256 deadline) returns (uint256[] memory amounts)"
 ];
 
+// Uniswap V3 minimal ABIs
+const UNI_V3_QUOTER_ABI = [
+  "function quoteExactInputSingle(address tokenIn,address tokenOut,uint24 fee,uint256 amountIn,uint160 sqrtPriceLimitX96) view returns (uint256 amountOut)"
+];
+
+const UNI_V3_ROUTER_ABI = [
+  "function exactInputSingle(tuple(address tokenIn,address tokenOut,uint24 fee,address recipient,uint256 deadline,uint256 amountIn,uint256 amountOutMinimum,uint160 sqrtPriceLimitX96)) payable returns (uint256 amountOut)"
+];
+
 export default function WindsSwap() {
   // Load Winds config (env + health)
   const { data: config, isLoading: loadingCfg, refetch } = useQuery({
@@ -40,6 +49,8 @@ export default function WindsSwap() {
   const chainId = config?.configured?.chain_id || null;
   const qtcAddress = (config?.configured?.qtc_erc20_address || "").trim();
   const routerAddress = (config?.configured?.router_address || "").trim();
+  const quoterV3Address = (config?.configured?.quoter_v3_address || "").trim();
+  const routerV3Address = (config?.configured?.router_v3_address || "").trim();
 
   const [fromAddress, setFromAddress] = useState("");
   const [toAddress, setToAddress] = useState("");
@@ -48,6 +59,8 @@ export default function WindsSwap() {
   const [slippage, setSlippage] = useState("0.5"); // %
   const [working, setWorking] = useState(false);
   const [tokenInfo, setTokenInfo] = useState({ from: null, to: null });
+  const [useV3, setUseV3] = useState(false);
+  const [feeTier, setFeeTier] = useState("3000"); // 0.3% default
 
   // Initialize defaults when config loads
   useEffect(() => {
@@ -87,32 +100,42 @@ export default function WindsSwap() {
     fetchMeta();
   }, [fromAddress, toAddress, readProvider]);
 
-  // Estimate output via router.getAmountsOut
+  // Estimate output via V2 router or V3 quoter
   useEffect(() => {
     const estimate = async () => {
       try {
         setEstOut(null);
-        if (!routerAddress || !readProvider) return;
+        if (!readProvider) return;
         if (!fromAddress || !toAddress) return;
         const amount = parseFloat(fromAmount);
         if (!amount || amount <= 0) return;
 
-        const router = new Contract(routerAddress, UNI_V2_ROUTER_ABI, readProvider);
         const fromDec = tokenInfo.from?.decimals ?? 18;
         const amtIn = parseUnits(String(amount), fromDec);
-        const amounts = await router.getAmountsOut(amtIn, [fromAddress, toAddress]);
-        const outDec = tokenInfo.to?.decimals ?? 18;
-        const out = formatUnits(amounts[1], outDec);
-        setEstOut(out);
+
+        if (useV3 && quoterV3Address) {
+          const quoter = new Contract(quoterV3Address, UNI_V3_QUOTER_ABI, readProvider);
+          const fee = Number(feeTier) || 3000;
+          const quoted = await quoter.quoteExactInputSingle(fromAddress, toAddress, fee, amtIn, 0n);
+          const outDec = tokenInfo.to?.decimals ?? 18;
+          const out = formatUnits(quoted, outDec);
+          setEstOut(out);
+        } else if (routerAddress) {
+          const router = new Contract(routerAddress, UNI_V2_ROUTER_ABI, readProvider);
+          const amounts = await router.getAmountsOut(amtIn, [fromAddress, toAddress]);
+          const outDec = tokenInfo.to?.decimals ?? 18;
+          const out = formatUnits(amounts[1], outDec);
+          setEstOut(out);
+        }
       } catch (_e) {
         setEstOut(null);
       }
     };
     estimate();
-  }, [fromAmount, fromAddress, toAddress, routerAddress, readProvider, tokenInfo.from?.decimals, tokenInfo.to?.decimals]);
+  }, [fromAmount, fromAddress, toAddress, routerAddress, quoterV3Address, useV3, feeTier, readProvider, tokenInfo.from?.decimals, tokenInfo.to?.decimals]);
 
-  const needsRouter = !routerAddress;
-  const canSwap = !!(fromAddress && toAddress && fromAmount && Number(fromAmount) > 0 && routerAddress);
+  const needsRouter = useV3 ? (!routerV3Address || !quoterV3Address) : !routerAddress;
+  const canSwap = !!(fromAddress && toAddress && fromAmount && Number(fromAmount) > 0 && (useV3 ? routerV3Address : routerAddress));
 
   const handleSwap = async () => {
     if (!canSwap) return;
@@ -137,7 +160,8 @@ export default function WindsSwap() {
 
       // Contracts
       const fromToken = new Contract(fromAddress, ERC20_ABI, signer);
-      const router = new Contract(routerAddress, UNI_V2_ROUTER_ABI, signer);
+      const routerV2 = routerAddress ? new Contract(routerAddress, UNI_V2_ROUTER_ABI, signer) : null;
+      const routerV3 = routerV3Address ? new Contract(routerV3Address, UNI_V3_ROUTER_ABI, signer) : null;
 
       // Amounts
       const fromDec = tokenInfo.from?.decimals ?? 18;
@@ -146,9 +170,10 @@ export default function WindsSwap() {
 
       // Allowance
       const owner = await signer.getAddress();
-      const allowance = await fromToken.allowance(owner, routerAddress);
+      const spender = useV3 ? routerV3Address : routerAddress;
+      const allowance = await fromToken.allowance(owner, spender);
       if (allowance < amtIn) {
-        const txApprove = await fromToken.approve(routerAddress, amtIn);
+        const txApprove = await fromToken.approve(spender, amtIn);
         await txApprove.wait?.();
       }
 
@@ -162,10 +187,27 @@ export default function WindsSwap() {
         }
       } catch (_e) { /* ignore */ }
 
-      const path = [fromAddress, toAddress];
       const deadline = Math.floor(Date.now() / 1000) + 60 * 10; // 10 minutes
-      const swapTx = await router.swapExactTokensForTokens(amtIn, outMin, path, owner, deadline);
-      await swapTx.wait?.();
+      if (useV3 && routerV3) {
+        const params = {
+          tokenIn: fromAddress,
+          tokenOut: toAddress,
+          fee: Number(feeTier) || 3000,
+          recipient: owner,
+          deadline,
+          amountIn: amtIn,
+          amountOutMinimum: outMin,
+          sqrtPriceLimitX96: 0n
+        };
+        const tx = await routerV3.exactInputSingle(params);
+        await tx.wait?.();
+      } else if (routerV2) {
+        const path = [fromAddress, toAddress];
+        const tx = await routerV2.swapExactTokensForTokens(amtIn, outMin, path, owner, deadline);
+        await tx.wait?.();
+      } else {
+        throw new Error("Router not configured");
+      }
 
       await refetch();
       setFromAmount("");
@@ -184,7 +226,7 @@ export default function WindsSwap() {
         <CardHeader className="border-b border-cyan-900/30">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-cyan-200">
-              <Repeat className="w-5 h-5" /> Winds Swap (Uniswap V2)
+              <Repeat className="w-5 h-5" /> {useV3 ? "Winds Swap (Uniswap V3)" : "Winds Swap (Uniswap V2)"}
             </CardTitle>
             <div className="flex items-center gap-2">
               <WalletConnectButton />
@@ -199,15 +241,34 @@ export default function WindsSwap() {
           <div className="p-3 bg-slate-950/40 rounded border border-cyan-900/30 text-xs text-cyan-300/80">
             <div>RPC: <span className="font-mono">{rpcUrl || "(not set)"}</span></div>
             <div>Chain ID: <span className="font-mono">{chainId ?? "(unknown)"}</span></div>
-            <div>Router: <span className="font-mono">{routerAddress || "(WINDS_ROUTER_ADDRESS not set)"}</span></div>
+            <div>V2 Router: <span className="font-mono">{routerAddress || "(not set)"}</span></div>
+            <div>V3 Quoter: <span className="font-mono">{quoterV3Address || "(not set)"}</span></div>
+            <div>V3 Router: <span className="font-mono">{routerV3Address || "(not set)"}</span></div>
           </div>
 
           {needsRouter && (
             <div className="p-3 bg-amber-900/20 border border-amber-700/40 rounded text-amber-200 text-sm flex items-start gap-2">
               <Info className="w-4 h-4 mt-0.5" />
-              Set WINDS_ROUTER_ADDRESS to an Uniswap V2-compatible router to enable swaps. QTC address detected: {qtcAddress || "—"}
+              {useV3 ? (
+                <span>Set Uniswap V3 Quoter and Router addresses to enable V3 quotes/swaps. QTC address detected: {qtcAddress || "—"}</span>
+              ) : (
+                <span>Set an Uniswap V2-compatible router to enable swaps. QTC address detected: {qtcAddress || "—"}</span>
+              )}
             </div>
           )}
+
+          <div className="p-3 bg-slate-950/50 rounded-lg border border-cyan-900/30 flex items-center justify-between gap-3">
+            <label className="text-sm text-cyan-400/80 flex items-center gap-2">
+              <input type="checkbox" checked={useV3} onChange={(e) => setUseV3(e.target.checked)} />
+              Use Uniswap V3 (Quoter)
+            </label>
+            {useV3 && (
+              <div className="flex items-center gap-2">
+                <Label className="text-xs text-cyan-400/70">Fee tier (bps)</Label>
+                <Input value={feeTier} onChange={(e) => setFeeTier(e.target.value)} className="w-28 bg-slate-900/50 border-cyan-900/30" />
+              </div>
+            )}
+          </div>
 
           <div className="grid gap-4">
             {/* From */}
