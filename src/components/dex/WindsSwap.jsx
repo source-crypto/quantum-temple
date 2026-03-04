@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Loader2, Repeat, ArrowDown, Info, ShieldCheck } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Loader2, Repeat, ArrowDown, Info, ShieldCheck, ExternalLink } from "lucide-react";
 import WalletConnectButton from "@/components/wallet/WalletConnectButton";
 import { Contract, BrowserProvider, JsonRpcProvider, formatUnits, parseUnits } from "ethers";
 
@@ -33,6 +34,28 @@ const UNI_V3_QUOTER_ABI = [
 const UNI_V3_ROUTER_ABI = [
   "function exactInputSingle(tuple(address tokenIn,address tokenOut,uint24 fee,address recipient,uint256 deadline,uint256 amountIn,uint256 amountOutMinimum,uint160 sqrtPriceLimitX96)) payable returns (uint256 amountOut)"
 ];
+
+function getExplorerAddressUrl(chainId, address) {
+  switch (Number(chainId)) {
+    case 1: return `https://etherscan.io/address/${address}`;
+    case 5: return `https://goerli.etherscan.io/address/${address}`;
+    case 11155111: return `https://sepolia.etherscan.io/address/${address}`;
+    case 137: return `https://polygonscan.com/address/${address}`;
+    case 42161: return `https://arbiscan.io/address/${address}`;
+    case 10: return `https://optimistic.etherscan.io/address/${address}`;
+    case 56: return `https://bscscan.com/address/${address}`;
+    case 8453: return `https://basescan.org/address/${address}`;
+    default: return null;
+  }
+}
+
+function guessIconUrl(chainId, address) {
+  if (!address) return null;
+  if (Number(chainId) === 1) {
+    return `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${address}/logo.png`;
+  }
+  return null;
+}
 
 export default function WindsSwap() {
   // Load Winds config (env + health)
@@ -84,13 +107,13 @@ export default function WindsSwap() {
         const info: any = { from: null, to: null };
         if (fromAddress) {
           const c = new Contract(fromAddress, ERC20_ABI, readProvider);
-          const [symbol, decimals] = await Promise.all([c.symbol(), c.decimals()]);
-          info.from = { symbol, decimals };
+          const [name, symbol, decimals] = await Promise.all([c.name(), c.symbol(), c.decimals()]);
+          info.from = { name, symbol, decimals, iconUrl: guessIconUrl(chainId, fromAddress), address: fromAddress };
         }
         if (toAddress) {
           const c = new Contract(toAddress, ERC20_ABI, readProvider);
-          const [symbol, decimals] = await Promise.all([c.symbol(), c.decimals()]);
-          info.to = { symbol, decimals };
+          const [name, symbol, decimals] = await Promise.all([c.name(), c.symbol(), c.decimals()]);
+          info.to = { name, symbol, decimals, iconUrl: guessIconUrl(chainId, toAddress), address: toAddress };
         }
         setTokenInfo(info);
       } catch (_e) {
@@ -98,7 +121,7 @@ export default function WindsSwap() {
       }
     };
     fetchMeta();
-  }, [fromAddress, toAddress, readProvider]);
+  }, [fromAddress, toAddress, readProvider, chainId]);
 
   // Estimate output via V2 router or V3 quoter
   useEffect(() => {
@@ -275,8 +298,24 @@ export default function WindsSwap() {
             <div className="p-4 bg-slate-950/50 rounded-lg border border-cyan-900/30">
               <div className="text-sm text-cyan-400/70 mb-2">From (token address)</div>
               <Input value={fromAddress} onChange={(e) => setFromAddress(e.target.value.trim())} placeholder="0x… (e.g., QTC token)" className="bg-slate-900/50 border-cyan-900/30" />
-              {tokenInfo.from?.symbol && (
-                <div className="text-xs text-cyan-400/70 mt-1">Symbol: {tokenInfo.from.symbol}</div>
+              {tokenInfo.from && (
+                <div className="mt-2 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-6 w-6">
+                      <AvatarImage src={tokenInfo.from.iconUrl || ""} alt={tokenInfo.from.symbol || "token"} onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/32?text=◈'; }} />
+                      <AvatarFallback className="text-[10px]">{(tokenInfo.from.symbol || '?').slice(0,2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div className="text-xs text-cyan-300">
+                      <span className="font-medium">{tokenInfo.from.name || 'Unknown'}</span>
+                      {tokenInfo.from.symbol ? <span className="text-cyan-400/70 ml-1">({tokenInfo.from.symbol})</span> : null}
+                    </div>
+                  </div>
+                  {tokenInfo.from.address && getExplorerAddressUrl(chainId, tokenInfo.from.address) && (
+                    <a href={getExplorerAddressUrl(chainId, tokenInfo.from.address)} target="_blank" rel="noreferrer" className="text-cyan-400/80 hover:text-cyan-200 text-xs inline-flex items-center gap-1">
+                      View <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
               )}
               <div className="mt-3">
                 <Label className="text-xs text-cyan-400/70">Amount</Label>
@@ -292,8 +331,24 @@ export default function WindsSwap() {
             <div className="p-4 bg-slate-950/50 rounded-lg border border-cyan-900/30">
               <div className="text-sm text-cyan-400/70 mb-2">To (token address)</div>
               <Input value={toAddress} onChange={(e) => setToAddress(e.target.value.trim())} placeholder="0x… (target token)" className="bg-slate-900/50 border-cyan-900/30" />
-              {tokenInfo.to?.symbol && (
-                <div className="text-xs text-cyan-400/70 mt-1">Symbol: {tokenInfo.to.symbol}</div>
+              {tokenInfo.to && (
+                <div className="mt-2 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-6 w-6">
+                      <AvatarImage src={tokenInfo.to.iconUrl || ""} alt={tokenInfo.to.symbol || "token"} onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/32?text=◈'; }} />
+                      <AvatarFallback className="text-[10px]">{(tokenInfo.to.symbol || '?').slice(0,2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div className="text-xs text-cyan-300">
+                      <span className="font-medium">{tokenInfo.to.name || 'Unknown'}</span>
+                      {tokenInfo.to.symbol ? <span className="text-cyan-400/70 ml-1">({tokenInfo.to.symbol})</span> : null}
+                    </div>
+                  </div>
+                  {tokenInfo.to.address && getExplorerAddressUrl(chainId, tokenInfo.to.address) && (
+                    <a href={getExplorerAddressUrl(chainId, tokenInfo.to.address)} target="_blank" rel="noreferrer" className="text-cyan-400/80 hover:text-cyan-200 text-xs inline-flex items-center gap-1">
+                      View <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
               )}
               <div className="mt-3 text-sm text-cyan-300/80">
                 {estOut ? (
