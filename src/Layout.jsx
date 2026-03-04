@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useIsFetching } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { 
               Sparkles, 
@@ -77,6 +77,11 @@ const navigationItems = [
     title: "Divine Currency",
     url: createPageUrl("Currency"),
     icon: Coins,
+  },
+  {
+    title: "Valuation Policy",
+    url: createPageUrl("ValuationPolicy"),
+    icon: FileText,
   },
   {
           title: "Checkout",
@@ -193,6 +198,7 @@ const pageRouteMap = {
   "Attestation": "Attestation",
   "Ceremonial": "Ceremonial",
   "Divine Currency": "Currency",
+  "Valuation Policy": "ValuationPolicy",
   "Checkout": "Checkout",
   "Crypto Checkout": "CryptoCheckout",
   "Governance": "Governance",
@@ -215,6 +221,14 @@ const pageRouteMap = {
   "Intent Manifest": "IntentManifest",
   "Admin Dashboard": "AdminDashboard"
 };
+
+function QueryLoadingBar() {
+  const isFetching = useIsFetching();
+  if (!isFetching) return null;
+  return (
+    <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-violet-500 to-indigo-500 animate-pulse z-50" />
+  );
+}
 
 export default function Layout({ children }) {
   const location = useLocation();
@@ -358,7 +372,7 @@ export default function Layout({ children }) {
           </SidebarFooter>
         </Sidebar>
 
-        <main className="flex-1 flex flex-col min-h-screen">
+        <main className="flex-1 flex flex-col min-h-screen relative">
           <header className="bg-slate-950/50 backdrop-blur-sm border-b border-purple-900/20 px-6 py-4 md:hidden">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="hover:bg-purple-900/30 p-2 rounded-lg transition-colors duration-200 text-purple-300" />
@@ -368,9 +382,12 @@ export default function Layout({ children }) {
             </div>
           </header>
 
+          <QueryLoadingBar />
           <div className="flex-1 overflow-auto">
             <InAppAnnouncementBar />
-            {children}
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
           </div>
         </main>
       </div>
