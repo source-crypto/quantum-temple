@@ -90,7 +90,7 @@ export default function WindsSwap() {
   const [fromAddress, setFromAddress] = useState("");
   const [toAddress, setToAddress] = useState("");
   const [fromAmount, setFromAmount] = useState("");
-  const [estOut, setEstOut] = useState<string | null>(null);
+  const [estOut, setEstOut] = useState(null);
   const [slippage, setSlippage] = useState("0.5"); // %
   const [working, setWorking] = useState(false);
   const [tokenInfo, setTokenInfo] = useState({ from: null, to: null });
@@ -185,7 +185,7 @@ export default function WindsSwap() {
       }
     };
     estimate();
-  }, [fromAmount, fromAddress, toAddress, routerAddress, quoterV3Address, useV3, feeTier, readProvider, tokenInfo.from?.decimals, tokenInfo.to?.decimals]);
+  }, [fromAmount, fromAddress, toAddress, routerAddress, quoterV3Address, useV3, feeTier, readProvider, tokenInfo.from?.decimals, tokenInfo.to?.decimals, useAggregator, zeroExBase, midTokensInput, chainId, slippage]);
 
   const needsRouter = useAggregator ? false : (useV3 ? (!routerV3Address || !quoterV3Address) : !routerAddress);
   const canSwap = !!(fromAddress && toAddress && fromAmount && Number(fromAmount) > 0 && (useAggregator ? zeroExBase : (useV3 ? routerV3Address : routerAddress)));
