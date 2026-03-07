@@ -121,7 +121,7 @@ export default function WindsSwap() {
     const fetchMeta = async () => {
       try {
         if (!readProvider) return;
-        const info: any = { from: null, to: null };
+        const info = { from: null, to: null };
         if (fromAddress) {
           const c = new Contract(fromAddress, ERC20_ABI, readProvider);
           const [name, symbol, decimals] = await Promise.all([c.name(), c.symbol(), c.decimals()]);
