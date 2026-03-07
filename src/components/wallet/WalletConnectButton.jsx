@@ -1,51 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-function truncate(addr) {
-  if (!addr) return "";
-  return addr.slice(0, 6) + "…" + addr.slice(-4);
-}
-
 export default function WalletConnectButton() {
-  const [account, setAccount] = React.useState(null);
-  const [connecting, setConnecting] = React.useState(false);
+  const [address, setAddress] = useState("");
 
-  React.useEffect(() => {
-    if (!window.ethereum) return;
-    const handleAccounts = (accs) => setAccount(accs && accs.length ? accs[0] : null);
-    window.ethereum.request({ method: "eth_accounts" }).then(handleAccounts).catch(() => {});
-    window.ethereum.on?.("accountsChanged", handleAccounts);
+  useEffect(() => {
+    const handler = async () => {
+      try {
+        if (!window.ethereum) return;
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts && accounts[0]) setAddress(accounts[0]);
+      } catch {}
+    };
+    handler();
+    if (window.ethereum) {
+      window.ethereum.on?.('accountsChanged', (accs) => setAddress(accs?.[0] || ""));
+    }
     return () => {
-      window.ethereum?.removeListener?.("accountsChanged", handleAccounts);
+      if (window.ethereum?.removeListener) {
+        window.ethereum.removeListener('accountsChanged', (accs) => setAddress(accs?.[0] || ""));
+      }
     };
   }, []);
 
   const connect = async () => {
-    try {
-      if (!window.ethereum) return alert("No wallet detected. Please install a web3 wallet.");
-      setConnecting(true);
-      const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
-      setAccount(accs && accs.length ? accs[0] : null);
-    } catch (e) {
-      // ignore
-    } finally {
-      setConnecting(false);
+    if (!window.ethereum) {
+      alert('No wallet found. Please install MetaMask or a compatible wallet.');
+      return;
     }
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    setAddress(accounts?.[0] || "");
   };
 
-  if (!window.ethereum) {
-    return (
-      <Button variant="outline" size="sm" onClick={() => alert("No wallet detected")}>No Wallet</Button>
-    );
-  }
+  const short = address ? `${address.slice(0,6)}…${address.slice(-4)}` : '';
 
-  return account ? (
-    <Button variant="secondary" size="sm" title={account}>
-      {truncate(account)}
-    </Button>
-  ) : (
-    <Button size="sm" onClick={connect} disabled={connecting}>
-      {connecting ? "Connecting…" : "Connect Wallet"}
+  return (
+    <Button size="sm" variant={address ? 'outline' : 'default'} onClick={connect}>
+      {address ? short : 'Connect Wallet'}
     </Button>
   );
 }
