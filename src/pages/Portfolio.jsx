@@ -2,173 +2,256 @@ import React, { useEffect, useMemo, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import HoldingsTable from "../components/portfolio/HoldingsTable";
-import PortfolioCharts from "../components/portfolio/PortfolioCharts";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import WalletConnectButton from "@/components/wallet/WalletConnectButton";
+import { Loader2, RefreshCw, DollarSign } from "lucide-react";
 import { Contract, BrowserProvider, JsonRpcProvider, formatUnits } from "ethers";
 
 const ERC20_ABI = [
+  "function name() view returns (string)",
   "function symbol() view returns (string)",
   "function decimals() view returns (uint8)",
   "function balanceOf(address) view returns (uint256)"
 ];
 
+function guessIconUrl(chainId, address) {
+  if (!address) return null;
+  if (Number(chainId) === 1) {
+    return `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${address}/logo.png`;
+  }
+  return null;
+}
+
 export default function Portfolio() {
-  // Winds config (RPC, chain, QTC address)
-  const { data: config } = useQuery({
+  const { data: config, isLoading: loadingCfg } = useQuery({
     queryKey: ["winds-config"],
-    queryFn: async () => (await base44.functions.invoke("windsConfig", {})).data,
-    staleTime: 10_000
+    queryFn: async () => {
+      const res = await base44.functions.invoke("windsConfig", {});
+      return res.data;
+    },
+    staleTime: 10_000,
   });
-  const rpcUrl = config?.configured?.rpc_url || "";
+
+  const rpcUrl = config?.configured?.rpc_url || config?.health?.target_rpc || "";
   const chainId = config?.configured?.chain_id || null;
   const qtcAddress = (config?.configured?.qtc_erc20_address || "").trim();
 
-  // Majors address map (Ethereum mainnet)
-  const majorsMap = useMemo(() => {
-    switch (Number(chainId)) {
-      case 1:
-        return {
-          USDC: "0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-          USDT: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-          WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-        };
-      default:
-        return {};
-    }
-  }, [chainId]);
-  const defaultMajors = useMemo(() => Object.values(majorsMap), [majorsMap]);
+  const [owner, setOwner] = useState("");
+  const [customAddresses, setCustomAddresses] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState([]);
 
-  // Providers
-  const [readProvider, setReadProvider] = useState(null);
-  useEffect(() => { setReadProvider(rpcUrl ? new JsonRpcProvider(rpcUrl) : null); }, [rpcUrl]);
-
-  // Connected wallet
-  const [account, setAccount] = useState("");
-  useEffect(() => {
-    async function detect() {
-      try {
-        if (!window.ethereum) return;
-        const accs = await window.ethereum.request({ method: "eth_accounts" });
-        if (accs && accs[0]) setAccount(accs[0]);
-      } catch (_) {}
-    }
-    detect();
-  }, []);
-
-  // Track tokens: QTC + user-provided addresses
-  const [addrInput, setAddrInput] = useState("");
-  const tracked = useMemo(() => {
-    const list = [];
-    if (qtcAddress) list.push(qtcAddress);
-    list.push(...defaultMajors);
-    addrInput.split(',').map(s => s.trim()).filter(Boolean).forEach(a => list.push(a));
-    return Array.from(new Set(list));
-  }, [qtcAddress, addrInput, defaultMajors.join('|')]);
-
-  // Currency index for pricing
   const { data: index } = useQuery({
     queryKey: ["currencyIndex"],
-    queryFn: async () => (await base44.entities.CurrencyIndex.list('-last_updated', 1))?.[0],
+    queryFn: async () => {
+      const list = await base44.entities.CurrencyIndex.list('-last_updated', 1);
+      return list?.[0];
+    },
   });
 
-  // Fetch balances on-chain
-  const [balances, setBalances] = useState([]);
+  const readProvider = useMemo(() => (rpcUrl ? new JsonRpcProvider(rpcUrl) : null), [rpcUrl]);
+
+  const majorsByChain = useMemo(() => ({
+    1: [
+      { symbol: "WETH", address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" },
+      { symbol: "USDC", address: "0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" },
+      { symbol: "USDT", address: "0xdAC17F958D2ee523a2206206994597C13D831ec7" },
+    ],
+  }), []);
+
+  const baseTokenAddresses = useMemo(() => {
+    const list = [];
+    if (qtcAddress) list.push(qtcAddress);
+    const majors = majorsByChain[Number(chainId)] || [];
+    return [...list, ...majors.map(m => m.address)];
+  }, [qtcAddress, chainId, majorsByChain]);
+
+  const parsedCustom = useMemo(() => (
+    customAddresses
+      .split(/[,\s]+/)
+      .map(s => s.trim())
+      .filter(Boolean)
+  ), [customAddresses]);
+
+  const tokenAddresses = useMemo(() => {
+    const set = new Set((baseTokenAddresses || []).concat(parsedCustom).map(a => a.toLowerCase()));
+    return Array.from(set);
+  }, [baseTokenAddresses, parsedCustom]);
+
   useEffect(() => {
-    let cancelled = false;
-    async function run() {
+    (async () => {
       try {
-        if (!readProvider || !account || !tracked.length) { setBalances([]); return; }
-        const results = await Promise.all(tracked.map(async (address) => {
-          try {
-            const c = new Contract(address, ERC20_ABI, readProvider);
-            const [symbol, decimals, raw] = await Promise.all([
-              c.symbol(), c.decimals(), c.balanceOf(account)
-            ]);
-            const qty = parseFloat(formatUnits(raw, decimals));
-            return { token_address: address, asset_symbol: String(symbol || '').toUpperCase(), decimals, quantity: qty };
-          } catch (_) { return null; }
-        }));
-        const filtered = results.filter(Boolean).filter(r => (r.quantity || 0) > 0);
-        if (!cancelled) setBalances(filtered);
-      } catch (_) { if (!cancelled) setBalances([]); }
-    }
-    run();
-    const id = setInterval(run, 20_000); // refresh
-    return () => { cancelled = true; clearInterval(id); };
-  }, [readProvider, account, tracked.join('|')]);
+        if (!window.ethereum) return;
+        const bp = new BrowserProvider(window.ethereum);
+        const accs = await bp.send('eth_accounts', []);
+        if (accs && accs[0]) setOwner(accs[0]);
+      } catch (_) { /* ignore */ }
+    })();
+  }, []);
 
-  // Price map per requirements
-  const priceFor = (sym) => {
-    const s = (sym || '').toUpperCase();
-    if (s === 'QTC') return index?.qtc_unit_price_usd || 0;
-    if (s === 'ETH' || s === 'WETH') return index?.eth_price_usd || 0;
-    if (s === 'BTC' || s === 'WBTC') return index?.btc_price_usd || 0;
+  function formatAddress(addr) {
+    if (!addr) return '';
+    return addr.slice(0, 6) + '…' + addr.slice(-4);
+  }
+
+  function getUsdPriceForSymbol(sym) {
+    if (!sym) return null;
+    const s = sym.toUpperCase();
+    if (s === 'QTC') return index?.qtc_unit_price_usd ?? null;
+    if (s === 'ETH' || s === 'WETH') return index?.eth_price_usd ?? null;
+    if (s === 'BTC') return index?.btc_price_usd ?? null;
     if (s === 'USDC' || s === 'USDT') return 1;
-    return 0; // unknowns = 0 for now
-  };
+    return null;
+  }
 
-  const valuations = useMemo(() => {
-    const items = balances.map(b => ({
-      ...b,
-      price_usd: priceFor(b.asset_symbol),
-      value_usd: priceFor(b.asset_symbol) * (b.quantity || 0)
-    }));
-    const total = items.reduce((s, i) => s + (i.value_usd || 0), 0);
-    return { items, total };
-  }, [balances, index]);
+  const totalNetWorth = useMemo(() => items.reduce((sum, it) => sum + (it.valueUsd || 0), 0), [items]);
+
+  async function refreshBalances() {
+    if (!readProvider) return;
+    try {
+      setLoading(true);
+      let acct = owner;
+      if (!acct && window.ethereum) {
+        const bp = new BrowserProvider(window.ethereum);
+        const req = await bp.send('eth_requestAccounts', []);
+        acct = req?.[0] || '';
+        setOwner(acct);
+      }
+      if (!acct) { setLoading(false); return; }
+
+      const results = await Promise.all(tokenAddresses.map(async (addr) => {
+        try {
+          const c = new Contract(addr, ERC20_ABI, readProvider);
+          const [name, symbol, decimals, rawBal] = await Promise.all([
+            c.name(), c.symbol(), c.decimals(), c.balanceOf(acct)
+          ]);
+          const bal = Number(formatUnits(rawBal, decimals));
+          const price = getUsdPriceForSymbol(symbol);
+          const value = (price ? price : 0) * bal;
+          return {
+            address: addr,
+            name, symbol, decimals,
+            balance: bal,
+            priceUsd: price,
+            valueUsd: value,
+            iconUrl: guessIconUrl(chainId, addr)
+          };
+        } catch (_) {
+          return null;
+        }
+      }));
+
+      const filtered = results.filter(Boolean).sort((a, b) => (b.valueUsd || 0) - (a.valueUsd || 0));
+      setItems(filtered);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="p-6 md:p-10 space-y-6">
-      <div className="flex items-start md:items-center gap-3 flex-wrap">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-purple-200">Portfolio</h1>
-          <p className="text-purple-400/70">On-chain balances for your connected wallet. Pricing via CurrencyIndex.</p>
+          <p className="text-purple-400/70">On-chain balances for your connected wallet</p>
         </div>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <WalletConnectButton />
         </div>
       </div>
 
       <Card className="bg-slate-950/60 border-purple-900/40">
-        <CardHeader>
-          <CardTitle className="text-purple-200">Overview</CardTitle>
+        <CardHeader className="flex flex-col gap-2">
+          <CardTitle className="text-purple-200 flex items-center gap-2">
+            <DollarSign className="w-5 h-5" /> Net Worth
+          </CardTitle>
+          <div className="text-2xl md:text-4xl font-bold text-purple-100">${totalNetWorth.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+          <div className="text-xs text-purple-400/70 flex flex-wrap gap-3">
+            <span>Chain: <Badge variant="outline" className="border-purple-900/50 text-purple-300">{chainId ?? '—'}</Badge></span>
+            <span>Wallet: <Badge variant="outline" className="border-purple-900/50 text-purple-300">{owner ? formatAddress(owner) : 'Not connected'}</Badge></span>
+            {qtcAddress ? <span>QTC: <Badge variant="outline" className="border-purple-900/50 text-purple-300">{formatAddress(qtcAddress)}</Badge></span> : null}
+          </div>
         </CardHeader>
-        <CardContent className="grid md:grid-cols-3 gap-4 text-purple-300/90">
-          <div>
-            <div className="text-xs text-purple-400/70">Wallet</div>
-            <div className="font-mono text-sm break-all">{account || 'Not connected'}</div>
-          </div>
-          <div>
-            <div className="text-xs text-purple-400/70">Chain ID</div>
-            <div className="font-mono text-sm">{chainId ?? '—'}</div>
-          </div>
-          <div>
-            <div className="text-xs text-purple-400/70">Net Worth (USD)</div>
-            <div className="text-2xl font-bold">${valuations.total.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-slate-950/60 border-purple-900/40">
-        <CardHeader>
-          <CardTitle className="text-purple-200">Tracked Tokens</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="text-xs text-purple-400/70">Additional token addresses (comma-separated). Defaults include QTC if configured.</div>
-          {defaultMajors.length > 0 && (
-            <div className="text-xs text-purple-400/70">
-              Majors auto-included ({Number(chainId) === 1 ? 'Ethereum' : 'Chain'}): {Object.keys(majorsMap).join(', ')}
+        <CardContent className="space-y-4">
+          <div className="flex flex-col md:flex-row gap-2 items-stretch md:items-end">
+            <div className="flex-1">
+              <label className="text-xs text-purple-400/70">Add token addresses (comma or space separated)</label>
+              <Input
+                placeholder="0x..., 0x..."
+                value={customAddresses}
+                onChange={(e) => setCustomAddresses(e.target.value)}
+                className="bg-slate-900/50 border-purple-900/40 mt-1"
+              />
+              <div className="text-[11px] text-purple-400/60 mt-1">Defaults: QTC {Number(chainId)===1?'+ WETH, USDC, USDT':''}</div>
             </div>
-          )}
-          <div className="flex gap-2">
-            <Input placeholder="0x..., 0x..., 0x..." value={addrInput} onChange={(e) => setAddrInput(e.target.value)} />
-            <Button variant="outline" onClick={() => setAddrInput(addrInput.trim())}>Apply</Button>
+            <Button onClick={refreshBalances} disabled={loading || !readProvider} className="min-w-[180px]">
+              {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Fetching…</>) : (<><RefreshCw className="w-4 h-4 mr-2" /> Refresh Balances</>)}
+            </Button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-purple-300/80 border-b border-purple-900/40">
+                  <th className="text-left py-2">Asset</th>
+                  <th className="text-right py-2">Balance</th>
+                  <th className="text-right py-2">Price (USD)</th>
+                  <th className="text-right py-2">Value (USD)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="py-6 text-center text-purple-400/70">No balances yet. Connect your wallet and click Refresh.</td>
+                  </tr>
+                ) : items.map((it) => (
+                  <tr key={it.address} className="border-b border-purple-900/20 hover:bg-purple-950/30">
+                    <td className="py-2 pr-3">
+                      <div className="flex items-center gap-2">
+                        <img src={it.iconUrl || 'https://via.placeholder.com/24?text=◈'} alt={it.symbol} className="w-5 h-5 rounded" onError={(e)=>{ e.currentTarget.src='https://via.placeholder.com/24?text=◈'; }} />
+                        <div>
+                          <div className="text-purple-100 font-medium">{it.symbol || 'Token'}</div>
+                          <div className="text-[11px] text-purple-400/70">{it.name || it.address}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-2 text-right text-purple-100">{it.balance.toLocaleString(undefined, { maximumFractionDigits: 6 })}</td>
+                    <td className="py-2 text-right text-purple-100">{it.priceUsd != null ? `$${it.priceUsd.toLocaleString(undefined, { maximumFractionDigits: 4 })}` : '—'}</td>
+                    <td className="py-2 text-right text-purple-100 font-semibold">${(it.valueUsd || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+  return (
+    <div className="p-6 md:p-10 space-y-6">
+      <div className="flex flex-col md:flex-row items-start md:items-end gap-3">
+        <div>
+          <h1 className="text-3xl font-bold text-purple-200">Portfolio</h1>
+          <p className="text-purple-400/70">Import holdings via CSV and view current value.</p>
+        </div>
+        <div className="ml-auto flex gap-2">
+          <Input type="file" accept=".csv" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+          <Button disabled={!file || uploadMutation.isPending} onClick={() => file && uploadMutation.mutate(file)}>
+            {uploadMutation.isPending ? 'Importing…' : 'Import CSV'}
+          </Button>
+          <Button variant="outline" onClick={() => {
+            const csv = 'asset_symbol,quantity,acquisition_cost_usd,wallet_address\nQTC,100,10,\nBTC,0.01,300,bc1...';
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'portfolio_template.csv'; a.click(); URL.revokeObjectURL(url);
+          }}>Download CSV Template</Button>
+        </div>
+      </div>
 
       <div className="grid md:grid-cols-3 gap-4">
         <Card className="bg-slate-950/60 border-purple-900/40 md:col-span-2">
