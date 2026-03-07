@@ -185,7 +185,7 @@ export default function WindsSwap() {
       }
     };
     estimate();
-  }, [fromAmount, fromAddress, toAddress, routerAddress, quoterV3Address, useV3, feeTier, readProvider, tokenInfo.from?.decimals, tokenInfo.to?.decimals, useAggregator, zeroExBase, midTokensInput, chainId, slippage]);
+  }, [fromAmount, fromAddress, toAddress, routerAddress, quoterV3Address, useV3, feeTier, readProvider, tokenInfo.from?.decimals, tokenInfo.to?.decimals]);
 
   const needsRouter = useAggregator ? false : (useV3 ? (!routerV3Address || !quoterV3Address) : !routerAddress);
   const canSwap = !!(fromAddress && toAddress && fromAmount && Number(fromAmount) > 0 && (useAggregator ? zeroExBase : (useV3 ? routerV3Address : routerAddress)));
