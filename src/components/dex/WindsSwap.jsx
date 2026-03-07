@@ -177,7 +177,7 @@ export default function WindsSwap() {
           const path = [fromAddress, ...pathMids, toAddress];
           const amounts = await router.getAmountsOut(amtIn, path);
           const outDec = tokenInfo.to?.decimals ?? 18;
-          const out = formatUnits(amounts[1], outDec);
+          const out = formatUnits(amounts[amounts.length - 1], outDec);
           setEstOut(out);
         }
       } catch (_e) {
@@ -185,7 +185,7 @@ export default function WindsSwap() {
       }
     };
     estimate();
-  }, [fromAmount, fromAddress, toAddress, routerAddress, quoterV3Address, useV3, feeTier, readProvider, tokenInfo.from?.decimals, tokenInfo.to?.decimals]);
+  }, [fromAmount, fromAddress, toAddress, routerAddress, quoterV3Address, useV3, feeTier, readProvider, tokenInfo.from?.decimals, tokenInfo.to?.decimals, useAggregator, zeroExBase, midTokensInput, chainId, slippage]);
 
   const needsRouter = useAggregator ? false : (useV3 ? (!routerV3Address || !quoterV3Address) : !routerAddress);
   const canSwap = !!(fromAddress && toAddress && fromAmount && Number(fromAmount) > 0 && (useAggregator ? zeroExBase : (useV3 ? routerV3Address : routerAddress)));

@@ -26,6 +26,21 @@ export default function Portfolio() {
   const chainId = config?.configured?.chain_id || null;
   const qtcAddress = (config?.configured?.qtc_erc20_address || "").trim();
 
+  // Majors address map (Ethereum mainnet)
+  const majorsMap = useMemo(() => {
+    switch (Number(chainId)) {
+      case 1:
+        return {
+          USDC: "0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+          USDT: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+          WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        };
+      default:
+        return {};
+    }
+  }, [chainId]);
+  const defaultMajors = useMemo(() => Object.values(majorsMap), [majorsMap]);
+
   // Providers
   const [readProvider, setReadProvider] = useState(null);
   useEffect(() => { setReadProvider(rpcUrl ? new JsonRpcProvider(rpcUrl) : null); }, [rpcUrl]);
@@ -48,9 +63,10 @@ export default function Portfolio() {
   const tracked = useMemo(() => {
     const list = [];
     if (qtcAddress) list.push(qtcAddress);
+    list.push(...defaultMajors);
     addrInput.split(',').map(s => s.trim()).filter(Boolean).forEach(a => list.push(a));
     return Array.from(new Set(list));
-  }, [qtcAddress, addrInput]);
+  }, [qtcAddress, addrInput, defaultMajors.join('|')]);
 
   // Currency index for pricing
   const { data: index } = useQuery({
@@ -142,6 +158,11 @@ export default function Portfolio() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="text-xs text-purple-400/70">Additional token addresses (comma-separated). Defaults include QTC if configured.</div>
+          {defaultMajors.length > 0 && (
+            <div className="text-xs text-purple-400/70">
+              Majors auto-included ({Number(chainId) === 1 ? 'Ethereum' : 'Chain'}): {Object.keys(majorsMap).join(', ')}
+            </div>
+          )}
           <div className="flex gap-2">
             <Input placeholder="0x..., 0x..., 0x..." value={addrInput} onChange={(e) => setAddrInput(e.target.value)} />
             <Button variant="outline" onClick={() => setAddrInput(addrInput.trim())}>Apply</Button>
