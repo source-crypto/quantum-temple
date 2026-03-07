@@ -76,9 +76,9 @@ import Settings from './pages/Settings';
 import TempleMode from './pages/TempleMode';
 import TradeOffersAgent from './pages/TradeOffersAgent';
 import Transactions from './pages/Transactions';
+import ValuationPolicy from './pages/ValuationPolicy';
 import WalletIntegration from './pages/WalletIntegration';
 import WhitePaper from './pages/WhitePaper';
-import ValuationPolicy from './pages/ValuationPolicy';
 import __Layout from './Layout.jsx';
 
 
@@ -112,9 +112,9 @@ export const PAGES = {
     "TempleMode": TempleMode,
     "TradeOffersAgent": TradeOffersAgent,
     "Transactions": Transactions,
+    "ValuationPolicy": ValuationPolicy,
     "WalletIntegration": WalletIntegration,
     "WhitePaper": WhitePaper,
-    "ValuationPolicy": ValuationPolicy,
 }
 
 export const pagesConfig = {

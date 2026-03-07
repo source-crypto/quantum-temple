@@ -1,11 +1,28 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import HoldingsTable from "../components/portfolio/HoldingsTable";
-import PortfolioCharts from "../components/portfolio/PortfolioCharts";
+import { Badge } from "@/components/ui/badge";
+import WalletConnectButton from "@/components/wallet/WalletConnectButton";
+import { Loader2, RefreshCw, DollarSign } from "lucide-react";
+import { Contract, BrowserProvider, JsonRpcProvider, formatUnits } from "ethers";
+
+const ERC20_ABI = [
+  "function name() view returns (string)",
+  "function symbol() view returns (string)",
+  "function decimals() view returns (uint8)",
+  "function balanceOf(address) view returns (uint256)"
+];
+
+function guessIconUrl(chainId, address) {
+  if (!address) return null;
+  if (Number(chainId) === 1) {
+    return `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${address}/logo.png`;
+  }
+  return null;
+}
 
 export default function Portfolio() {
   const qc = useQueryClient();
