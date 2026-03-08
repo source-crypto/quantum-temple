@@ -213,6 +213,7 @@ const pageRouteMap = {
   "Interactions": "Interactions",
   "Registry": "Registry",
   "Portfolio": "Portfolio",
+  "Staking": "Staking",
   "Insights": "Insights",
   "Cross-Chain": "CrossChain",
   "Settings": "Settings",
