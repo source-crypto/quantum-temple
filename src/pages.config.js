@@ -79,6 +79,7 @@ import Transactions from './pages/Transactions';
 import ValuationPolicy from './pages/ValuationPolicy';
 import WalletIntegration from './pages/WalletIntegration';
 import WhitePaper from './pages/WhitePaper';
+import Staking from './pages/Staking';
 import __Layout from './Layout.jsx';
 
 
@@ -115,6 +116,7 @@ export const PAGES = {
     "ValuationPolicy": ValuationPolicy,
     "WalletIntegration": WalletIntegration,
     "WhitePaper": WhitePaper,
+    "Staking": Staking,
 }
 
 export const pagesConfig = {
