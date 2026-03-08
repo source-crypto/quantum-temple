@@ -6,47 +6,52 @@ export default function WhitePaper() {
     <div className="p-6 md:p-10 space-y-6">
       <Card className="bg-slate-950/60 border-purple-900/40">
         <CardHeader>
-          <CardTitle className="text-purple-200">Quantum Temple White Paper — Cross‑Chain Interoperability Update</CardTitle>
+          <CardTitle className="text-purple-200">Quantum Temple White Paper — Protocol Overview (2026)</CardTitle>
         </CardHeader>
         <CardContent className="prose prose-invert max-w-none text-purple-300/90">
-          <h3>Overview</h3>
+          <h3>1. Mission</h3>
           <p>
-            Quantum Temple Currency (QTC) is now interoperable across major ecosystems. Users can bridge
-            QTC between Quantum Temple, Ethereum (ERC‑20) and Solana (SPL) and use bridged QTC directly in popular dApps.
-            This release focuses on practical utility: liquidity access, composability, and seamless dApp integrations.
+            Quantum Temple Currency (QTC) aims to provide programmable, censorship‑resistant money with
+            predictable issuance and transparent market operations across EVM chains.
           </p>
 
-          <h3>Bridge Architecture</h3>
+          <h3>2. Monetary Policy</h3>
           <ul>
-            <li>Intent-based bridge with quantum escrow status progression (initiated → escrow_locked → confirming → releasing → completed).</li>
-            <li>1:1 cross‑chain representation of QTC minus a protocol fee, preserving supply integrity across ledgers.</li>
-            <li>Real‑time status surfaced in‑app; confirmations tracked per‑chain requirements.</li>
+            <li>Supply: Transparent total supply with circulating disclosures via on‑chain index.</li>
+            <li>Price Reference: CurrencyIndex defines qtc_unit_price_usd used across app valuation modules.</li>
+            <li>Intervention: Controlled toggles for intervention_active with published rationale.</li>
           </ul>
 
-          <h3>dApp Integrations (Phase 1)</h3>
+          <h3>3. Markets & Liquidity</h3>
           <ul>
-            <li>Ethereum: Uniswap, Aave, OpenSea.</li>
-            <li>Solana: Jupiter, Raydium, Magic Eden.</li>
-            <li>Launcher supports in‑app embed when permitted; otherwise opens secured in a new tab.</li>
+            <li>Pools: Deterministic AMM pools tracked via LiquidityPool entity (reserves, APY, volume, fees).</li>
+            <li>TVL: Aggregated as Σ(QTC_reserve·Pqtc + Pair_reserve·Ppair) using index pricing.</li>
+            <li>Routing: External DEX integrations (Uni V2/V3, 0x) for execution with local signing.</li>
           </ul>
 
-          <h3>Token Standards</h3>
+          <h3>4. Staking & Rewards</h3>
           <ul>
-            <li>ERC‑20 contract (Ethereum) and SPL mint (Solana) addresses published in‑app.</li>
-            <li>Bridged QTC maintains a 1:1 peg to canonical QTC with transparent accounting.</li>
+            <li>DivineFavor entity tracks stake, favor_level, and unclaimed_rewards per account.</li>
+            <li>Rewards: Emissions proportional to stake and pool performance; claims settle in QTC.</li>
+            <li>Security: Non‑custodial; approvals and redemptions signed in user wallet.</li>
           </ul>
 
-          <h3>Security & Risk</h3>
+          <h3>5. Governance</h3>
           <ul>
-            <li>Quantum escrow with verifiable signatures and per‑chain confirmation thresholds.</li>
-            <li>Progressive rollout and monitoring, with automated reconciliation and event logs.</li>
-            <li>dApp iframe embedding is optional and blocked where CSP forbids; fallback is deep‑link.</li>
+            <li>Proposal lifecycle with quorum and thresholds; on‑chain execution metadata recorded.</li>
+            <li>Voting power derived from staked QTC and delegated balances.</li>
           </ul>
 
-          <h3>Roadmap</h3>
+          <h3>6. Risk & Compliance</h3>
           <ul>
-            <li>Phase 2: On‑chain bridge contracts and oracles; more EVM L2s and Solana programs.</li>
-            <li>Phase 3: Native integrations with lending/LP positions and portfolio analytics.</li>
+            <li>Operational transparency via AppLog; continuous monitoring of RPC health and oracles.</li>
+            <li>Bridge risks mitigated with confirmations and event reconciliation.</li>
+          </ul>
+
+          <h3>Appendix</h3>
+          <ul>
+            <li>Data model references: CurrencyIndex, LiquidityPool, DivineFavor, ExchangeRate.</li>
+            <li>Changelog: 2026‑03 — Added staking dashboard, clarified reward accounting.</li>
           </ul>
         </CardContent>
       </Card>
