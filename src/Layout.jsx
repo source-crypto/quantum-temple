@@ -104,6 +104,11 @@ const navigationItems = [
     icon: TrendingUp,
   },
   {
+    title: "Staking",
+    url: createPageUrl("Staking"),
+    icon: PieChart,
+  },
+  {
     title: "Cross-CB System",
     url: createPageUrl("CrossCBSystem"),
     icon: Network,
