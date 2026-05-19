@@ -582,6 +582,57 @@ import CryptoWalletPanel from "../components/widgets/CryptoWalletPanel";
           ))}
         </div>
 
+        {/* Global Trading Readiness */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.85 }}
+        >
+          <Card className="bg-gradient-to-r from-emerald-950/40 to-cyan-950/40 border-emerald-500/30 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-emerald-200 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                Global Trading Launch Requirements
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[
+                  {
+                    title: "Live audited token contracts",
+                    text: "Deploy production-ready contracts and complete independent security audits before public trading."
+                  },
+                  {
+                    title: "Real DEX/CEX liquidity",
+                    text: "Fund actual liquidity pools and secure exchange venue support so markets can trade reliably."
+                  },
+                  {
+                    title: "Working price oracles",
+                    text: "Run dependable market data and pricing feeds so swaps, charts, and valuations stay accurate."
+                  },
+                  {
+                    title: "Legal and compliance review",
+                    text: "Review launch requirements by country and exchange jurisdiction before opening global access."
+                  },
+                  {
+                    title: "Production backend access",
+                    text: "Enable live integrations and backend infrastructure for execution, monitoring, and automation."
+                  },
+                  {
+                    title: "Plan upgrade required",
+                    text: "This app needs a subscription upgrade to regain backend function access for live trading operations."
+                  }
+                ].map((item) => (
+                  <div key={item.title} className="rounded-xl border border-emerald-500/20 bg-slate-950/40 p-4">
+                    <h4 className="mb-2 text-sm font-semibold text-emerald-200">{item.title}</h4>
+                    <p className="text-xs leading-relaxed text-emerald-100/70">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
         {/* Principles Section */}
         <motion.div
           initial={{ opacity: 0 }}
