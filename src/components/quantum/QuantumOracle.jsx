@@ -36,6 +36,12 @@ export default function QuantumOracle() {
   
   const queryClient = useQueryClient();
 
+  const { data: user } = useQuery({
+    queryKey: ['quantumOracleUser'],
+    queryFn: () => base44.auth.me(),
+    initialData: null,
+  });
+
   // Auto-sync every 5 minutes if enabled
   useEffect(() => {
     if (!autoSync) return;
