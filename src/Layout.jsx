@@ -187,6 +187,11 @@ const navigationItems = [
     title: "Admin Dashboard",
     url: createPageUrl("AdminDashboard"),
     icon: Activity,
+  },
+  {
+    title: "Gov Dashboard",
+    url: createPageUrl("GovernanceDashboard"),
+    icon: Database,
   }
   ];
 
@@ -219,7 +224,8 @@ const pageRouteMap = {
   "Settings": "Settings",
   "Integrations": "Integrations",
   "Intent Manifest": "IntentManifest",
-  "Admin Dashboard": "AdminDashboard"
+  "Admin Dashboard": "AdminDashboard",
+  "Gov Dashboard": "GovernanceDashboard"
 };
 
 export default function Layout({ children }) {
