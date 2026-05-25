@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Zap, RefreshCw, TrendingUp, ShieldCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { RefreshCw, TrendingUp, Users, Plus } from "lucide-react";
 import VaultCard from "../components/vaults/VaultCard";
 import VaultPerformanceChart from "../components/vaults/VaultPerformanceChart";
+import StrategyVaultCard from "../components/vaults/StrategyVaultCard";
+import CreateStrategyVaultModal from "../components/vaults/CreateStrategyVaultModal";
 
 // Oracle-signal-driven vault definitions
 const VAULTS = [
@@ -98,6 +101,9 @@ const VAULTS = [
 ];
 
 export default function YieldVaults() {
+  const [activeTab, setActiveTab] = useState("protocol");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
   const { data: user } = useQuery({ queryKey: ["currentUser"], queryFn: () => base44.auth.me() });
 
   const { data: userBalance } = useQuery({
@@ -114,10 +120,26 @@ export default function YieldVaults() {
     queryKey: ["yieldStakes"],
     queryFn: async () => {
       if (!user) return [];
-      return base44.entities.YieldStake.filter({ user_email: user.email });
+      return base44.entities.YieldStake.filter({ staker_email: user.email });
     },
     enabled: !!user,
   });
+
+  const { data: strategyVaults = [] } = useQuery({
+    queryKey: ["strategyVaults"],
+    queryFn: () => base44.entities.StrategyVault.filter({ is_public: true, status: "active" }, "-current_apy", 50),
+  });
+
+  const { data: myFollows = [] } = useQuery({
+    queryKey: ["strategyFollows"],
+    queryFn: async () => {
+      if (!user) return [];
+      return base44.entities.StrategyFollow.filter({ follower_email: user.email, status: "active" });
+    },
+    enabled: !!user,
+  });
+
+  const followedIds = new Set(myFollows.map((f) => f.strategy_vault_id));
 
   const totalDeposited = myStakes.reduce((s, st) => s + (st.staked_amount || 0), 0);
   const estimatedAnnual = myStakes.reduce((s, st) => s + ((st.staked_amount || 0) * (st.entry_apy || 0) / 100), 0);
@@ -175,28 +197,88 @@ export default function YieldVaults() {
           <VaultPerformanceChart />
         </motion.div>
 
-        {/* Legend */}
-        <div className="flex flex-wrap gap-2 items-center">
-          <span className="text-xs text-purple-400/60">Oracle signal refresh:</span>
-          <Badge className="text-xs bg-emerald-900/40 text-emerald-300 border border-emerald-600/40 flex items-center gap-1">
-            <RefreshCw className="w-3 h-3 animate-spin" /> Live
-          </Badge>
-          <span className="text-xs text-purple-400/60 ml-2">Auto-compound:</span>
-          <Badge className="text-xs bg-purple-900/40 text-purple-300 border border-purple-600/40">Every 6–24h per vault</Badge>
+        {/* Tab switcher */}
+        <div className="flex gap-2 bg-slate-900/60 p-1.5 rounded-xl border border-purple-900/30">
+          <Button
+            variant={activeTab === "protocol" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setActiveTab("protocol")}
+            className={activeTab === "protocol" ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white" : "text-purple-300 hover:text-purple-200"}
+          >
+            <TrendingUp className="w-4 h-4 mr-2" /> Protocol Vaults
+          </Button>
+          <Button
+            variant={activeTab === "social" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setActiveTab("social")}
+            className={activeTab === "social" ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white" : "text-purple-300 hover:text-purple-200"}
+          >
+            <Users className="w-4 h-4 mr-2" /> Strategy Vaults
+            {strategyVaults.length > 0 && (
+              <Badge className="ml-2 text-xs bg-cyan-900/50 text-cyan-300 border-cyan-600/40">{strategyVaults.length}</Badge>
+            )}
+          </Button>
         </div>
 
-        {/* Vault cards */}
-        <div className="space-y-3">
-          {VAULTS.map((vault, i) => (
-            <motion.div key={vault.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.05 }}>
-              <VaultCard vault={vault} user={user} userBalance={userBalance} />
+        <AnimatePresence mode="wait">
+          {activeTab === "protocol" && (
+            <motion.div key="protocol" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }} className="space-y-3">
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-xs text-purple-400/60">Oracle signal refresh:</span>
+                <Badge className="text-xs bg-emerald-900/40 text-emerald-300 border border-emerald-600/40 flex items-center gap-1">
+                  <RefreshCw className="w-3 h-3 animate-spin" /> Live
+                </Badge>
+                <span className="text-xs text-purple-400/60 ml-2">Auto-compound:</span>
+                <Badge className="text-xs bg-purple-900/40 text-purple-300 border border-purple-600/40">Every 6–24h per vault</Badge>
+              </div>
+              {VAULTS.map((vault, i) => (
+                <motion.div key={vault.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                  <VaultCard vault={vault} user={user} userBalance={userBalance} />
+                </motion.div>
+              ))}
             </motion.div>
-          ))}
-        </div>
+          )}
+
+          {activeTab === "social" && (
+            <motion.div key="social" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} className="space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div>
+                  <h2 className="text-purple-200 font-semibold">Community Strategy Vaults</h2>
+                  <p className="text-xs text-purple-400/60">Follow top performers and share in their oracle strategies. Performance fees are protocol-enforced.</p>
+                </div>
+                <Button
+                  size="sm"
+                  className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white"
+                  onClick={() => setShowCreateModal(true)}
+                >
+                  <Plus className="w-4 h-4 mr-1" /> Create Strategy Vault
+                </Button>
+              </div>
+
+              {strategyVaults.length === 0 ? (
+                <div className="text-center py-12 text-purple-400/50">
+                  <Users className="w-10 h-10 mx-auto mb-3 opacity-40" />
+                  <div className="text-sm">No public strategy vaults yet.</div>
+                  <div className="text-xs mt-1">Be the first to create one!</div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {strategyVaults.map((sv, i) => (
+                    <motion.div key={sv.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                      <StrategyVaultCard vault={sv} user={user} userBalance={userBalance} isFollowing={followedIds.has(sv.id)} />
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="text-xs text-purple-500/40 italic text-center pb-4">
           APYs are live estimates driven by oracle node signals and update in real time. Past performance is not a guarantee of future returns.
         </div>
+
+        <CreateStrategyVaultModal open={showCreateModal} onClose={() => setShowCreateModal(false)} user={user} />
       </div>
     </div>
   );

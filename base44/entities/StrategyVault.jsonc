@@ -1,0 +1,80 @@
+{
+  "name": "StrategyVault",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Vault name"
+    },
+    "creator_email": {
+      "type": "string",
+      "description": "Email of the vault creator"
+    },
+    "creator_display": {
+      "type": "string",
+      "description": "Public display name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Strategy description"
+    },
+    "oracle_allocations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Array of {oracle_node, weight_pct} allocations"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium"
+    },
+    "performance_fee_pct": {
+      "type": "number",
+      "default": 10,
+      "description": "Protocol-enforced performance fee percentage (e.g. 10 = 10%)"
+    },
+    "auto_compound": {
+      "type": "boolean",
+      "default": true
+    },
+    "followers_count": {
+      "type": "number",
+      "default": 0
+    },
+    "total_tvl": {
+      "type": "number",
+      "default": 0
+    },
+    "current_apy": {
+      "type": "number",
+      "default": 0
+    },
+    "all_time_return_pct": {
+      "type": "number",
+      "default": 0
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": true
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "paused",
+        "deprecated"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "name",
+    "creator_email"
+  ]
+}

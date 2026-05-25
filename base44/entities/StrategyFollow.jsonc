@@ -1,0 +1,43 @@
+{
+  "name": "StrategyFollow",
+  "type": "object",
+  "properties": {
+    "strategy_vault_id": {
+      "type": "string",
+      "description": "ID of the StrategyVault being followed"
+    },
+    "follower_email": {
+      "type": "string",
+      "description": "Email of the follower"
+    },
+    "deposited_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "QTC deposited into this strategy"
+    },
+    "fee_paid_total": {
+      "type": "number",
+      "default": 0,
+      "description": "Total performance fees paid"
+    },
+    "entry_apy": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "withdrawn"
+      ],
+      "default": "active"
+    },
+    "followed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "strategy_vault_id",
+    "follower_email"
+  ]
+}

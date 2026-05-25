@@ -26,15 +26,15 @@ export default function VaultCard({ vault, user, userBalance }) {
       const amt = parseFloat(depositAmt);
       if (!amt || amt <= 0) throw new Error("Enter a valid amount");
       if (amt > (userBalance?.available_balance || 0)) throw new Error("Insufficient balance");
+      // YieldStake entity requires: farm_name, staker_email, lp_tokens_staked
       await base44.entities.YieldStake.create({
-        vault_id: vault.id,
-        user_email: user.email,
-        staked_amount: amt,
-        vault_name: vault.name,
-        entry_apy: vault.current_apy,
-        entry_date: new Date().toISOString(),
-        status: "active",
-        compounding: vault.auto_compound,
+        farm_name: vault.name,
+        staker_email: user.email,
+        lp_tokens_staked: amt,
+        stake_date: new Date().toISOString(),
+        is_active: true,
+        rewards_earned: 0,
+        unclaimed_rewards: 0,
       });
       await base44.entities.UserBalance.filter({ user_email: user.email }).then(async (bs) => {
         if (bs[0]) await base44.entities.UserBalance.update(bs[0].id, {
