@@ -192,6 +192,16 @@ const navigationItems = [
     title: "Gov Dashboard",
     url: createPageUrl("GovernanceDashboard"),
     icon: Database,
+  },
+  {
+    title: "Yield Vaults",
+    url: createPageUrl("YieldVaults"),
+    icon: TrendingUp,
+  },
+  {
+    title: "Cross-Chain Hub",
+    url: createPageUrl("CrossChainHub"),
+    icon: Link2,
   }
   ];
 
@@ -225,7 +235,9 @@ const pageRouteMap = {
   "Integrations": "Integrations",
   "Intent Manifest": "IntentManifest",
   "Admin Dashboard": "AdminDashboard",
-  "Gov Dashboard": "GovernanceDashboard"
+  "Gov Dashboard": "GovernanceDashboard",
+  "Yield Vaults": "YieldVaults",
+  "Cross-Chain Hub": "CrossChainHub"
 };
 
 export default function Layout({ children }) {

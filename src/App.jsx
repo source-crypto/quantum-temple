@@ -1,6 +1,8 @@
 import './App.css'
 import { Toaster } from "@/components/ui/toaster"
 import GovernanceDashboard from './pages/GovernanceDashboard'
+import YieldVaults from './pages/YieldVaults'
+import CrossChainHub from './pages/CrossChainHub'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import VisualEditAgent from '@/lib/VisualEditAgent'
@@ -51,6 +53,8 @@ const AuthenticatedApp = () => {
           <Route key={path} path={`/${path}`} element={<Page />} />
         ))}
         <Route path="/GovernanceDashboard" element={<LayoutWrapper currentPageName="GovernanceDashboard"><GovernanceDashboard /></LayoutWrapper>} />
+        <Route path="/YieldVaults" element={<LayoutWrapper currentPageName="YieldVaults"><YieldVaults /></LayoutWrapper>} />
+        <Route path="/CrossChainHub" element={<LayoutWrapper currentPageName="CrossChainHub"><CrossChainHub /></LayoutWrapper>} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </LayoutWrapper>
