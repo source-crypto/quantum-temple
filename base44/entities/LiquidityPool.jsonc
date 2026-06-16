@@ -1,0 +1,101 @@
+{
+  "name": "LiquidityPool",
+  "type": "object",
+  "properties": {
+    "pool_name": {
+      "type": "string",
+      "description": "Name of the liquidity pool"
+    },
+    "token_a": {
+      "type": "string",
+      "description": "First token in the pair"
+    },
+    "token_b": {
+      "type": "string",
+      "description": "Second token in the pair"
+    },
+    "reserve_a": {
+      "type": "number",
+      "description": "Reserve amount of token A"
+    },
+    "reserve_b": {
+      "type": "number",
+      "description": "Reserve amount of token B"
+    },
+    "total_liquidity": {
+      "type": "number",
+      "default": 0,
+      "description": "Total liquidity tokens minted"
+    },
+    "fee_rate": {
+      "type": "number",
+      "default": 0.003,
+      "description": "Fee rate for swaps (0.3% default)"
+    },
+    "total_volume_24h": {
+      "type": "number",
+      "default": 0,
+      "description": "24-hour trading volume"
+    },
+    "total_volume_all_time": {
+      "type": "number",
+      "default": 0,
+      "description": "All-time trading volume"
+    },
+    "total_fees_collected": {
+      "type": "number",
+      "default": 0,
+      "description": "Total fees collected by pool"
+    },
+    "apy": {
+      "type": "number",
+      "default": 0,
+      "description": "Annual percentage yield"
+    },
+    "price_a_to_b": {
+      "type": "number",
+      "description": "Current price of token A in terms of token B"
+    },
+    "price_b_to_a": {
+      "type": "number",
+      "description": "Current price of token B in terms of token A"
+    },
+    "total_swaps": {
+      "type": "number",
+      "default": 0,
+      "description": "Total number of swaps executed"
+    },
+    "liquidity_providers_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of active liquidity providers"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether pool is active"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Pool creation date"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    },
+    "min_liquidity": {
+      "type": "number",
+      "default": 1000,
+      "description": "Minimum liquidity locked permanently"
+    }
+  },
+  "required": [
+    "pool_name",
+    "token_a",
+    "token_b",
+    "reserve_a",
+    "reserve_b"
+  ]
+}

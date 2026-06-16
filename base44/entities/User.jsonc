@@ -1,0 +1,32 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "auto_yield_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable automated yield deposits"
+    },
+    "auto_yield_risk": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium",
+      "description": "Risk tolerance"
+    },
+    "auto_yield_strategy": {
+      "type": "string",
+      "enum": [
+        "stable_only",
+        "balanced",
+        "aggressive"
+      ],
+      "default": "balanced",
+      "description": "Preferred strategy"
+    }
+  },
+  "required": []
+}

@@ -1,0 +1,79 @@
+{
+  "name": "CurrencyIndex",
+  "type": "object",
+  "properties": {
+    "index_name": {
+      "type": "string",
+      "description": "Name of the currency index"
+    },
+    "vqc_total_valuation_usd": {
+      "type": "number",
+      "default": 560000000000,
+      "description": "Total VQC world valuation in USD ($560 billion)"
+    },
+    "total_qtc_supply": {
+      "type": "number",
+      "description": "Total QTC minted across all ledgers"
+    },
+    "qtc_unit_price_usd": {
+      "type": "number",
+      "description": "Current price per QTC unit in USD",
+      "default": 0.1
+    },
+    "btc_price_usd": {
+      "type": "number",
+      "description": "Current Bitcoin price in USD"
+    },
+    "eth_price_usd": {
+      "type": "number",
+      "description": "Current Ethereum price in USD"
+    },
+    "qtc_to_btc_rate": {
+      "type": "number",
+      "description": "Exchange rate: QTC per 1 BTC"
+    },
+    "qtc_to_eth_rate": {
+      "type": "number",
+      "description": "Exchange rate: QTC per 1 ETH"
+    },
+    "market_cap_rank": {
+      "type": "number",
+      "description": "Global cryptocurrency market cap ranking"
+    },
+    "total_transactions_24h": {
+      "type": "number",
+      "default": 0,
+      "description": "Total transactions in last 24 hours"
+    },
+    "volume_24h_usd": {
+      "type": "number",
+      "default": 0,
+      "description": "24-hour trading volume in USD"
+    },
+    "price_change_24h": {
+      "type": "number",
+      "default": 0,
+      "description": "Price change percentage in 24 hours"
+    },
+    "circulating_supply": {
+      "type": "number",
+      "description": "Currently circulating QTC supply"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last index update timestamp"
+    },
+    "intervention_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether currency intervention is active"
+    }
+  },
+  "required": [
+    "index_name",
+    "vqc_total_valuation_usd",
+    "total_qtc_supply",
+    "qtc_unit_price_usd"
+  ]
+}

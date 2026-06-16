@@ -1,0 +1,101 @@
+{
+  "name": "Market",
+  "type": "object",
+  "properties": {
+    "market_id": {
+      "type": "string",
+      "description": "Unique market identifier"
+    },
+    "question": {
+      "type": "string",
+      "description": "Market question or description"
+    },
+    "slug": {
+      "type": "string",
+      "description": "URL-friendly market slug"
+    },
+    "market_type": {
+      "type": "string",
+      "enum": [
+        "prediction",
+        "trading",
+        "orderbook",
+        "liquidity"
+      ],
+      "default": "prediction",
+      "description": "Type of market"
+    },
+    "outcomes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Possible outcomes (e.g., ['Yes', 'No'])"
+    },
+    "current_price": {
+      "type": "number",
+      "description": "Current market price"
+    },
+    "volume_24h": {
+      "type": "number",
+      "default": 0,
+      "description": "24-hour trading volume"
+    },
+    "liquidity": {
+      "type": "number",
+      "default": 0,
+      "description": "Current market liquidity"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether market is active"
+    },
+    "closed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether market is closed"
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false,
+      "description": "Featured market status"
+    },
+    "category": {
+      "type": "string",
+      "description": "Market category"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Market start date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Market end/resolution date"
+    },
+    "resolution_source": {
+      "type": "string",
+      "description": "Source for market resolution"
+    },
+    "creator_email": {
+      "type": "string",
+      "description": "Market creator"
+    },
+    "total_bets": {
+      "type": "number",
+      "default": 0,
+      "description": "Total number of bets placed"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional market metadata"
+    }
+  },
+  "required": [
+    "market_id",
+    "question",
+    "market_type"
+  ]
+}

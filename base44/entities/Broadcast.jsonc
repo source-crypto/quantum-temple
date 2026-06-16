@@ -1,0 +1,81 @@
+{
+  "name": "Broadcast",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Announcement title"
+    },
+    "message": {
+      "type": "string",
+      "description": "Announcement body/message"
+    },
+    "channels": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "linkedin",
+          "slack",
+          "email",
+          "in_app"
+        ]
+      },
+      "description": "Channels to broadcast to"
+    },
+    "schedule_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When to send (ISO)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "scheduled",
+        "sent",
+        "failed",
+        "cancelled"
+      ],
+      "default": "scheduled",
+      "description": "Broadcast status"
+    },
+    "target_regions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Regions to target (e.g., US, EU)"
+    },
+    "target_groups": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "User groups (e.g., admins, beta)"
+    },
+    "slack_channel": {
+      "type": "string",
+      "description": "Slack channel ID (e.g., C123...)"
+    },
+    "linkedin_urn": {
+      "type": "string",
+      "description": "Target URN (urn:li:person:... or urn:li:organization:...)"
+    },
+    "email_recipients": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Emails to notify"
+    },
+    "stats": {
+      "type": "object",
+      "description": "Per-channel delivery stats"
+    }
+  },
+  "required": [
+    "title",
+    "message"
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "name": "MarketWatchlist",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User's email"
+    },
+    "market_id": {
+      "type": "string",
+      "description": "Market being watched"
+    },
+    "watchlist_name": {
+      "type": "string",
+      "default": "Default",
+      "description": "Name of watchlist"
+    },
+    "alerts_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable price alerts"
+    },
+    "alert_price_above": {
+      "type": "number",
+      "description": "Alert when price goes above this"
+    },
+    "alert_price_below": {
+      "type": "number",
+      "description": "Alert when price goes below this"
+    },
+    "notes": {
+      "type": "string",
+      "description": "User notes on this market"
+    }
+  },
+  "required": [
+    "user_email",
+    "market_id"
+  ],
+  "rls": {
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

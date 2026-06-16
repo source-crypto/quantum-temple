@@ -1,0 +1,97 @@
+{
+  "name": "MarketBet",
+  "type": "object",
+  "properties": {
+    "market_id": {
+      "type": "string",
+      "description": "Reference to market"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "User who placed bet"
+    },
+    "outcome": {
+      "type": "string",
+      "description": "Predicted outcome"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Amount wagered"
+    },
+    "odds": {
+      "type": "number",
+      "description": "Odds at time of bet"
+    },
+    "potential_payout": {
+      "type": "number",
+      "description": "Potential winnings"
+    },
+    "bet_type": {
+      "type": "string",
+      "enum": [
+        "buy",
+        "sell"
+      ],
+      "default": "buy",
+      "description": "Buy or sell position"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "active",
+        "won",
+        "lost",
+        "cancelled"
+      ],
+      "default": "active",
+      "description": "Bet status"
+    },
+    "entry_price": {
+      "type": "number",
+      "description": "Price when bet was placed"
+    },
+    "current_value": {
+      "type": "number",
+      "description": "Current position value"
+    },
+    "pnl": {
+      "type": "number",
+      "default": 0,
+      "description": "Profit/loss on position"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When bet was placed"
+    },
+    "settlement_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When bet settled"
+    }
+  },
+  "required": [
+    "market_id",
+    "user_email",
+    "outcome",
+    "amount"
+  ],
+  "rls": {
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

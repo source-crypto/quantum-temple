@@ -1,0 +1,60 @@
+{
+  "name": "SecurityEvent",
+  "type": "object",
+  "properties": {
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "unauthorized_access_attempt",
+        "invalid_signature",
+        "suspicious_transaction",
+        "ledger_integrity_check",
+        "quantum_verification_failed",
+        "divine_protection_activated"
+      ],
+      "description": "Type of security event"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium",
+      "description": "Severity level of the event"
+    },
+    "entity_affected": {
+      "type": "string",
+      "description": "Which entity was affected"
+    },
+    "threat_blocked": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the threat was successfully blocked"
+    },
+    "action_taken": {
+      "type": "string",
+      "description": "Action taken by security system"
+    },
+    "details": {
+      "type": "object",
+      "description": "Additional event details"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the event occurred"
+    },
+    "divine_intervention": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether divine protection was invoked"
+    }
+  },
+  "required": [
+    "event_type",
+    "severity"
+  ]
+}

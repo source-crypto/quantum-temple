@@ -1,0 +1,64 @@
+{
+  "name": "AlertPreference",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User to notify"
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "QTC"
+      ],
+      "description": "Assets to watch"
+    },
+    "price_change_threshold_percent": {
+      "type": "number",
+      "default": 5,
+      "description": "Trigger when 24h change exceeds this % (absolute)"
+    },
+    "alert_channels": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "in_app",
+          "email"
+        ]
+      },
+      "default": [
+        "in_app"
+      ],
+      "description": "Delivery channels"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable alerts"
+    }
+  },
+  "required": [
+    "price_change_threshold_percent"
+  ],
+  "rls": {
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

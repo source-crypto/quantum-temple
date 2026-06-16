@@ -1,0 +1,50 @@
+{
+  "name": "Vote",
+  "type": "object",
+  "properties": {
+    "proposal_id": {
+      "type": "string",
+      "description": "Reference to proposal"
+    },
+    "voter_email": {
+      "type": "string",
+      "description": "Email of voter"
+    },
+    "vote_choice": {
+      "type": "string",
+      "enum": [
+        "for",
+        "against",
+        "abstain"
+      ],
+      "description": "Voter's choice"
+    },
+    "voting_power": {
+      "type": "number",
+      "description": "Amount of QTC used to vote"
+    },
+    "vote_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When vote was cast"
+    },
+    "vote_signature": {
+      "type": "string",
+      "description": "Cryptographic signature of vote"
+    },
+    "delegated_from": {
+      "type": "string",
+      "description": "If vote was delegated, original holder's email"
+    },
+    "comment": {
+      "type": "string",
+      "description": "Optional voter comment"
+    }
+  },
+  "required": [
+    "proposal_id",
+    "voter_email",
+    "vote_choice",
+    "voting_power"
+  ]
+}

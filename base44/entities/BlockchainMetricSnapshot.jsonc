@@ -1,0 +1,32 @@
+{
+  "name": "BlockchainMetricSnapshot",
+  "type": "object",
+  "properties": {
+    "chain": {
+      "type": "string",
+      "enum": [
+        "bitcoin",
+        "ethereum",
+        "qtc"
+      ],
+      "description": "Blockchain network for this snapshot"
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Key-value metrics captured at snapshot time"
+    },
+    "source": {
+      "type": "string",
+      "description": "Data source(s) used for this snapshot"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When metrics were fetched (ISO)"
+    }
+  },
+  "required": [
+    "chain",
+    "timestamp"
+  ]
+}

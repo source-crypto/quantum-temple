@@ -1,0 +1,97 @@
+{
+  "name": "ExchangeRate",
+  "type": "object",
+  "properties": {
+    "from_currency": {
+      "type": "string",
+      "enum": [
+        "QTC",
+        "BTC",
+        "ETH",
+        "USD",
+        "USDT",
+        "USDC"
+      ],
+      "description": "Source currency"
+    },
+    "to_currency": {
+      "type": "string",
+      "enum": [
+        "QTC",
+        "BTC",
+        "ETH",
+        "USD",
+        "USDT",
+        "USDC"
+      ],
+      "description": "Destination currency"
+    },
+    "exchange_rate": {
+      "type": "number",
+      "description": "Current exchange rate"
+    },
+    "inverse_rate": {
+      "type": "number",
+      "description": "Inverse exchange rate"
+    },
+    "based_on_index": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether rate is derived from VQC index"
+    },
+    "user_transactions_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of user-to-user transactions at this rate"
+    },
+    "average_transaction_size": {
+      "type": "number",
+      "default": 0,
+      "description": "Average size of transactions"
+    },
+    "liquidity_depth_usd": {
+      "type": "number",
+      "description": "Available liquidity in USD"
+    },
+    "spread_percentage": {
+      "type": "number",
+      "default": 0.1,
+      "description": "Bid-ask spread percentage"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last rate update"
+    },
+    "rate_source": {
+      "type": "string",
+      "enum": [
+        "vqc_index",
+        "user_market",
+        "oracle",
+        "hybrid"
+      ],
+      "default": "vqc_index",
+      "description": "Source of exchange rate calculation"
+    }
+  },
+  "required": [
+    "from_currency",
+    "to_currency",
+    "exchange_rate"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "SchemaBaseline",
+  "type": "object",
+  "properties": {
+    "entity_name": {
+      "type": "string",
+      "description": "Entity name this baseline applies to"
+    },
+    "schema_hash": {
+      "type": "string",
+      "description": "Current approved schema hash"
+    },
+    "version": {
+      "type": "string",
+      "description": "Optional semantic or human version"
+    },
+    "authorized_by": {
+      "type": "string",
+      "description": "Email of user who acknowledged the baseline"
+    },
+    "authorized_note": {
+      "type": "string",
+      "description": "Reason/notes for baseline update"
+    },
+    "last_seen": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time this baseline was confirmed"
+    }
+  },
+  "required": [
+    "entity_name",
+    "schema_hash"
+  ]
+}

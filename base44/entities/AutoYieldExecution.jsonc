@@ -1,0 +1,65 @@
+{
+  "name": "AutoYieldExecution",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User's email"
+    },
+    "strategy": {
+      "type": "string",
+      "enum": [
+        "stable_only",
+        "balanced",
+        "aggressive"
+      ],
+      "description": "Chosen strategy"
+    },
+    "risk_tolerance": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "description": "Risk tolerance"
+    },
+    "selected_pool": {
+      "type": "string",
+      "description": "Currency pair of selected pool"
+    },
+    "estimated_apy": {
+      "type": "number",
+      "default": 0,
+      "description": "Estimated APY after adjustments"
+    },
+    "amount_deposited": {
+      "type": "number",
+      "default": 0,
+      "description": "Amount deposited"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "executed",
+        "skipped",
+        "error"
+      ],
+      "description": "Execution status"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for skip or error"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Execution time"
+    }
+  },
+  "required": [
+    "user_email",
+    "status",
+    "timestamp"
+  ]
+}

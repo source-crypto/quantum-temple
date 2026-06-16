@@ -1,0 +1,52 @@
+{
+  "name": "UserBalance",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User's email address"
+    },
+    "available_balance": {
+      "type": "number",
+      "default": 0,
+      "description": "Available currency balance"
+    },
+    "staked_balance": {
+      "type": "number",
+      "default": 0,
+      "description": "Amount currently staked"
+    },
+    "in_escrow": {
+      "type": "number",
+      "default": 0,
+      "description": "Amount held in trade escrow"
+    },
+    "total_received": {
+      "type": "number",
+      "default": 0,
+      "description": "Total currency received all-time"
+    },
+    "total_sent": {
+      "type": "number",
+      "default": 0,
+      "description": "Total currency sent all-time"
+    },
+    "total_minted": {
+      "type": "number",
+      "default": 0,
+      "description": "Total currency minted by this user"
+    },
+    "wallet_address": {
+      "type": "string",
+      "description": "Unique wallet identifier"
+    },
+    "last_transaction_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last transaction timestamp"
+    }
+  },
+  "required": [
+    "user_email"
+  ]
+}

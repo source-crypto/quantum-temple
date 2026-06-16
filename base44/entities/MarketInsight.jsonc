@@ -1,0 +1,97 @@
+{
+  "name": "MarketInsight",
+  "type": "object",
+  "properties": {
+    "insight_type": {
+      "type": "string",
+      "enum": [
+        "trend_analysis",
+        "price_prediction",
+        "volume_forecast",
+        "sentiment_analysis",
+        "risk_assessment"
+      ],
+      "description": "Type of market insight"
+    },
+    "currency_pair": {
+      "type": "string",
+      "enum": [
+        "QTC/USD",
+        "QTC/BTC",
+        "QTC/ETH"
+      ],
+      "description": "Currency pair being analyzed"
+    },
+    "current_price": {
+      "type": "number",
+      "description": "Current price at time of analysis"
+    },
+    "predicted_price_24h": {
+      "type": "number",
+      "description": "Predicted price in 24 hours"
+    },
+    "predicted_price_7d": {
+      "type": "number",
+      "description": "Predicted price in 7 days"
+    },
+    "confidence_level": {
+      "type": "number",
+      "description": "AI confidence in prediction (0-1)"
+    },
+    "trend_direction": {
+      "type": "string",
+      "enum": [
+        "bullish",
+        "bearish",
+        "neutral",
+        "volatile"
+      ],
+      "description": "Overall market trend direction"
+    },
+    "volume_trend": {
+      "type": "string",
+      "enum": [
+        "increasing",
+        "decreasing",
+        "stable"
+      ],
+      "description": "Trading volume trend"
+    },
+    "key_indicators": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Important market indicators identified"
+    },
+    "recommendation": {
+      "type": "string",
+      "description": "AI-generated trading recommendation"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "extreme"
+      ],
+      "description": "Market risk assessment"
+    },
+    "analysis_summary": {
+      "type": "string",
+      "description": "Detailed analysis summary"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When analysis was performed"
+    }
+  },
+  "required": [
+    "insight_type",
+    "currency_pair",
+    "current_price",
+    "trend_direction"
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "name": "AIMarketInsight",
+  "type": "object",
+  "properties": {
+    "insight_id": {
+      "type": "string",
+      "description": "Unique insight identifier"
+    },
+    "market_id": {
+      "type": "string",
+      "description": "Market being analyzed"
+    },
+    "insight_type": {
+      "type": "string",
+      "enum": [
+        "trend_prediction",
+        "volatility_analysis",
+        "sentiment_score",
+        "opportunity_alert",
+        "risk_warning"
+      ],
+      "description": "Type of AI insight"
+    },
+    "prediction": {
+      "type": "string",
+      "description": "AI's market prediction"
+    },
+    "confidence_score": {
+      "type": "number",
+      "description": "Confidence level (0-100)"
+    },
+    "trend_direction": {
+      "type": "string",
+      "enum": [
+        "bullish",
+        "bearish",
+        "neutral",
+        "highly_volatile"
+      ],
+      "description": "Predicted market direction"
+    },
+    "volatility_score": {
+      "type": "number",
+      "description": "Market volatility score (0-100)"
+    },
+    "sentiment_score": {
+      "type": "number",
+      "description": "Market sentiment (-100 to +100)"
+    },
+    "recommended_action": {
+      "type": "string",
+      "enum": [
+        "buy",
+        "sell",
+        "hold",
+        "wait",
+        "exit"
+      ],
+      "description": "AI recommended action"
+    },
+    "key_factors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Key factors influencing prediction"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "extreme"
+      ],
+      "default": "medium",
+      "description": "Risk assessment"
+    },
+    "opportunity_score": {
+      "type": "number",
+      "description": "Opportunity rating (0-100)"
+    },
+    "price_target_low": {
+      "type": "number",
+      "description": "Predicted low price"
+    },
+    "price_target_high": {
+      "type": "number",
+      "description": "Predicted high price"
+    },
+    "time_horizon": {
+      "type": "string",
+      "enum": [
+        "1h",
+        "4h",
+        "24h",
+        "7d",
+        "30d"
+      ],
+      "default": "24h",
+      "description": "Prediction time horizon"
+    },
+    "analysis_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When analysis was generated"
+    },
+    "historical_accuracy": {
+      "type": "number",
+      "description": "AI's historical accuracy for this market type (%)"
+    }
+  },
+  "required": [
+    "insight_id",
+    "market_id",
+    "insight_type",
+    "confidence_score"
+  ]
+}

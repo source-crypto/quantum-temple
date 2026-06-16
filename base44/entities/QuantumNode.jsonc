@@ -1,0 +1,163 @@
+{
+  "name": "QuantumNode",
+  "type": "object",
+  "properties": {
+    "node_id": {
+      "type": "string",
+      "description": "Unique quantum node identifier"
+    },
+    "node_type": {
+      "type": "string",
+      "enum": [
+        "entanglement_primary",
+        "entanglement_secondary",
+        "verification_node",
+        "sentinel_node",
+        "gateway_node",
+        "oracle"
+      ],
+      "description": "Type of quantum node"
+    },
+    "node_name": {
+      "type": "string",
+      "description": "Human-readable node name"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "syncing",
+        "error"
+      ],
+      "default": "active",
+      "description": "Current node status"
+    },
+    "consensus_power": {
+      "type": "number",
+      "default": 0,
+      "description": "Node's consensus power for VQC calculations"
+    },
+    "stake_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "QTC staked to this node"
+    },
+    "connected_peers": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of connected peer nodes"
+    },
+    "last_active": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last activity timestamp"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Node-specific metadata (oracle type, signals, etc)"
+    },
+    "entanglement_strength": {
+      "type": "number",
+      "default": 1.0,
+      "description": "Quantum entanglement strength (0-1)"
+    },
+    "coherence_level": {
+      "type": "number",
+      "default": 1.0,
+      "description": "Quantum coherence level (0-1)"
+    },
+    "quantum_state": {
+      "type": "string",
+      "enum": [
+        "superposition",
+        "entangled",
+        "collapsed",
+        "decoherent",
+        "stabilizing"
+      ],
+      "default": "entangled",
+      "description": "Current quantum state"
+    },
+    "spin_state": {
+      "type": "string",
+      "enum": [
+        "up",
+        "down",
+        "superposition",
+        "mixed"
+      ],
+      "default": "superposition",
+      "description": "Quantum spin state"
+    },
+    "network_latency_ms": {
+      "type": "number",
+      "default": 0,
+      "description": "Network latency in milliseconds"
+    },
+    "error_rate": {
+      "type": "number",
+      "default": 0,
+      "description": "Quantum error rate (0-1)"
+    },
+    "temperature_mk": {
+      "type": "number",
+      "default": 15,
+      "description": "Node temperature in millikelvin"
+    },
+    "uptime_hours": {
+      "type": "number",
+      "default": 0,
+      "description": "Total uptime in hours"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether node is currently active"
+    },
+    "last_optimization": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last AI optimization timestamp"
+    },
+    "health_score": {
+      "type": "number",
+      "default": 100,
+      "description": "Overall health score (0-100)"
+    },
+    "predicted_maintenance_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "AI predicted maintenance date"
+    },
+    "maintenance_priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "low",
+      "description": "Maintenance priority level"
+    },
+    "ai_recommendations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "AI-generated recommendations"
+    },
+    "optimization_history": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "History of AI optimizations"
+    }
+  },
+  "required": [
+    "node_id",
+    "node_type"
+  ]
+}

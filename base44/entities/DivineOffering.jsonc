@@ -1,0 +1,46 @@
+{
+  "name": "DivineOffering",
+  "type": "object",
+  "properties": {
+    "amount": {
+      "type": "number",
+      "description": "Amount of divine currency offered"
+    },
+    "offering_type": {
+      "type": "string",
+      "enum": [
+        "burn",
+        "temple_donation",
+        "quantum_tribute",
+        "divine_sacrifice"
+      ],
+      "description": "Type of offering made"
+    },
+    "merit_gained": {
+      "type": "number",
+      "description": "Spiritual merit points earned"
+    },
+    "intention": {
+      "type": "string",
+      "description": "Purpose or intention of the offering"
+    },
+    "blessing_received": {
+      "type": "string",
+      "description": "Divine blessing granted in return"
+    },
+    "quantum_signature": {
+      "type": "string",
+      "description": "VQC signature of the offering"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the offering was made"
+    }
+  },
+  "required": [
+    "amount",
+    "offering_type",
+    "merit_gained"
+  ]
+}

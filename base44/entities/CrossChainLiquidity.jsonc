@@ -1,0 +1,69 @@
+{
+  "name": "CrossChainLiquidity",
+  "type": "object",
+  "properties": {
+    "pool_name": {
+      "type": "string",
+      "description": "Name of liquidity pool"
+    },
+    "currency_pair": {
+      "type": "string",
+      "enum": [
+        "QTC/BTC",
+        "QTC/ETH",
+        "QTC/USDT",
+        "QTC/USDC"
+      ],
+      "description": "Trading pair in the pool"
+    },
+    "qtc_liquidity": {
+      "type": "number",
+      "description": "Amount of QTC in the pool"
+    },
+    "paired_liquidity": {
+      "type": "number",
+      "description": "Amount of paired currency in pool"
+    },
+    "current_exchange_rate": {
+      "type": "number",
+      "description": "Current exchange rate"
+    },
+    "total_volume_24h": {
+      "type": "number",
+      "default": 0,
+      "description": "Trading volume in last 24 hours"
+    },
+    "total_transactions": {
+      "type": "number",
+      "default": 0,
+      "description": "Total number of swaps"
+    },
+    "fee_percentage": {
+      "type": "number",
+      "default": 0.3,
+      "description": "Trading fee percentage"
+    },
+    "pool_status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "paused",
+        "deprecated"
+      ],
+      "default": "active",
+      "description": "Current pool status"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last pool update"
+    }
+  },
+  "required": [
+    "pool_name",
+    "currency_pair",
+    "qtc_liquidity",
+    "paired_liquidity",
+    "current_exchange_rate"
+  ]
+}

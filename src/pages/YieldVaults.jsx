@@ -5,11 +5,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, TrendingUp, Users, Plus } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
+import { RefreshCw, TrendingUp, Users, Plus, BarChart3 } from "lucide-react";
 import VaultCard from "../components/vaults/VaultCard";
 import VaultPerformanceChart from "../components/vaults/VaultPerformanceChart";
 import StrategyVaultCard from "../components/vaults/StrategyVaultCard";
 import CreateStrategyVaultModal from "../components/vaults/CreateStrategyVaultModal";
+import VaultAnalyticsDashboard from "../components/vaults/VaultAnalyticsDashboard";
 
 // Oracle-signal-driven vault definitions
 const VAULTS = [
@@ -218,6 +220,14 @@ export default function YieldVaults() {
               <Badge className="ml-2 text-xs bg-cyan-900/50 text-cyan-300 border-cyan-600/40">{strategyVaults.length}</Badge>
             )}
           </Button>
+          <Button
+            variant={activeTab === "analytics" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setActiveTab("analytics")}
+            className={activeTab === "analytics" ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white" : "text-purple-300 hover:text-purple-200"}
+          >
+            <BarChart3 className="w-4 h-4 mr-2" /> Analytics
+          </Button>
         </div>
 
         <AnimatePresence mode="wait">
@@ -270,6 +280,27 @@ export default function YieldVaults() {
                   ))}
                 </div>
               )}
+            </motion.div>
+          )}
+
+          {activeTab === "analytics" && (
+            <motion.div key="analytics" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}>
+              <VaultAnalyticsDashboard
+                vaults={VAULTS}
+                onSendReport={async () => {
+                  try {
+                    const summary = VAULTS.map(v =>
+                      `• ${v.name} (${v.risk} risk): ${v.current_apy}% APY | ${(v.tvl/1000).toFixed(0)}K QTC TVL | 7D: +${v.history[0].return_pct}%`
+                    ).join('\n');
+                    await base44.integrations.Core.SendEmail({
+                      to: user.email,
+                      subject: `Quantum Temple — Weekly Vault Performance Report`,
+                      body: `Weekly Yield Vault Summary\n\nVault Performance:\n${summary}\n\nTotal Protocol TVL: ${(totalTVL/1e6).toFixed(2)}M QTC\nReport generated: ${new Date().toLocaleDateString()}\n\n— Quantum Temple Protocol`,
+                    });
+                    toast({ title: "Report sent!", description: "Weekly vault summary sent to your email." });
+                  } catch { toast({ title: "Error", description: "Could not send report. Try again.", variant: "destructive" }); }
+                }}
+              />
             </motion.div>
           )}
         </AnimatePresence>

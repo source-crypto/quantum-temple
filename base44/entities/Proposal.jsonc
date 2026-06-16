@@ -1,0 +1,130 @@
+{
+  "name": "Proposal",
+  "type": "object",
+  "properties": {
+    "proposal_id": {
+      "type": "string",
+      "description": "Unique proposal identifier"
+    },
+    "title": {
+      "type": "string",
+      "description": "Proposal title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed proposal description"
+    },
+    "proposal_type": {
+      "type": "string",
+      "enum": [
+        "fee_adjustment",
+        "new_feature",
+        "treasury_allocation",
+        "governance_change",
+        "monetary_policy",
+        "international_integration"
+      ],
+      "description": "Type of proposal"
+    },
+    "proposer_email": {
+      "type": "string",
+      "description": "Email of user who created the proposal"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "active",
+        "passed",
+        "rejected",
+        "executed",
+        "cancelled"
+      ],
+      "default": "pending",
+      "description": "Current proposal status"
+    },
+    "voting_start_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When voting begins"
+    },
+    "voting_end_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When voting ends"
+    },
+    "execution_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When proposal was executed"
+    },
+    "total_votes_for": {
+      "type": "number",
+      "default": 0,
+      "description": "Total QTC voted in favor"
+    },
+    "total_votes_against": {
+      "type": "number",
+      "default": 0,
+      "description": "Total QTC voted against"
+    },
+    "total_votes_abstain": {
+      "type": "number",
+      "default": 0,
+      "description": "Total QTC abstained"
+    },
+    "quorum_required": {
+      "type": "number",
+      "default": 1000000,
+      "description": "Minimum QTC required to vote"
+    },
+    "approval_threshold": {
+      "type": "number",
+      "default": 0.66,
+      "description": "Percentage required to pass (0.66 = 66%)"
+    },
+    "requested_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Amount requested from treasury (if applicable)"
+    },
+    "requested_currency": {
+      "type": "string",
+      "enum": [
+        "QTC",
+        "USD",
+        "BTC",
+        "ETH"
+      ],
+      "default": "QTC",
+      "description": "Currency type for request"
+    },
+    "recipient_address": {
+      "type": "string",
+      "description": "Address to receive funds (if applicable)"
+    },
+    "implementation_details": {
+      "type": "string",
+      "description": "Technical implementation details"
+    },
+    "ipfs_hash": {
+      "type": "string",
+      "description": "IPFS hash for additional documentation"
+    },
+    "discussion_url": {
+      "type": "string",
+      "description": "Link to community discussion"
+    },
+    "execution_tx_hash": {
+      "type": "string",
+      "description": "Transaction hash when executed"
+    }
+  },
+  "required": [
+    "proposal_id",
+    "title",
+    "description",
+    "proposal_type",
+    "proposer_email"
+  ]
+}

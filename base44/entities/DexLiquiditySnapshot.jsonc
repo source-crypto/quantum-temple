@@ -1,0 +1,48 @@
+{
+  "name": "DexLiquiditySnapshot",
+  "type": "object",
+  "properties": {
+    "pair": {
+      "type": "string",
+      "description": "Trading pair"
+    },
+    "dex": {
+      "type": "string",
+      "description": "DEX name"
+    },
+    "chain": {
+      "type": "string",
+      "description": "Blockchain network"
+    },
+    "price_usd": {
+      "type": "number",
+      "description": "Price in USD"
+    },
+    "liquidity_usd": {
+      "type": "number",
+      "default": 0,
+      "description": "Liquidity in USD"
+    },
+    "volume24h_usd": {
+      "type": "number",
+      "default": 0,
+      "description": "24h volume USD"
+    },
+    "change24h_percent": {
+      "type": "number",
+      "default": 0,
+      "description": "24h price change %"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Snapshot time"
+    }
+  },
+  "required": [
+    "pair",
+    "dex",
+    "chain",
+    "timestamp"
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "name": "YieldStake",
+  "type": "object",
+  "properties": {
+    "farm_name": {
+      "type": "string",
+      "description": "Reference to yield farm"
+    },
+    "staker_email": {
+      "type": "string",
+      "description": "Email of staker"
+    },
+    "lp_tokens_staked": {
+      "type": "number",
+      "description": "Amount of LP tokens staked"
+    },
+    "rewards_earned": {
+      "type": "number",
+      "default": 0,
+      "description": "Total rewards earned"
+    },
+    "unclaimed_rewards": {
+      "type": "number",
+      "default": 0,
+      "description": "Rewards not yet claimed"
+    },
+    "stake_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When LP tokens were staked"
+    },
+    "last_claim_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last reward claim date"
+    },
+    "locked_until": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Lock period expiry"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether stake is active"
+    }
+  },
+  "required": [
+    "farm_name",
+    "staker_email",
+    "lp_tokens_staked"
+  ]
+}

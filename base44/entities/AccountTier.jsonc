@@ -1,0 +1,77 @@
+{
+  "name": "AccountTier",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User's email address"
+    },
+    "tier_level": {
+      "type": "string",
+      "enum": [
+        "standard",
+        "premium",
+        "elite",
+        "founding_father",
+        "administration"
+      ],
+      "default": "standard",
+      "description": "Account tier level"
+    },
+    "tier_name": {
+      "type": "string",
+      "description": "Display name for tier"
+    },
+    "central_bank_access": {
+      "type": "boolean",
+      "default": false,
+      "description": "Access to Central Bank networks for USD contributions"
+    },
+    "free_transactions": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether transactions are fee-free"
+    },
+    "monthly_usd_contribution_limit": {
+      "type": "number",
+      "default": 0,
+      "description": "Monthly USD contribution limit from Central Bank"
+    },
+    "total_usd_contributed": {
+      "type": "number",
+      "default": 0,
+      "description": "Total USD contributed to protocol"
+    },
+    "protocol_fund_allocation": {
+      "type": "number",
+      "default": 0,
+      "description": "Allocation from protocol fund for this tier"
+    },
+    "governance_weight": {
+      "type": "number",
+      "default": 1.0,
+      "description": "Voting weight multiplier"
+    },
+    "special_privileges": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of special privileges for this tier"
+    },
+    "tier_activated_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When tier was activated"
+    },
+    "last_central_bank_access": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time Central Bank network was accessed"
+    }
+  },
+  "required": [
+    "user_email",
+    "tier_level"
+  ]
+}

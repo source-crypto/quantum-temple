@@ -1,0 +1,43 @@
+{
+  "name": "CeremonialArtifact",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Title of the artifact"
+    },
+    "content": {
+      "type": "string",
+      "description": "The sacred content (poem, ritual, wisdom)"
+    },
+    "artifact_type": {
+      "type": "string",
+      "enum": [
+        "poem",
+        "ritual",
+        "wisdom",
+        "prophecy",
+        "geometry"
+      ],
+      "description": "Type of ceremonial artifact"
+    },
+    "quantum_resonance": {
+      "type": "number",
+      "description": "Resonance level with VQC (0-100)"
+    },
+    "manifestation_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the artifact was channeled"
+    },
+    "sacred_geometry": {
+      "type": "string",
+      "description": "Associated sacred geometry pattern"
+    }
+  },
+  "required": [
+    "title",
+    "content",
+    "artifact_type"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "name": "MarketPrice",
+  "type": "object",
+  "properties": {
+    "symbol": {
+      "type": "string",
+      "enum": [
+        "ETH",
+        "SOL",
+        "QTC"
+      ],
+      "description": "Asset symbol"
+    },
+    "price_usd": {
+      "type": "number",
+      "description": "Last price in USD"
+    },
+    "source": {
+      "type": "string",
+      "description": "Data source (CoinGecko, CurrencyIndex)"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When fetched"
+    }
+  },
+  "required": [
+    "symbol",
+    "price_usd",
+    "source",
+    "timestamp"
+  ]
+}

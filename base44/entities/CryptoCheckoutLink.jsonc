@@ -1,0 +1,39 @@
+{
+  "name": "CryptoCheckoutLink",
+  "type": "object",
+  "properties": {
+    "tier": {
+      "type": "string",
+      "enum": [
+        "seed",
+        "adept",
+        "oracle"
+      ],
+      "description": "Tier this checkout link corresponds to"
+    },
+    "url": {
+      "type": "string",
+      "description": "Hosted Coinbase Commerce checkout URL"
+    },
+    "note": {
+      "type": "string",
+      "description": "Optional note or label for this link"
+    }
+  },
+  "required": [
+    "tier",
+    "url"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

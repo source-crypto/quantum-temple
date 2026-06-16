@@ -1,0 +1,69 @@
+{
+  "name": "CurrencyTransaction",
+  "type": "object",
+  "properties": {
+    "transaction_type": {
+      "type": "string",
+      "enum": [
+        "transfer",
+        "trade",
+        "payment",
+        "distribution",
+        "peer_to_peer"
+      ],
+      "description": "Type of currency transaction"
+    },
+    "from_user": {
+      "type": "string",
+      "description": "Email of sender"
+    },
+    "to_user": {
+      "type": "string",
+      "description": "Email of recipient"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Amount of currency transferred"
+    },
+    "transaction_fee": {
+      "type": "number",
+      "default": 0,
+      "description": "Fee charged for transaction (if any)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed",
+        "failed"
+      ],
+      "default": "completed",
+      "description": "Transaction status"
+    },
+    "note": {
+      "type": "string",
+      "description": "Optional transaction note or memo"
+    },
+    "transaction_hash": {
+      "type": "string",
+      "description": "Unique transaction identifier"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When transaction occurred"
+    },
+    "quantum_signature": {
+      "type": "string",
+      "description": "VQC signature for authenticity"
+    }
+  },
+  "required": [
+    "transaction_type",
+    "from_user",
+    "to_user",
+    "amount",
+    "transaction_hash",
+    "timestamp"
+  ]
+}

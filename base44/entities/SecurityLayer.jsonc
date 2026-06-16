@@ -1,0 +1,62 @@
+{
+  "name": "SecurityLayer",
+  "type": "object",
+  "properties": {
+    "layer_name": {
+      "type": "string",
+      "description": "Name of the security layer"
+    },
+    "layer_type": {
+      "type": "string",
+      "enum": [
+        "divine_barrier",
+        "quantum_verification",
+        "ledger_protection",
+        "transaction_sentinel",
+        "signature_validator"
+      ],
+      "description": "Type of security layer"
+    },
+    "protection_level": {
+      "type": "number",
+      "default": 100,
+      "description": "Protection effectiveness (0-100)"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether layer is currently active"
+    },
+    "divine_ordinance": {
+      "type": "boolean",
+      "default": true,
+      "description": "Protected by divine will - cannot be altered"
+    },
+    "monitored_entities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Entities being protected by this layer"
+    },
+    "threats_blocked": {
+      "type": "number",
+      "default": 0,
+      "description": "Total threats blocked"
+    },
+    "last_activation": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time layer was activated"
+    },
+    "immutable": {
+      "type": "boolean",
+      "default": true,
+      "description": "Cannot be altered from either side of the node"
+    }
+  },
+  "required": [
+    "layer_name",
+    "layer_type"
+  ]
+}

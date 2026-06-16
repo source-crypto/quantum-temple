@@ -1,0 +1,81 @@
+{
+  "name": "ProtocolFund",
+  "type": "object",
+  "properties": {
+    "fund_name": {
+      "type": "string",
+      "description": "Name of the protocol fund"
+    },
+    "fund_type": {
+      "type": "string",
+      "enum": [
+        "founding_fathers",
+        "development",
+        "treasury_reserve",
+        "admin_operations",
+        "central_bank_gateway"
+      ],
+      "description": "Type of protocol fund"
+    },
+    "total_balance_usd": {
+      "type": "number",
+      "default": 560000000000,
+      "description": "Total fund balance in USD ($560B default for founding fathers)"
+    },
+    "qtc_balance": {
+      "type": "number",
+      "default": 0,
+      "description": "QTC balance in fund"
+    },
+    "allocated_to_admins": {
+      "type": "number",
+      "default": 0,
+      "description": "Amount allocated to admin accounts"
+    },
+    "total_distributed": {
+      "type": "number",
+      "default": 0,
+      "description": "Total amount distributed from fund"
+    },
+    "admin_access_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether admin accounts have free access"
+    },
+    "central_bank_connected": {
+      "type": "boolean",
+      "default": true,
+      "description": "Connection to Central Bank networks"
+    },
+    "founding_fathers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of founding father email addresses"
+    },
+    "establishment_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When fund was established"
+    },
+    "last_distribution": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last distribution timestamp"
+    },
+    "distribution_rules": {
+      "type": "object",
+      "description": "Rules for fund distribution"
+    },
+    "imf_compliant": {
+      "type": "boolean",
+      "default": true,
+      "description": "IMF compliance status"
+    }
+  },
+  "required": [
+    "fund_name",
+    "fund_type"
+  ]
+}

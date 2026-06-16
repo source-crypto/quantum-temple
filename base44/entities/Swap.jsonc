@@ -1,0 +1,71 @@
+{
+  "name": "Swap",
+  "type": "object",
+  "properties": {
+    "pool_name": {
+      "type": "string",
+      "description": "Pool where swap occurred"
+    },
+    "swapper_email": {
+      "type": "string",
+      "description": "User who performed swap"
+    },
+    "token_in": {
+      "type": "string",
+      "description": "Token swapped from"
+    },
+    "token_out": {
+      "type": "string",
+      "description": "Token swapped to"
+    },
+    "amount_in": {
+      "type": "number",
+      "description": "Amount of input token"
+    },
+    "amount_out": {
+      "type": "number",
+      "description": "Amount of output token"
+    },
+    "price_impact": {
+      "type": "number",
+      "description": "Price impact percentage"
+    },
+    "fee_amount": {
+      "type": "number",
+      "description": "Fee paid for swap"
+    },
+    "exchange_rate": {
+      "type": "number",
+      "description": "Exchange rate at time of swap"
+    },
+    "slippage": {
+      "type": "number",
+      "description": "Slippage tolerance used"
+    },
+    "tx_hash": {
+      "type": "string",
+      "description": "Transaction hash"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When swap occurred"
+    },
+    "reserve_a_after": {
+      "type": "number",
+      "description": "Reserve A after swap"
+    },
+    "reserve_b_after": {
+      "type": "number",
+      "description": "Reserve B after swap"
+    }
+  },
+  "required": [
+    "pool_name",
+    "swapper_email",
+    "token_in",
+    "token_out",
+    "amount_in",
+    "amount_out"
+  ]
+}

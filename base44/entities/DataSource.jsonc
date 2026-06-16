@@ -1,0 +1,83 @@
+{
+  "name": "DataSource",
+  "type": "object",
+  "properties": {
+    "source_name": {
+      "type": "string",
+      "description": "Name of data source"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "bitcoin_network",
+        "ethereum_network",
+        "solana_dex",
+        "polymarket",
+        "binance",
+        "coinbase",
+        "quantum_temple"
+      ],
+      "description": "Type of data source"
+    },
+    "endpoint_url": {
+      "type": "string",
+      "description": "API endpoint or node address"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether source is currently active"
+    },
+    "connection_status": {
+      "type": "string",
+      "enum": [
+        "connected",
+        "disconnected",
+        "syncing",
+        "error"
+      ],
+      "default": "connected",
+      "description": "Connection status"
+    },
+    "data_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Types of data provided (markets, orderbooks, transactions, etc.)"
+    },
+    "update_frequency_seconds": {
+      "type": "number",
+      "default": 5,
+      "description": "How often data updates"
+    },
+    "last_sync": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last successful data sync"
+    },
+    "total_records_synced": {
+      "type": "number",
+      "default": 0,
+      "description": "Total records synchronized"
+    },
+    "error_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of sync errors"
+    },
+    "api_key_required": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether API key is needed"
+    },
+    "configuration": {
+      "type": "object",
+      "description": "Source-specific configuration"
+    }
+  },
+  "required": [
+    "source_name",
+    "source_type"
+  ]
+}

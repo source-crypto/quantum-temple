@@ -1,0 +1,126 @@
+{
+  "name": "CryptoWallet",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User's email address"
+    },
+    "bitcoin_address": {
+      "type": "string",
+      "description": "Bitcoin wallet address"
+    },
+    "ethereum_address": {
+      "type": "string",
+      "description": "Ethereum wallet address"
+    },
+    "qtc_wallet_address": {
+      "type": "string",
+      "description": "Quantum Temple Currency wallet address"
+    },
+    "seed_phrase_encrypted": {
+      "type": "string",
+      "description": "Encrypted 12 or 24-word recovery seed phrase"
+    },
+    "seed_phrase_length": {
+      "type": "number",
+      "enum": [
+        12,
+        24
+      ],
+      "default": 12,
+      "description": "Length of recovery phrase (12 or 24 words)"
+    },
+    "wallet_type": {
+      "type": "string",
+      "enum": [
+        "hd_wallet",
+        "standard",
+        "quantum_temple"
+      ],
+      "default": "quantum_temple",
+      "description": "Type of wallet implementation"
+    },
+    "derivation_path": {
+      "type": "string",
+      "description": "BIP-44 derivation path for HD wallets"
+    },
+    "wallet_recovered": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether wallet was recovered from seed phrase"
+    },
+    "last_recovery_attempt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last recovery attempt timestamp"
+    },
+    "btc_balance": {
+      "type": "number",
+      "default": 0,
+      "description": "Bitcoin balance (in BTC)"
+    },
+    "eth_balance": {
+      "type": "number",
+      "default": 0,
+      "description": "Ethereum balance (in ETH)"
+    },
+    "qtc_balance": {
+      "type": "number",
+      "default": 0,
+      "description": "Quantum Temple Currency balance"
+    },
+    "total_bridged_btc": {
+      "type": "number",
+      "default": 0,
+      "description": "Total BTC bridged to/from QTC"
+    },
+    "total_bridged_eth": {
+      "type": "number",
+      "default": 0,
+      "description": "Total ETH bridged to/from QTC"
+    },
+    "wallet_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether crypto wallets are verified"
+    },
+    "kyc_completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "KYC verification status"
+    },
+    "last_bridge_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last cross-chain transaction"
+    },
+    "ledger_entries": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Transaction ledger entries with recovery signatures"
+    }
+  },
+  "required": [
+    "user_email"
+  ],
+  "rls": {
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

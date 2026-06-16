@@ -1,0 +1,174 @@
+{
+  "name": "CEXListing",
+  "type": "object",
+  "properties": {
+    "listing_id": {
+      "type": "string",
+      "description": "Unique CEX listing identifier"
+    },
+    "exchange_name": {
+      "type": "string",
+      "enum": [
+        "binance",
+        "coinbase",
+        "kraken",
+        "bybit",
+        "okx",
+        "kucoin",
+        "gate_io",
+        "huobi"
+      ],
+      "description": "Major centralized exchange name"
+    },
+    "trading_pair": {
+      "type": "string",
+      "description": "Trading pair (e.g., QTC/USDT, QTC/BTC)"
+    },
+    "base_currency": {
+      "type": "string",
+      "enum": [
+        "QTC",
+        "BTC",
+        "ETH",
+        "USDT",
+        "USDC"
+      ],
+      "description": "Base currency in the pair"
+    },
+    "quote_currency": {
+      "type": "string",
+      "enum": [
+        "USDT",
+        "USDC",
+        "BTC",
+        "ETH",
+        "USD"
+      ],
+      "description": "Quote currency in the pair"
+    },
+    "listing_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the pair was listed"
+    },
+    "listing_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "active",
+        "delisted",
+        "maintenance"
+      ],
+      "default": "active",
+      "description": "Current listing status"
+    },
+    "current_price": {
+      "type": "number",
+      "description": "Current price on this exchange"
+    },
+    "volume_24h": {
+      "type": "number",
+      "default": 0,
+      "description": "24-hour trading volume"
+    },
+    "volume_24h_usd": {
+      "type": "number",
+      "default": 0,
+      "description": "24-hour volume in USD"
+    },
+    "price_change_24h": {
+      "type": "number",
+      "default": 0,
+      "description": "24-hour price change percentage"
+    },
+    "bid_price": {
+      "type": "number",
+      "description": "Current highest bid"
+    },
+    "ask_price": {
+      "type": "number",
+      "description": "Current lowest ask"
+    },
+    "spread_percentage": {
+      "type": "number",
+      "default": 0,
+      "description": "Bid-ask spread percentage"
+    },
+    "market_cap_rank": {
+      "type": "number",
+      "description": "Market cap ranking on exchange"
+    },
+    "trading_fee_maker": {
+      "type": "number",
+      "default": 0.1,
+      "description": "Maker fee percentage"
+    },
+    "trading_fee_taker": {
+      "type": "number",
+      "default": 0.1,
+      "description": "Taker fee percentage"
+    },
+    "min_order_size": {
+      "type": "number",
+      "description": "Minimum order size"
+    },
+    "max_order_size": {
+      "type": "number",
+      "description": "Maximum order size"
+    },
+    "api_endpoint": {
+      "type": "string",
+      "description": "Exchange API endpoint for this pair"
+    },
+    "websocket_endpoint": {
+      "type": "string",
+      "description": "WebSocket endpoint for real-time data"
+    },
+    "exchange_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether exchange listing is verified"
+    },
+    "kyc_required": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether KYC is required to trade"
+    },
+    "withdrawal_fee": {
+      "type": "number",
+      "description": "Withdrawal fee for base currency"
+    },
+    "deposit_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether deposits are enabled"
+    },
+    "withdrawal_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether withdrawals are enabled"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last data update timestamp"
+    },
+    "divine_integration": {
+      "type": "boolean",
+      "default": true,
+      "description": "Divine frequency integration status"
+    },
+    "quantum_verified": {
+      "type": "boolean",
+      "default": true,
+      "description": "VQC verification status"
+    }
+  },
+  "required": [
+    "listing_id",
+    "exchange_name",
+    "trading_pair",
+    "base_currency",
+    "quote_currency"
+  ]
+}

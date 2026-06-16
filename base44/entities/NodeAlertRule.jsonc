@@ -1,0 +1,40 @@
+{
+  "name": "NodeAlertRule",
+  "type": "object",
+  "properties": {
+    "node_id": {
+      "type": "string",
+      "description": "Intent node record id"
+    },
+    "oc_number": {
+      "type": "number",
+      "description": "OC number for convenience"
+    },
+    "threshold_type": {
+      "type": "string",
+      "enum": [
+        "resonance_below",
+        "transparency_below",
+        "transparency_stalled"
+      ],
+      "description": "Type of alert"
+    },
+    "threshold_value": {
+      "type": "number",
+      "description": "Numeric threshold"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the rule is active"
+    },
+    "note": {
+      "type": "string",
+      "description": "Optional note for this rule"
+    }
+  },
+  "required": [
+    "threshold_type",
+    "threshold_value"
+  ]
+}

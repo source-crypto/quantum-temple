@@ -1,0 +1,115 @@
+{
+  "name": "AITradingStrategy",
+  "type": "object",
+  "properties": {
+    "strategy_id": {
+      "type": "string",
+      "description": "Unique strategy identifier"
+    },
+    "market_id": {
+      "type": "string",
+      "description": "Market this strategy applies to"
+    },
+    "strategy_name": {
+      "type": "string",
+      "description": "Name of trading strategy"
+    },
+    "strategy_type": {
+      "type": "string",
+      "enum": [
+        "volatility_bands",
+        "mean_reversion",
+        "momentum",
+        "arbitrage",
+        "trend_following",
+        "breakout"
+      ],
+      "description": "Type of trading strategy"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed strategy description"
+    },
+    "entry_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Conditions to enter position"
+    },
+    "exit_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Conditions to exit position"
+    },
+    "recommended_position_size": {
+      "type": "number",
+      "description": "Recommended position size"
+    },
+    "stop_loss_percentage": {
+      "type": "number",
+      "description": "Stop loss percentage"
+    },
+    "take_profit_percentage": {
+      "type": "number",
+      "description": "Take profit percentage"
+    },
+    "risk_reward_ratio": {
+      "type": "number",
+      "description": "Risk to reward ratio"
+    },
+    "confidence_score": {
+      "type": "number",
+      "description": "AI confidence in strategy (0-100)"
+    },
+    "expected_roi": {
+      "type": "number",
+      "description": "Expected return on investment (%)"
+    },
+    "time_horizon": {
+      "type": "string",
+      "enum": [
+        "scalp",
+        "intraday",
+        "swing",
+        "position",
+        "long_term"
+      ],
+      "description": "Strategy time horizon"
+    },
+    "market_conditions": {
+      "type": "string",
+      "enum": [
+        "bullish",
+        "bearish",
+        "sideways",
+        "volatile",
+        "stable"
+      ],
+      "description": "Optimal market conditions for strategy"
+    },
+    "automated_execution": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether strategy auto-executes"
+    },
+    "backtest_results": {
+      "type": "object",
+      "description": "Historical backtest performance"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether strategy is active"
+    }
+  },
+  "required": [
+    "strategy_id",
+    "market_id",
+    "strategy_name",
+    "strategy_type",
+    "confidence_score"
+  ]
+}

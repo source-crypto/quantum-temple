@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { Users, TrendingUp, RefreshCw, Zap, ChevronDown, ChevronUp, Star } from "lucide-react";
+import { Users, TrendingUp, RefreshCw, Zap, ChevronDown, ChevronUp, Star, Copy } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/use-toast";
@@ -15,7 +15,7 @@ const riskColor = {
   high: "text-red-400 border-red-500/40 bg-red-500/10",
 };
 
-export default function StrategyVaultCard({ vault, user, userBalance, isFollowing }) {
+export default function StrategyVaultCard({ vault, user, userBalance, isFollowing, refetchFollows }) {
   const [expanded, setExpanded] = useState(false);
   const [amount, setAmount] = useState("");
   const qc = useQueryClient();
@@ -29,6 +29,7 @@ export default function StrategyVaultCard({ vault, user, userBalance, isFollowin
       const fee = amt * ((vault.performance_fee_pct || 10) / 100);
       const net = amt - fee;
 
+      // 1. Record the follow
       await base44.entities.StrategyFollow.create({
         strategy_vault_id: vault.id,
         follower_email: user.email,
@@ -39,17 +40,24 @@ export default function StrategyVaultCard({ vault, user, userBalance, isFollowin
         followed_at: new Date().toISOString(),
       });
 
-      // Record as YieldStake using correct required fields
-      await base44.entities.YieldStake.create({
-        farm_name: vault.name,
-        staker_email: user.email,
-        lp_tokens_staked: net,
-        stake_date: new Date().toISOString(),
-        is_active: true,
-        rewards_earned: 0,
-        unclaimed_rewards: 0,
-      });
+      // 2. Create YieldStake entries for each oracle node allocation in the vault
+      const allocations = vault.oracle_allocations || [];
+      for (const alloc of allocations) {
+        const nodeAmount = net * (Number(alloc.weight_pct) / 100);
+        if (nodeAmount > 0) {
+          await base44.entities.YieldStake.create({
+            farm_name: `${vault.name} — ${alloc.oracle_node}`,
+            staker_email: user.email,
+            lp_tokens_staked: nodeAmount,
+            stake_date: new Date().toISOString(),
+            is_active: true,
+            rewards_earned: 0,
+            unclaimed_rewards: 0,
+          });
+        }
+      }
 
+      // 3. Update user balance
       const bs = await base44.entities.UserBalance.filter({ user_email: user.email });
       if (bs[0]) {
         await base44.entities.UserBalance.update(bs[0].id, {
@@ -58,6 +66,7 @@ export default function StrategyVaultCard({ vault, user, userBalance, isFollowin
         });
       }
 
+      // 4. Update vault stats
       await base44.entities.StrategyVault.update(vault.id, {
         followers_count: (vault.followers_count || 0) + 1,
         total_tvl: (vault.total_tvl || 0) + net,
@@ -67,8 +76,55 @@ export default function StrategyVaultCard({ vault, user, userBalance, isFollowin
       qc.invalidateQueries(["strategyVaults"]);
       qc.invalidateQueries(["strategyFollows"]);
       qc.invalidateQueries(["userBalance"]);
+      qc.invalidateQueries(["yieldStakes"]);
+      if (refetchFollows) refetchFollows();
       setAmount("");
-      toast({ title: "Following strategy!", description: `Deposited into ${vault.name}. ${vault.performance_fee_pct}% performance fee applied.` });
+      toast({ title: "Allocations synced!", description: `Deposited into ${vault.name} and mirrored ${vault.oracle_allocations?.length || 0} oracle allocations.` });
+    },
+    onError: (e) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
+  // "Sync allocations only" — re-mirrors allocations without new deposit
+  const syncAllocations = useMutation({
+    mutationFn: async () => {
+      const allocations = vault.oracle_allocations || [];
+      // Find active follows for this vault
+      const follows = await base44.entities.StrategyFollow.filter({
+        strategy_vault_id: vault.id,
+        follower_email: user.email,
+        status: "active",
+      });
+      if (follows.length === 0) throw new Error("You aren't following this vault yet. Deposit first.");
+
+      const deposited = follows[0].deposited_amount || 0;
+      // Remove old stakes from this vault and recreate
+      const oldStakes = await base44.entities.YieldStake.filter({
+        staker_email: user.email,
+        farm_name: { $like: `${vault.name}%` },
+        is_active: true,
+      });
+      for (const s of oldStakes) {
+        await base44.entities.YieldStake.update(s.id, { is_active: false });
+      }
+
+      for (const alloc of allocations) {
+        const nodeAmount = deposited * (Number(alloc.weight_pct) / 100);
+        if (nodeAmount > 0) {
+          await base44.entities.YieldStake.create({
+            farm_name: `${vault.name} — ${alloc.oracle_node}`,
+            staker_email: user.email,
+            lp_tokens_staked: nodeAmount,
+            stake_date: new Date().toISOString(),
+            is_active: true,
+            rewards_earned: 0,
+            unclaimed_rewards: 0,
+          });
+        }
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries(["yieldStakes"]);
+      toast({ title: "Allocations re-synced!", description: `Your oracle allocations now mirror "${vault.name}".` });
     },
     onError: (e) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
@@ -128,7 +184,14 @@ export default function StrategyVaultCard({ vault, user, userBalance, isFollowin
           {/* Oracle allocations */}
           {allocations.length > 0 && (
             <div>
-              <div className="text-xs text-purple-400/60 mb-2">Oracle Allocations</div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-xs text-purple-400/60">Oracle Allocations</div>
+                {isFollowing && !isOwner && allocations.length > 0 && (
+                  <Button size="sm" variant="ghost" className="text-xs text-cyan-400 hover:text-cyan-300 h-auto py-0.5 px-2" onClick={(e) => { e.stopPropagation(); syncAllocations.mutate(); }} disabled={syncAllocations.isPending}>
+                    <Copy className="w-3 h-3 mr-1" /> Sync
+                  </Button>
+                )}
+              </div>
               <div className="space-y-1.5">
                 {allocations.map((a, i) => (
                   <div key={i} className="flex items-center gap-2 text-xs">
@@ -144,8 +207,10 @@ export default function StrategyVaultCard({ vault, user, userBalance, isFollowin
           {/* Follow / deposit */}
           {user && !isOwner && (
             <div>
-              <div className="text-xs text-purple-400/60 mb-1">
-                Follow & Deposit QTC <span className="text-purple-500/50">(avail: {(userBalance?.available_balance || 0).toLocaleString()})</span>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="text-xs text-purple-400/60">
+                  Follow & Mirror Allocations <span className="text-purple-500/50">(avail: {(userBalance?.available_balance || 0).toLocaleString()})</span>
+                </div>
               </div>
               <div className="flex gap-2">
                 <Input
@@ -155,13 +220,14 @@ export default function StrategyVaultCard({ vault, user, userBalance, isFollowin
                   onChange={(e) => setAmount(e.target.value)}
                   className="h-8 text-sm bg-slate-800 border-cyan-800/50 text-purple-100"
                 />
-                <Button size="sm" className="bg-cyan-700 hover:bg-cyan-600 shrink-0" onClick={() => follow.mutate()} disabled={follow.isPending}>
-                  <Zap className="w-3.5 h-3.5 mr-1" /> Follow
+                <Button size="sm" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 shrink-0" onClick={(e) => { e.stopPropagation(); follow.mutate(); }} disabled={follow.isPending}>
+                  <Copy className="w-3.5 h-3.5 mr-1" /> Follow &amp; Sync
                 </Button>
               </div>
               {amount && (
                 <div className="text-xs text-amber-400/80 mt-1">
-                  {vault.performance_fee_pct}% fee = {(parseFloat(amount || 0) * (vault.performance_fee_pct / 100)).toFixed(2)} QTC
+                  {vault.performance_fee_pct}% fee = {(parseFloat(amount || 0) * (vault.performance_fee_pct / 100)).toFixed(2)} QTC &nbsp;|&nbsp;
+                  Deposits mirror the {allocations.length} oracle allocations above
                 </div>
               )}
             </div>

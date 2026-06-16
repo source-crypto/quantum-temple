@@ -1,0 +1,70 @@
+{
+  "name": "TradeOffer",
+  "type": "object",
+  "properties": {
+    "offer_type": {
+      "type": "string",
+      "enum": [
+        "sell",
+        "buy",
+        "exchange"
+      ],
+      "description": "Type of trade offer"
+    },
+    "amount_offered": {
+      "type": "number",
+      "description": "Amount of divine currency in the offer"
+    },
+    "price_per_unit": {
+      "type": "number",
+      "description": "Price per unit (if selling)"
+    },
+    "total_value": {
+      "type": "number",
+      "description": "Total value of the offer"
+    },
+    "currency_pair": {
+      "type": "string",
+      "default": "QTC/USD",
+      "description": "Trading pair (e.g., QTC/USD, QTC/BTC)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "cancelled",
+        "expired"
+      ],
+      "default": "active",
+      "description": "Current status of the offer"
+    },
+    "seller_email": {
+      "type": "string",
+      "description": "Email of the seller/offerer"
+    },
+    "buyer_email": {
+      "type": "string",
+      "description": "Email of the buyer (when trade executes)"
+    },
+    "expiration_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the offer expires"
+    },
+    "listing_note": {
+      "type": "string",
+      "description": "Optional note about the listing"
+    },
+    "quantum_escrow": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether funds are held in quantum escrow"
+    }
+  },
+  "required": [
+    "offer_type",
+    "amount_offered",
+    "seller_email"
+  ]
+}

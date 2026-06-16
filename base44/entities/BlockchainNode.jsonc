@@ -1,0 +1,109 @@
+{
+  "name": "BlockchainNode",
+  "type": "object",
+  "properties": {
+    "node_id": {
+      "type": "string",
+      "description": "Unique node identifier"
+    },
+    "blockchain": {
+      "type": "string",
+      "enum": [
+        "bitcoin",
+        "ethereum",
+        "solana",
+        "quantum_temple"
+      ],
+      "description": "Which blockchain this node serves"
+    },
+    "node_type": {
+      "type": "string",
+      "enum": [
+        "full_node",
+        "light_node",
+        "validator",
+        "miner",
+        "archival"
+      ],
+      "description": "Type of blockchain node"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "Node IP address"
+    },
+    "port": {
+      "type": "number",
+      "default": 8333,
+      "description": "Node port"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "online",
+        "offline",
+        "syncing",
+        "error"
+      ],
+      "default": "online",
+      "description": "Current node status"
+    },
+    "connected_peers": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of connected peer nodes"
+    },
+    "block_height": {
+      "type": "number",
+      "description": "Current blockchain height"
+    },
+    "sync_progress": {
+      "type": "number",
+      "default": 100,
+      "description": "Sync progress percentage (0-100)"
+    },
+    "transactions_processed": {
+      "type": "number",
+      "default": 0,
+      "description": "Total transactions processed"
+    },
+    "uptime_hours": {
+      "type": "number",
+      "default": 0,
+      "description": "Node uptime in hours"
+    },
+    "consensus_mechanism": {
+      "type": "string",
+      "enum": [
+        "proof_of_work",
+        "proof_of_stake",
+        "proof_of_authority",
+        "quantum_verification"
+      ],
+      "description": "Consensus protocol used"
+    },
+    "is_validator": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether node validates transactions"
+    },
+    "stake_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Amount staked (for PoS nodes)"
+    },
+    "last_block_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last block received"
+    },
+    "hardware_specs": {
+      "type": "object",
+      "description": "Node hardware specifications"
+    }
+  },
+  "required": [
+    "node_id",
+    "blockchain",
+    "node_type"
+  ]
+}

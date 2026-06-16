@@ -1,0 +1,90 @@
+{
+  "name": "Treasury",
+  "type": "object",
+  "properties": {
+    "treasury_id": {
+      "type": "string",
+      "description": "Unique treasury identifier"
+    },
+    "qtc_balance": {
+      "type": "number",
+      "default": 0,
+      "description": "QTC balance in treasury"
+    },
+    "usd_balance": {
+      "type": "number",
+      "default": 560000000000,
+      "description": "USD reserve balance ($560B guarantee)"
+    },
+    "btc_balance": {
+      "type": "number",
+      "default": 0,
+      "description": "Bitcoin balance"
+    },
+    "eth_balance": {
+      "type": "number",
+      "default": 0,
+      "description": "Ethereum balance"
+    },
+    "total_fees_collected": {
+      "type": "number",
+      "default": 0,
+      "description": "Total fees collected (all time)"
+    },
+    "total_distributed": {
+      "type": "number",
+      "default": 0,
+      "description": "Total funds distributed via proposals"
+    },
+    "transaction_fee_percentage": {
+      "type": "number",
+      "default": 0.001,
+      "description": "Fee percentage for transactions (0.1%)"
+    },
+    "swap_fee_percentage": {
+      "type": "number",
+      "default": 0.003,
+      "description": "Fee percentage for swaps (0.3%)"
+    },
+    "bridge_fee_percentage": {
+      "type": "number",
+      "default": 0.001,
+      "description": "Fee percentage for bridge transactions (0.1%)"
+    },
+    "last_fee_collection": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last fee collection timestamp"
+    },
+    "pending_distributions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Queue of approved distributions awaiting execution"
+    },
+    "imf_compliance_status": {
+      "type": "string",
+      "enum": [
+        "compliant",
+        "pending_review",
+        "non_compliant"
+      ],
+      "default": "compliant",
+      "description": "IMF coding system compliance status"
+    },
+    "reserve_ratio": {
+      "type": "number",
+      "default": 1.0,
+      "description": "USD reserve to QTC supply ratio"
+    },
+    "last_audit_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last treasury audit timestamp"
+    }
+  },
+  "required": [
+    "treasury_id"
+  ]
+}

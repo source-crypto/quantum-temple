@@ -1,0 +1,75 @@
+{
+  "name": "AlertEvent",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Recipient"
+    },
+    "asset_symbol": {
+      "type": "string",
+      "description": "Asset for the alert"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "price_change",
+        "volume_spike",
+        "sentiment_shift"
+      ],
+      "description": "Alert type"
+    },
+    "message": {
+      "type": "string",
+      "description": "Human-readable message"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "info",
+        "warning",
+        "critical"
+      ],
+      "default": "info"
+    },
+    "triggered_value": {
+      "type": "number",
+      "description": "Observed value that triggered"
+    },
+    "threshold": {
+      "type": "number",
+      "description": "Configured threshold"
+    },
+    "read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has the user read it"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When created"
+    }
+  },
+  "required": [
+    "type",
+    "message"
+  ],
+  "rls": {
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

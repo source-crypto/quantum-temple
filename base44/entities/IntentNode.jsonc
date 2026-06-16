@@ -1,0 +1,63 @@
+{
+  "name": "IntentNode",
+  "type": "object",
+  "properties": {
+    "oc_number": {
+      "type": "number",
+      "description": "Operating Circular number (1-12)"
+    },
+    "oc_title": {
+      "type": "string",
+      "description": "Title or label of the OC intent node"
+    },
+    "purpose": {
+      "type": "string",
+      "description": "Purpose or focus of this intent node"
+    },
+    "access_scope": {
+      "type": "string",
+      "enum": [
+        "legal",
+        "operational",
+        "technical",
+        "procedural",
+        "composite"
+      ],
+      "default": "composite",
+      "description": "Primary access context for this node"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "active",
+        "paused"
+      ],
+      "default": "active",
+      "description": "Lifecycle status of this node"
+    },
+    "resonance_level": {
+      "type": "number",
+      "default": 50,
+      "description": "Resonance level (0-100)"
+    },
+    "transparency_accumulated": {
+      "type": "number",
+      "default": 0,
+      "description": "Cumulative transparency points"
+    },
+    "last_synced": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last sync timestamp"
+    },
+    "linked_artifact_id": {
+      "type": "string",
+      "description": "Optional CeremonialArtifact id linked to this node"
+    }
+  },
+  "required": [
+    "oc_number",
+    "oc_title"
+  ]
+}

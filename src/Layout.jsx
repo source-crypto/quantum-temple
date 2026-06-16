@@ -22,7 +22,8 @@ import {
               Wallet,
               PieChart,
               Brain,
-              Link2
+              Link2,
+              Landmark
               } from "lucide-react";
 import InAppAnnouncementBar from "./components/app/InAppAnnouncementBar";
 import QTCPriceWidget from "./components/currency/QTCPriceWidget";
@@ -202,6 +203,11 @@ const navigationItems = [
     title: "Cross-Chain Hub",
     url: createPageUrl("CrossChainHub"),
     icon: Link2,
+  },
+  {
+    title: "Treasury Dashboard",
+    url: createPageUrl("TreasuryDashboard"),
+    icon: Landmark,
   }
   ];
 
@@ -237,7 +243,8 @@ const pageRouteMap = {
   "Admin Dashboard": "AdminDashboard",
   "Gov Dashboard": "GovernanceDashboard",
   "Yield Vaults": "YieldVaults",
-  "Cross-Chain Hub": "CrossChainHub"
+  "Cross-Chain Hub": "CrossChainHub",
+  "Treasury Dashboard": "TreasuryDashboard"
 };
 
 export default function Layout({ children }) {

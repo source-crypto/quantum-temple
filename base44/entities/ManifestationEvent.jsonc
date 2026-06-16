@@ -1,0 +1,52 @@
+{
+  "name": "ManifestationEvent",
+  "type": "object",
+  "properties": {
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "snapshot",
+        "increment",
+        "completion"
+      ],
+      "description": "Type of manifestation event"
+    },
+    "node_oc_number": {
+      "type": "number",
+      "description": "OC number (1-12) related to this event"
+    },
+    "units_added": {
+      "type": "number",
+      "default": 0,
+      "description": "Transparency units added in this event"
+    },
+    "total_transparency": {
+      "type": "number",
+      "description": "Total transparency after event"
+    },
+    "factors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Contributing factors or notes"
+    },
+    "related_goal_id": {
+      "type": "string",
+      "description": "Optional AbundanceGoal id"
+    },
+    "note": {
+      "type": "string",
+      "description": "Additional context"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event timestamp"
+    }
+  },
+  "required": [
+    "event_type",
+    "total_transparency"
+  ]
+}

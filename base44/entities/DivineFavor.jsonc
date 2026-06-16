@@ -1,0 +1,70 @@
+{
+  "name": "DivineFavor",
+  "type": "object",
+  "properties": {
+    "staked_amount": {
+      "type": "number",
+      "description": "Amount of divine currency currently staked"
+    },
+    "favor_level": {
+      "type": "number",
+      "description": "Current divine favor level (1-100)"
+    },
+    "stake_start_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When staking began"
+    },
+    "total_rewards_earned": {
+      "type": "number",
+      "default": 0,
+      "description": "Total favor points accumulated"
+    },
+    "unclaimed_rewards": {
+      "type": "number",
+      "default": 0,
+      "description": "Favor points not yet claimed as QTC"
+    },
+    "total_claimed_qtc": {
+      "type": "number",
+      "default": 0,
+      "description": "Total QTC claimed from rewards"
+    },
+    "interaction_priority": {
+      "type": "string",
+      "enum": [
+        "mortal",
+        "blessed",
+        "exalted",
+        "divine"
+      ],
+      "default": "mortal",
+      "description": "Priority level for temple interactions"
+    },
+    "bonus_multiplier": {
+      "type": "number",
+      "default": 1.0,
+      "description": "Reward multiplier based on stake amount"
+    },
+    "last_claim_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When rewards were last claimed"
+    },
+    "last_reward_calculation": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last automatic reward distribution"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether stake is currently active"
+    }
+  },
+  "required": [
+    "staked_amount",
+    "favor_level",
+    "stake_start_date"
+  ]
+}

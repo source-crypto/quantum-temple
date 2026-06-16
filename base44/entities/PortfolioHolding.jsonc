@@ -1,0 +1,73 @@
+{
+  "name": "PortfolioHolding",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Owner email (optional, inferred from auth)"
+    },
+    "asset_symbol": {
+      "type": "string",
+      "enum": [
+        "QTC",
+        "BTC",
+        "ETH",
+        "USDT",
+        "USDC",
+        "SOL"
+      ],
+      "description": "Asset ticker"
+    },
+    "quantity": {
+      "type": "number",
+      "description": "Asset amount"
+    },
+    "acquisition_cost_usd": {
+      "type": "number",
+      "default": 0,
+      "description": "Total cost basis in USD"
+    },
+    "wallet_address": {
+      "type": "string",
+      "description": "Source wallet or account"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "csv",
+        "wallet"
+      ],
+      "default": "csv",
+      "description": "How the holding was added"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Optional tags"
+    }
+  },
+  "required": [
+    "asset_symbol",
+    "quantity"
+  ],
+  "rls": {
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

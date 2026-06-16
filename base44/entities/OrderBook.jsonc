@@ -1,0 +1,85 @@
+{
+  "name": "OrderBook",
+  "type": "object",
+  "properties": {
+    "market_id": {
+      "type": "string",
+      "description": "Reference to market"
+    },
+    "token_id": {
+      "type": "string",
+      "description": "Token/asset identifier"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Orderbook snapshot timestamp"
+    },
+    "bids": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "price": {
+            "type": "number"
+          },
+          "size": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Buy orders (bids)"
+    },
+    "asks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "price": {
+            "type": "number"
+          },
+          "size": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Sell orders (asks)"
+    },
+    "best_bid": {
+      "type": "number",
+      "description": "Highest bid price"
+    },
+    "best_ask": {
+      "type": "number",
+      "description": "Lowest ask price"
+    },
+    "spread": {
+      "type": "number",
+      "description": "Bid-ask spread"
+    },
+    "total_bid_volume": {
+      "type": "number",
+      "default": 0,
+      "description": "Total volume of all bids"
+    },
+    "total_ask_volume": {
+      "type": "number",
+      "default": 0,
+      "description": "Total volume of all asks"
+    },
+    "min_order_size": {
+      "type": "number",
+      "default": 5,
+      "description": "Minimum order size"
+    },
+    "tick_size": {
+      "type": "number",
+      "default": 0.001,
+      "description": "Price tick size"
+    }
+  },
+  "required": [
+    "market_id",
+    "timestamp"
+  ]
+}

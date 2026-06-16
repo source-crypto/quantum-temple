@@ -1,0 +1,44 @@
+{
+  "name": "SchemaAuditLog",
+  "type": "object",
+  "properties": {
+    "audit_type": {
+      "type": "string",
+      "enum": [
+        "schema",
+        "integrity",
+        "profiling",
+        "full"
+      ],
+      "description": "Type of audit executed"
+    },
+    "issues_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Total number of issues found"
+    },
+    "warnings_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Total number of warnings found"
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Actionable recommendations"
+    },
+    "results": {
+      "type": "object",
+      "description": "Detailed audit results per entity/check"
+    },
+    "performed_by": {
+      "type": "string",
+      "description": "Email of the user performing the audit"
+    }
+  },
+  "required": [
+    "audit_type"
+  ]
+}

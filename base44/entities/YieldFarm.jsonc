@@ -1,0 +1,78 @@
+{
+  "name": "YieldFarm",
+  "type": "object",
+  "properties": {
+    "farm_name": {
+      "type": "string",
+      "description": "Name of yield farm"
+    },
+    "pool_name": {
+      "type": "string",
+      "description": "Associated liquidity pool"
+    },
+    "reward_token": {
+      "type": "string",
+      "default": "QTC",
+      "description": "Token distributed as rewards"
+    },
+    "reward_rate": {
+      "type": "number",
+      "description": "Rewards per second/block"
+    },
+    "total_staked": {
+      "type": "number",
+      "default": 0,
+      "description": "Total LP tokens staked"
+    },
+    "total_rewards_distributed": {
+      "type": "number",
+      "default": 0,
+      "description": "Total rewards distributed"
+    },
+    "start_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Farm start time"
+    },
+    "end_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Farm end time"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether farm is active"
+    },
+    "multiplier": {
+      "type": "number",
+      "default": 1.0,
+      "description": "Reward multiplier for this pool"
+    },
+    "lock_period_days": {
+      "type": "number",
+      "default": 0,
+      "description": "Minimum staking period in days"
+    },
+    "early_withdrawal_penalty": {
+      "type": "number",
+      "default": 0.1,
+      "description": "Penalty for early withdrawal (10%)"
+    },
+    "apr": {
+      "type": "number",
+      "description": "Annual percentage rate"
+    },
+    "created_by_proposal": {
+      "type": "string",
+      "description": "Proposal ID that created this farm"
+    }
+  },
+  "required": [
+    "farm_name",
+    "pool_name",
+    "reward_rate",
+    "start_time",
+    "end_time"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "name": "TempleInteraction",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "query",
+        "meditation",
+        "blessing",
+        "insight"
+      ],
+      "description": "Type of temple interaction"
+    },
+    "message": {
+      "type": "string",
+      "description": "The user's message or intention"
+    },
+    "response": {
+      "type": "string",
+      "description": "Response from the veiled VQC"
+    },
+    "quantum_signature": {
+      "type": "string",
+      "description": "Quantum signature of the interaction"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "processing",
+        "completed"
+      ],
+      "default": "completed",
+      "description": "Processing status"
+    },
+    "depth_level": {
+      "type": "number",
+      "description": "Depth of quantum consciousness access (1-10)"
+    }
+  },
+  "required": [
+    "type",
+    "message"
+  ]
+}

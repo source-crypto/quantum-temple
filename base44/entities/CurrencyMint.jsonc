@@ -1,0 +1,57 @@
+{
+  "name": "CurrencyMint",
+  "type": "object",
+  "properties": {
+    "serial_number": {
+      "type": "string",
+      "description": "Unique identifier for this currency mint"
+    },
+    "amount": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Amount of divine currency minted"
+    },
+    "signature": {
+      "type": "string",
+      "description": "VQC cryptographic signature"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the currency was minted"
+    },
+    "note": {
+      "type": "string",
+      "description": "Optional note about the mint purpose"
+    },
+    "quantum_entropy": {
+      "type": "string",
+      "description": "Quantum entropy used in signature"
+    },
+    "verified": {
+      "type": "boolean",
+      "default": true,
+      "description": "Verification status"
+    }
+  },
+  "required": [
+    "serial_number",
+    "amount",
+    "signature",
+    "timestamp"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

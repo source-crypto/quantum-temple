@@ -1,0 +1,125 @@
+{
+  "name": "TradingOrder",
+  "type": "object",
+  "properties": {
+    "order_id": {
+      "type": "string",
+      "description": "Unique order identifier"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "User who placed the order"
+    },
+    "market_id": {
+      "type": "string",
+      "description": "Reference to market"
+    },
+    "order_type": {
+      "type": "string",
+      "enum": [
+        "limit",
+        "market",
+        "stop_loss",
+        "take_profit"
+      ],
+      "description": "Type of order"
+    },
+    "side": {
+      "type": "string",
+      "enum": [
+        "buy",
+        "sell"
+      ],
+      "description": "Order side"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Order amount"
+    },
+    "limit_price": {
+      "type": "number",
+      "description": "Limit price (for limit orders)"
+    },
+    "stop_price": {
+      "type": "number",
+      "description": "Stop price (for stop-loss/take-profit)"
+    },
+    "trigger_price": {
+      "type": "number",
+      "description": "Price at which order triggers"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "active",
+        "filled",
+        "partially_filled",
+        "cancelled",
+        "expired"
+      ],
+      "default": "active",
+      "description": "Order status"
+    },
+    "filled_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Amount filled so far"
+    },
+    "average_fill_price": {
+      "type": "number",
+      "description": "Average price of fills"
+    },
+    "time_in_force": {
+      "type": "string",
+      "enum": [
+        "GTC",
+        "IOC",
+        "FOK",
+        "DAY"
+      ],
+      "default": "GTC",
+      "description": "Good-Till-Cancelled, Immediate-Or-Cancel, Fill-Or-Kill, Day"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Order creation time"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Order expiration time"
+    },
+    "filled_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When order was filled"
+    }
+  },
+  "required": [
+    "order_id",
+    "user_email",
+    "market_id",
+    "order_type",
+    "side",
+    "amount"
+  ],
+  "rls": {
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

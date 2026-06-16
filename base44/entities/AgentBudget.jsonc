@@ -1,0 +1,33 @@
+{
+  "name": "AgentBudget",
+  "type": "object",
+  "properties": {
+    "agent_name": {
+      "type": "string",
+      "description": "Agent identifier (e.g., trade_offers_liquidity)"
+    },
+    "daily_budget_usd": {
+      "type": "number",
+      "default": 0,
+      "description": "Approved daily budget in USD"
+    },
+    "remaining_today_usd": {
+      "type": "number",
+      "default": 0,
+      "description": "Remaining spend for the current day in USD"
+    },
+    "last_reset_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Last reset date in YYYY-MM-DD"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes or policy for this agent"
+    }
+  },
+  "required": [
+    "agent_name",
+    "daily_budget_usd"
+  ]
+}

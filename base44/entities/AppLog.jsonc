@@ -1,0 +1,40 @@
+{
+  "name": "AppLog",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "description": "Log category (audit, alert, webhook, integration)"
+    },
+    "message": {
+      "type": "string",
+      "description": "Human readable message"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "info",
+        "warning",
+        "error"
+      ],
+      "default": "info"
+    },
+    "source": {
+      "type": "string",
+      "description": "Originating function/module"
+    },
+    "details": {
+      "type": "object",
+      "description": "Structured details"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event time"
+    }
+  },
+  "required": [
+    "type",
+    "message"
+  ]
+}

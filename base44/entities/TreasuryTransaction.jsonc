@@ -1,0 +1,81 @@
+{
+  "name": "TreasuryTransaction",
+  "type": "object",
+  "properties": {
+    "transaction_type": {
+      "type": "string",
+      "enum": [
+        "fee_collection",
+        "proposal_distribution",
+        "reserve_adjustment",
+        "yield_payout",
+        "emergency_withdrawal"
+      ],
+      "description": "Type of treasury transaction"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Transaction amount"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "QTC",
+        "USD",
+        "BTC",
+        "ETH"
+      ],
+      "description": "Currency of transaction"
+    },
+    "from_address": {
+      "type": "string",
+      "description": "Source address"
+    },
+    "to_address": {
+      "type": "string",
+      "description": "Destination address"
+    },
+    "proposal_id": {
+      "type": "string",
+      "description": "Related proposal ID (if applicable)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Transaction description"
+    },
+    "tx_hash": {
+      "type": "string",
+      "description": "Transaction hash for verification"
+    },
+    "imf_code": {
+      "type": "string",
+      "description": "IMF BOP coding system classification"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed",
+        "failed",
+        "reversed"
+      ],
+      "default": "completed",
+      "description": "Transaction status"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When transaction occurred"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Governance approval reference"
+    }
+  },
+  "required": [
+    "transaction_type",
+    "amount",
+    "currency",
+    "timestamp"
+  ]
+}

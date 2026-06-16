@@ -1,0 +1,110 @@
+{
+  "name": "CentralBankTransaction",
+  "type": "object",
+  "properties": {
+    "transaction_id": {
+      "type": "string",
+      "description": "Unique transaction identifier"
+    },
+    "admin_email": {
+      "type": "string",
+      "description": "Administrator account email"
+    },
+    "transaction_type": {
+      "type": "string",
+      "enum": [
+        "usd_contribution",
+        "liquidity_injection",
+        "reserve_funding",
+        "protocol_support"
+      ],
+      "description": "Type of Central Bank transaction"
+    },
+    "usd_amount": {
+      "type": "number",
+      "description": "USD amount contributed"
+    },
+    "qtc_generated": {
+      "type": "number",
+      "default": 0,
+      "description": "QTC generated from contribution"
+    },
+    "funded_by": {
+      "type": "string",
+      "enum": [
+        "protocol_fund",
+        "founding_fathers_fund",
+        "central_bank_gateway"
+      ],
+      "default": "protocol_fund",
+      "description": "Source of funding"
+    },
+    "cost_to_admin": {
+      "type": "number",
+      "default": 0,
+      "description": "Cost to admin (always 0 for protocol-funded)"
+    },
+    "protocol_fund_used": {
+      "type": "number",
+      "description": "Amount used from protocol fund"
+    },
+    "central_bank_network": {
+      "type": "string",
+      "description": "Central Bank network used (Federal Reserve, ECB, etc.)"
+    },
+    "authorization_code": {
+      "type": "string",
+      "description": "Authorization code from Central Bank"
+    },
+    "settlement_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "processing",
+        "settled",
+        "cleared",
+        "failed"
+      ],
+      "default": "pending",
+      "description": "Settlement status"
+    },
+    "imf_bop_code": {
+      "type": "string",
+      "description": "IMF Balance of Payments code"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Transaction timestamp"
+    },
+    "settlement_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Settlement completion date"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Transaction notes or memo"
+    }
+  },
+  "required": [
+    "transaction_id",
+    "admin_email",
+    "transaction_type",
+    "usd_amount"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

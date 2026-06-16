@@ -1,0 +1,192 @@
+{
+  "name": "CrossChainBridge",
+  "type": "object",
+  "properties": {
+    "bridge_id": {
+      "type": "string",
+      "description": "Unique bridge transaction identifier"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "User initiating bridge"
+    },
+    "source_chain": {
+      "type": "string",
+      "enum": [
+        "bitcoin",
+        "ethereum",
+        "solana",
+        "polkadot",
+        "cardano",
+        "polygon",
+        "arbitrum",
+        "optimism",
+        "base",
+        "quantum_temple"
+      ],
+      "description": "Source blockchain"
+    },
+    "destination_chain": {
+      "type": "string",
+      "enum": [
+        "bitcoin",
+        "ethereum",
+        "solana",
+        "polkadot",
+        "cardano",
+        "polygon",
+        "arbitrum",
+        "optimism",
+        "base",
+        "quantum_temple"
+      ],
+      "description": "Destination blockchain"
+    },
+    "source_currency": {
+      "type": "string",
+      "enum": [
+        "BTC",
+        "ETH",
+        "SOL",
+        "DOT",
+        "ADA",
+        "MATIC",
+        "QTC"
+      ],
+      "description": "Currency being bridged from source"
+    },
+    "destination_currency": {
+      "type": "string",
+      "enum": [
+        "BTC",
+        "ETH",
+        "SOL",
+        "DOT",
+        "ADA",
+        "MATIC",
+        "QTC"
+      ],
+      "description": "Currency received on destination"
+    },
+    "source_amount": {
+      "type": "number",
+      "description": "Amount sent from source chain"
+    },
+    "destination_amount": {
+      "type": "number",
+      "description": "Amount received on destination"
+    },
+    "exchange_rate": {
+      "type": "number",
+      "description": "Exchange rate at bridge time"
+    },
+    "bridge_fee": {
+      "type": "number",
+      "default": 0,
+      "description": "Bridge transaction fee"
+    },
+    "gas_fee_native": {
+      "type": "number",
+      "default": 0,
+      "description": "Gas fee in native chain currency"
+    },
+    "gas_fee_usd": {
+      "type": "number",
+      "default": 0,
+      "description": "Gas fee in USD"
+    },
+    "estimated_time_minutes": {
+      "type": "number",
+      "default": 0,
+      "description": "Estimated completion time in minutes"
+    },
+    "source_address": {
+      "type": "string",
+      "description": "Source wallet address"
+    },
+    "destination_address": {
+      "type": "string",
+      "description": "Destination wallet address"
+    },
+    "escrow_address": {
+      "type": "string",
+      "description": "Quantum escrow contract address"
+    },
+    "transaction_hash": {
+      "type": "string",
+      "description": "Primary transaction hash"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "initiated",
+        "escrow_locked",
+        "confirming",
+        "releasing",
+        "completed",
+        "failed",
+        "refunded"
+      ],
+      "default": "initiated",
+      "description": "Bridge status"
+    },
+    "confirmations": {
+      "type": "number",
+      "default": 0,
+      "description": "Blockchain confirmations received"
+    },
+    "required_confirmations": {
+      "type": "number",
+      "default": 6,
+      "description": "Confirmations required for completion"
+    },
+    "quantum_signature": {
+      "type": "string",
+      "description": "VQC signature for authenticity"
+    },
+    "divine_seal": {
+      "type": "boolean",
+      "default": true,
+      "description": "Divine ordinance protection active"
+    },
+    "initiated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Bridge initiation timestamp"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Bridge completion timestamp"
+    },
+    "estimated_completion": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Estimated completion time"
+    }
+  },
+  "required": [
+    "bridge_id",
+    "user_email",
+    "source_chain",
+    "destination_chain",
+    "source_amount"
+  ],
+  "rls": {
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

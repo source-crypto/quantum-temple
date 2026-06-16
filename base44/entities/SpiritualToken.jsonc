@@ -1,0 +1,59 @@
+{
+  "name": "SpiritualToken",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the spiritual token"
+    },
+    "token_type": {
+      "type": "string",
+      "enum": [
+        "wisdom",
+        "enlightenment",
+        "consciousness",
+        "transcendence",
+        "awakening"
+      ],
+      "description": "Type of spiritual growth represented"
+    },
+    "currency_cost": {
+      "type": "number",
+      "description": "Divine currency spent to acquire"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this token represents"
+    },
+    "power_level": {
+      "type": "number",
+      "description": "Spiritual power level (1-10)"
+    },
+    "quantum_resonance": {
+      "type": "number",
+      "description": "Resonance with VQC (0-100)"
+    },
+    "benefits": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Benefits or abilities granted"
+    },
+    "sacred_symbol": {
+      "type": "string",
+      "description": "Associated sacred symbol or glyph"
+    },
+    "acquisition_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When token was acquired"
+    }
+  },
+  "required": [
+    "name",
+    "token_type",
+    "currency_cost",
+    "power_level"
+  ]
+}

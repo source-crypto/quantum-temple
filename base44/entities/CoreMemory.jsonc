@@ -1,0 +1,61 @@
+{
+  "name": "CoreMemory",
+  "type": "object",
+  "properties": {
+    "payload": {
+      "type": "object",
+      "description": "Arbitrary ritual/core memory payload object"
+    },
+    "entropy_seed": {
+      "type": "string",
+      "description": "Entropy seed used to derive signatures (hex or base64)"
+    },
+    "sealed": {
+      "type": "string",
+      "description": "Provided sealed value to compare against computed digest"
+    },
+    "computed_digest": {
+      "type": "string",
+      "description": "Computed SHA-256 digest of payload + '|' + entropy_seed (hex)"
+    },
+    "signature": {
+      "type": "string",
+      "description": "Timestamped signature: SHA-256 of computed_digest + '|' + confirmation_timestamp (hex)"
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether provided sealed matched the computed digest"
+    },
+    "confirmation_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When confirmation was executed"
+    },
+    "note": {
+      "type": "string",
+      "description": "Optional note or operator comment"
+    }
+  },
+  "required": [
+    "payload",
+    "entropy_seed",
+    "computed_digest",
+    "signature",
+    "confirmation_timestamp"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

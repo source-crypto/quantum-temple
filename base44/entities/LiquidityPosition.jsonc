@@ -1,0 +1,72 @@
+{
+  "name": "LiquidityPosition",
+  "type": "object",
+  "properties": {
+    "pool_name": {
+      "type": "string",
+      "description": "Reference to liquidity pool"
+    },
+    "provider_email": {
+      "type": "string",
+      "description": "Email of liquidity provider"
+    },
+    "liquidity_tokens": {
+      "type": "number",
+      "default": 0,
+      "description": "LP tokens held by provider"
+    },
+    "token_a_deposited": {
+      "type": "number",
+      "description": "Amount of token A deposited"
+    },
+    "token_b_deposited": {
+      "type": "number",
+      "description": "Amount of token B deposited"
+    },
+    "share_percentage": {
+      "type": "number",
+      "description": "Provider's share of pool (0-100)"
+    },
+    "total_fees_earned": {
+      "type": "number",
+      "default": 0,
+      "description": "Total fees earned from pool"
+    },
+    "unclaimed_fees_a": {
+      "type": "number",
+      "default": 0,
+      "description": "Unclaimed fees in token A"
+    },
+    "unclaimed_fees_b": {
+      "type": "number",
+      "default": 0,
+      "description": "Unclaimed fees in token B"
+    },
+    "deposit_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When liquidity was provided"
+    },
+    "last_claim_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last fee claim date"
+    },
+    "is_staked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether LP tokens are staked in yield farm"
+    },
+    "staked_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When LP tokens were staked"
+    }
+  },
+  "required": [
+    "pool_name",
+    "provider_email",
+    "token_a_deposited",
+    "token_b_deposited"
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "name": "Payment",
+  "type": "object",
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "description": "Stripe Checkout Session ID"
+    },
+    "payment_intent_id": {
+      "type": "string",
+      "description": "Stripe Payment Intent ID"
+    },
+    "subscription_id": {
+      "type": "string",
+      "description": "Stripe Subscription ID if applicable"
+    },
+    "event_type": {
+      "type": "string",
+      "description": "Stripe event type that produced this record"
+    },
+    "amount_total": {
+      "type": "number",
+      "description": "Total amount for the payment in smallest currency unit (e.g., cents)"
+    },
+    "currency": {
+      "type": "string",
+      "description": "Currency code (e.g., usd)"
+    },
+    "customer_email": {
+      "type": "string",
+      "description": "Customer email associated with the payment"
+    },
+    "tier": {
+      "type": "string",
+      "description": "Tier name (seed/adept/oracle) or 'custom'"
+    },
+    "payment_status": {
+      "type": "string",
+      "description": "Payment status from Stripe (e.g., paid, unpaid, no_payment_required)"
+    },
+    "subscription_status": {
+      "type": "string",
+      "description": "Subscription status if applicable (active, canceled, past_due, etc.)"
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "live",
+        "test"
+      ],
+      "description": "Environment mode"
+    },
+    "event_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the Stripe event occurred (ISO)"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional metadata from Stripe"
+    },
+    "details": {
+      "type": "object",
+      "description": "Optional details blob"
+    }
+  },
+  "required": [
+    "event_type",
+    "event_time"
+  ]
+}

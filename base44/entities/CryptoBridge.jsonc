@@ -1,0 +1,130 @@
+{
+  "name": "CryptoBridge",
+  "type": "object",
+  "properties": {
+    "bridge_type": {
+      "type": "string",
+      "enum": [
+        "btc_to_qtc",
+        "qtc_to_btc",
+        "eth_to_qtc",
+        "qtc_to_eth"
+      ],
+      "description": "Type of cross-chain bridge transaction"
+    },
+    "source_chain": {
+      "type": "string",
+      "enum": [
+        "bitcoin",
+        "ethereum",
+        "quantum_temple"
+      ],
+      "description": "Source blockchain"
+    },
+    "destination_chain": {
+      "type": "string",
+      "enum": [
+        "bitcoin",
+        "ethereum",
+        "quantum_temple"
+      ],
+      "description": "Destination blockchain"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "User initiating the bridge"
+    },
+    "source_amount": {
+      "type": "number",
+      "description": "Amount sent from source chain"
+    },
+    "destination_amount": {
+      "type": "number",
+      "description": "Amount received on destination chain"
+    },
+    "exchange_rate": {
+      "type": "number",
+      "description": "Exchange rate at time of bridge"
+    },
+    "source_address": {
+      "type": "string",
+      "description": "Source wallet/address"
+    },
+    "destination_address": {
+      "type": "string",
+      "description": "Destination wallet/address"
+    },
+    "btc_transaction_hash": {
+      "type": "string",
+      "description": "Bitcoin transaction hash (if applicable)"
+    },
+    "eth_transaction_hash": {
+      "type": "string",
+      "description": "Ethereum transaction hash (if applicable)"
+    },
+    "qtc_transaction_hash": {
+      "type": "string",
+      "description": "Quantum Temple transaction hash"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirming",
+        "completed",
+        "failed"
+      ],
+      "default": "pending",
+      "description": "Bridge transaction status"
+    },
+    "confirmations": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of blockchain confirmations"
+    },
+    "bridge_fee": {
+      "type": "number",
+      "default": 0,
+      "description": "Fee charged for bridging"
+    },
+    "quantum_signature": {
+      "type": "string",
+      "description": "VQC signature for bridge authenticity"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When bridge was initiated"
+    },
+    "completion_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When bridge completed"
+    }
+  },
+  "required": [
+    "bridge_type",
+    "source_chain",
+    "destination_chain",
+    "user_email",
+    "source_amount",
+    "destination_amount"
+  ],
+  "rls": {
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}
