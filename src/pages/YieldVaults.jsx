@@ -5,8 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { toast } from "@/components/ui/use-toast";
-import { RefreshCw, TrendingUp, Users, Plus, BarChart3 } from "lucide-react";
+import { RefreshCw, TrendingUp, Users, Plus, BarChart3, Activity, Send } from "lucide-react";
 import VaultCard from "../components/vaults/VaultCard";
 import VaultPerformanceChart from "../components/vaults/VaultPerformanceChart";
 import StrategyVaultCard from "../components/vaults/StrategyVaultCard";
@@ -192,6 +193,39 @@ export default function YieldVaults() {
               </CardContent>
             </Card>
           </div>
+        </motion.div>
+
+        {/* Quick Status Strip */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+          <Card className="bg-slate-900/60 border-purple-900/30 overflow-hidden">
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2 mb-3">
+                <Activity className="w-4 h-4 text-emerald-400" />
+                <span className="text-xs font-semibold text-purple-300 tracking-wide uppercase">Live Vault Monitors</span>
+                <Badge className="text-[10px] bg-emerald-900/40 text-emerald-300 border-emerald-600/40 ml-auto">
+                  <RefreshCw className="w-3 h-3 animate-spin mr-0.5" /> Live
+                </Badge>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                {VAULTS.map((v) => (
+                  <div key={v.id} className="bg-slate-800/50 rounded-lg p-2.5 border border-purple-900/20 hover:border-purple-500/30 transition-colors cursor-default">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-semibold text-purple-200 truncate max-w-[80px]">{v.name.split(" ").slice(0, 2).join(" ")}</span>
+                      <Badge className={`text-[10px] px-1.5 py-px border ${v.risk === "low" ? "text-emerald-400 border-emerald-500/40 bg-emerald-500/10" : v.risk === "medium" ? "text-yellow-400 border-yellow-500/40 bg-yellow-500/10" : "text-red-400 border-red-500/40 bg-red-500/10"}`}>
+                        {v.risk}
+                      </Badge>
+                    </div>
+                    <div className="text-lg font-bold text-emerald-300 mb-0.5">{v.current_apy.toFixed(1)}%</div>
+                    <div className="flex items-center justify-between text-[10px] text-purple-400/60">
+                      <span>{(v.tvl / 1000).toFixed(0)}K TVL</span>
+                      <span className="text-emerald-400/80">{v.capacity_pct}% cap</span>
+                    </div>
+                    <Progress value={v.capacity_pct} className="h-1 mt-1.5 bg-slate-700 [&>div]:bg-emerald-500" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
         {/* Performance chart */}

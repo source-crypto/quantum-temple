@@ -26,7 +26,6 @@ export default function VaultCard({ vault, user, userBalance }) {
       const amt = parseFloat(depositAmt);
       if (!amt || amt <= 0) throw new Error("Enter a valid amount");
       if (amt > (userBalance?.available_balance || 0)) throw new Error("Insufficient balance");
-      // YieldStake entity requires: farm_name, staker_email, lp_tokens_staked
       await base44.entities.YieldStake.create({
         farm_name: vault.name,
         staker_email: user.email,
@@ -48,6 +47,42 @@ export default function VaultCard({ vault, user, userBalance }) {
       qc.invalidateQueries(["yieldStakes"]);
       setDepositAmt("");
       toast({ title: "Deposited", description: `${depositAmt} QTC deposited into ${vault.name}` });
+    },
+    onError: (e) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
+  const withdraw = useMutation({
+    mutationFn: async () => {
+      const amt = parseFloat(withdrawAmt);
+      if (!amt || amt <= 0) throw new Error("Enter a valid amount");
+      const stakes = await base44.entities.YieldStake.filter({
+        staker_email: user.email,
+        farm_name: vault.name,
+        is_active: true,
+      });
+      const totalStaked = stakes.reduce((s, st) => s + (st.lp_tokens_staked || 0), 0);
+      if (amt > totalStaked) throw new Error(`Insufficient staked balance. Max: ${totalStaked.toLocaleString()} QTC`);
+      await base44.entities.YieldStake.create({
+        farm_name: vault.name,
+        staker_email: user.email,
+        lp_tokens_staked: -amt,
+        stake_date: new Date().toISOString(),
+        is_active: false,
+        rewards_earned: 0,
+        unclaimed_rewards: 0,
+      });
+      await base44.entities.UserBalance.filter({ user_email: user.email }).then(async (bs) => {
+        if (bs[0]) await base44.entities.UserBalance.update(bs[0].id, {
+          available_balance: (bs[0].available_balance || 0) + amt,
+          staked_balance: (bs[0].staked_balance || 0) - amt,
+        });
+      });
+    },
+    onSuccess: () => {
+      qc.invalidateQueries(["userBalance"]);
+      qc.invalidateQueries(["yieldStakes"]);
+      setWithdrawAmt("");
+      toast({ title: "Withdrawn", description: `${withdrawAmt} QTC withdrawn from ${vault.name}` });
     },
     onError: (e) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
@@ -138,7 +173,7 @@ export default function VaultCard({ vault, user, userBalance }) {
                     onChange={(e) => setWithdrawAmt(e.target.value)}
                     className="h-8 text-sm bg-slate-800 border-purple-800/50 text-purple-100"
                   />
-                  <Button size="sm" variant="outline" className="border-red-800/50 text-red-400 hover:bg-red-900/20 shrink-0">
+                  <Button size="sm" variant="outline" className="border-red-800/50 text-red-400 hover:bg-red-900/20 shrink-0" onClick={() => withdraw.mutate()} disabled={withdraw.isPending}>
                     <Shield className="w-3.5 h-3.5" />
                   </Button>
                 </div>

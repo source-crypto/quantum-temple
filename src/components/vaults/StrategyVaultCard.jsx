@@ -193,13 +193,19 @@ export default function StrategyVaultCard({ vault, user, userBalance, isFollowin
                 )}
               </div>
               <div className="space-y-1.5">
-                {allocations.map((a, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs">
-                    <span className="text-purple-300 w-28 shrink-0">{a.oracle_node}</span>
-                    <Progress value={Number(a.weight_pct)} className="flex-1 h-1.5 bg-slate-800" />
-                    <span className="text-cyan-400 w-10 text-right">{a.weight_pct}%</span>
-                  </div>
-                ))}
+               {allocations.map((a, i) => {
+                 const nodeColors = {
+                   "Alpha Oracle": "bg-purple-500", "Beta Oracle": "bg-cyan-500",
+                   "Gamma Oracle": "bg-emerald-500", "Delta Oracle": "bg-amber-500", "Omega Oracle": "bg-indigo-500"
+                 };
+                 return (
+                   <div key={i} className="flex items-center gap-2 text-xs">
+                     <span className="text-purple-300 w-28 shrink-0">{a.oracle_node}</span>
+                     <Progress value={Number(a.weight_pct)} className={`flex-1 h-1.5 bg-slate-800 [&>div]:${nodeColors[a.oracle_node] || "bg-cyan-500"}`} />
+                     <span className="text-cyan-400 w-10 text-right">{a.weight_pct}%</span>
+                   </div>
+                 );
+               })}
               </div>
             </div>
           )}
@@ -221,7 +227,7 @@ export default function StrategyVaultCard({ vault, user, userBalance, isFollowin
                   className="h-8 text-sm bg-slate-800 border-cyan-800/50 text-purple-100"
                 />
                 <Button size="sm" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 shrink-0" onClick={(e) => { e.stopPropagation(); follow.mutate(); }} disabled={follow.isPending}>
-                  <Copy className="w-3.5 h-3.5 mr-1" /> Follow &amp; Sync
+                  <Users className="w-3.5 h-3.5 mr-1" /> Follow &amp; Sync
                 </Button>
               </div>
               {amount && (

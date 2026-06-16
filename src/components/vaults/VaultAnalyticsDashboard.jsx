@@ -74,6 +74,32 @@ export default function VaultAnalyticsDashboard({ vaults = [], onSendReport }) {
 
   return (
     <div className="space-y-6">
+      {/* One-Click Report Card */}
+      {onSendReport && (
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+          <Card className="bg-gradient-to-r from-slate-900/80 via-purple-950/40 to-slate-900/80 border-purple-700/40">
+            <CardContent className="p-4 flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-purple-800 rounded-xl flex items-center justify-center shadow-lg shadow-purple-600/30">
+                  <Clock className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-purple-200">Weekly Performance Report</div>
+                  <div className="text-xs text-purple-400/70">Get a full vault summary delivered to your email — one click</div>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                className="bg-gradient-to-r from-violet-600 to-purple-700 hover:from-violet-500 hover:to-purple-600 text-white shadow-lg shadow-purple-600/30"
+                onClick={onSendReport}
+              >
+                <Clock className="w-3.5 h-3.5 mr-1" /> Send Weekly Report
+              </Button>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
       {/* APY Trend Chart */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
         <Card className="bg-slate-900/60 border-purple-900/30">
